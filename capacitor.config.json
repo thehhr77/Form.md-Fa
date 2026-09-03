@@ -1,6 +1,6 @@
 {
-  "appId": "com.thehhr.form",
-  "appName": "Form",
+  "appId": "com.thehhr.formfa",
+  "appName": "Form FA",
   "webDir": "www",
   "server": {
     "androidScheme": "https"
