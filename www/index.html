@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#000000">
-  <meta name="description" content="Browse 1,300+ exercises, build routines, track training progress, and manage nutrition, macros, and hydration.">
-  <title>Form — Training & Nutrition</title>
+  <meta name="description" content="بیش از ۱۳۰۰ حرکت با انیمیشن، ساخت برنامه تمرینی، ثبت پیشرفت تمرین و مدیریت تغذیه، درشت‌مغذی‌ها و آب بدن.">
+  <title>Form — تمرین و تغذیه</title>
   <script>
     (function () {
       try {
@@ -29,6 +29,8 @@
     document.documentElement.setAttribute('data-boot', 'loading');
     setTimeout(function(){document.documentElement.removeAttribute('data-boot')},2500);
   </script>
+  <link rel="preload" href="fonts/Vazirmatn-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/Vazirmatn-Bold.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -70,15 +72,15 @@
   <main class="shell">
     <div class="content">
       <section class="main" id="workoutTabPanel">
-        <div hidden><select id="sortBy" aria-label="Sort exercises"><option value="custom" disabled>Custom</option><option value="name">Name A–Z</option><option value="name-desc">Name Z–A</option><option value="category">Body part</option><option value="id">Dataset order</option></select><select id="mainRoutineSelect" aria-label="Filter by routine"><option value="">All exercises</option></select></div>
+        <div hidden><select id="sortBy" aria-label="مرتب‌سازی حرکات"><option value="custom" disabled>سفارشی</option><option value="name">نام الف–ی</option><option value="name-desc">نام ی–الف</option><option value="category">بخش بدن</option><option value="id">ترتیب پیش‌فرض</option></select><select id="mainRoutineSelect" aria-label="فیلتر بر اساس برنامه"><option value="">همه حرکات</option></select></div>
         <header class="mobile-phone-header">
           <div class="mobile-phone-header-top">
-            <h1 class="mobile-phone-title">Exercises</h1>
+            <h1 class="mobile-phone-title">حرکات</h1>
           </div>
-          <div class="mobile-phone-subtitle"><span id="mobileResultCount">0 exercises</span> <span id="mobileResultContext">with animations</span></div>
+          <div class="mobile-phone-subtitle"><span id="mobileResultCount">۰ حرکت</span> <span id="mobileResultContext">با انیمیشن</span></div>
           <div class="mobile-search-row">
-            <label class="mobile-top-search"><button type="button" id="filterPillsToggle" class="search-icon-btn" aria-expanded="false" aria-controls="filterPills" aria-label="Filter exercises"><svg class="icon"><use href="#icon-search"/></svg><svg class="icon filter-chevron"><use href="#icon-chevron"/></svg></button><input id="search" type="search" placeholder="Search..." autocomplete="off" aria-label="Search exercises"><button class="mobile-search-sort-btn" id="mobileSortBtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="mobileSortMenu" aria-label="Sort exercises"><svg class="icon"><use href="#icon-sort"/></svg></button><button class="mobile-search-start-btn" id="mobileStartBtn" type="button" aria-label="Start selected routine" hidden>Start</button><button class="mobile-search-reset-btn" id="mobileResetFiltersBtn" type="button" aria-label="Reset filters"><svg class="icon"><use href="#icon-reset"/></svg></button></label>
-            <div class="routine-menu custom-select-menu mobile-sort-menu" id="mobileSortMenu" role="menu" aria-label="Sort exercises" hidden></div>
+            <label class="mobile-top-search"><button type="button" id="filterPillsToggle" class="search-icon-btn" aria-expanded="false" aria-controls="filterPills" aria-label="فیلتر حرکات"><svg class="icon"><use href="#icon-search"/></svg><svg class="icon filter-chevron"><use href="#icon-chevron"/></svg></button><input id="search" type="search" placeholder="جستجو..." autocomplete="off" aria-label="جستجوی حرکات"><button class="mobile-search-sort-btn" id="mobileSortBtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="mobileSortMenu" aria-label="مرتب‌سازی حرکات"><svg class="icon"><use href="#icon-sort"/></svg></button><button class="mobile-search-start-btn" id="mobileStartBtn" type="button" aria-label="شروع برنامه انتخاب‌شده" hidden>شروع</button><button class="mobile-search-reset-btn" id="mobileResetFiltersBtn" type="button" aria-label="بازنشانی فیلترها"><svg class="icon"><use href="#icon-reset"/></svg></button></label>
+            <div class="routine-menu custom-select-menu mobile-sort-menu" id="mobileSortMenu" role="menu" aria-label="مرتب‌سازی حرکات" hidden></div>
           </div>
 
           <div class="filter-pills" id="filterPills" hidden>
@@ -92,24 +94,24 @@
 
         <div id="awBanner" hidden></div>
         <div class="grid" id="grid" aria-live="polite"></div>
-        <div class="load"><button id="loadMore" type="button">Load more exercises</button></div>
+        <div class="load"><button id="loadMore" type="button">حرکات بیشتر</button></div>
       </section>
     </div>
   </main>
 </div>
 
-<nav class="mobile-tab-bar" aria-label="Primary navigation" role="tablist">
+<nav class="mobile-tab-bar" aria-label="ناوبری اصلی" role="tablist">
   <span class="tab-indicator" aria-hidden="true"></span>
-  <button class="mobile-nav-button" id="mobileProgressBtn" type="button" role="tab" aria-selected="false" aria-controls="progressBackdrop"><svg class="icon"><use href="#icon-progress"/></svg><span>Stats</span></button>
-  <button class="mobile-nav-button" id="mobilePlanBtn" type="button" role="tab" aria-selected="false" aria-controls="routineDrawer"><svg class="icon"><use href="#icon-routine"/></svg><span>Plans</span></button>
-  <button class="mobile-nav-button" id="mobileWorkoutBtn" type="button" role="tab" aria-selected="true" aria-controls="workoutTabPanel"><svg class="icon"><use href="#icon-dumbbell"/></svg><span>Workout</span></button>
-  <button class="mobile-nav-button" id="mobileFuelBtn" type="button" role="tab" aria-selected="false" aria-controls="fuelBackdrop"><svg class="icon"><use href="#icon-flame"/></svg><span>Fuel</span></button>
-  <button class="mobile-nav-button" id="mobileSettingsTabBtn" type="button" role="tab" aria-selected="false" aria-controls="settingsBackdrop"><svg class="icon"><use href="#icon-settings"/></svg><span>Settings</span></button>
+  <button class="mobile-nav-button" id="mobileProgressBtn" type="button" role="tab" aria-selected="false" aria-controls="progressBackdrop"><svg class="icon"><use href="#icon-progress"/></svg><span>آمار</span></button>
+  <button class="mobile-nav-button" id="mobilePlanBtn" type="button" role="tab" aria-selected="false" aria-controls="routineDrawer"><svg class="icon"><use href="#icon-routine"/></svg><span>برنامه‌ها</span></button>
+  <button class="mobile-nav-button" id="mobileWorkoutBtn" type="button" role="tab" aria-selected="true" aria-controls="workoutTabPanel"><svg class="icon"><use href="#icon-dumbbell"/></svg><span>تمرین</span></button>
+  <button class="mobile-nav-button" id="mobileFuelBtn" type="button" role="tab" aria-selected="false" aria-controls="fuelBackdrop"><svg class="icon"><use href="#icon-flame"/></svg><span>تغذیه</span></button>
+  <button class="mobile-nav-button" id="mobileSettingsTabBtn" type="button" role="tab" aria-selected="false" aria-controls="settingsBackdrop"><svg class="icon"><use href="#icon-settings"/></svg><span>تنظیمات</span></button>
 </nav>
 
-<div class="plan-switch" id="planSwitch" role="tablist" aria-label="Plan sections" hidden>
-  <button type="button" class="plan-switch-btn" data-plan-section="routines" role="tab" aria-selected="true"><svg class="icon"><use href="#icon-routine"/></svg><span>Routines</span></button>
-  <button type="button" class="plan-switch-btn" data-plan-section="meals" role="tab" aria-selected="false"><svg class="icon"><use href="#icon-flame"/></svg><span>Meals</span></button>
+<div class="plan-switch" id="planSwitch" role="tablist" aria-label="بخش‌های برنامه" hidden>
+  <button type="button" class="plan-switch-btn" data-plan-section="routines" role="tab" aria-selected="true"><svg class="icon"><use href="#icon-routine"/></svg><span>برنامه‌های تمرینی</span></button>
+  <button type="button" class="plan-switch-btn" data-plan-section="meals" role="tab" aria-selected="false"><svg class="icon"><use href="#icon-flame"/></svg><span>غذاها</span></button>
 </div>
 
 <div class="modal-backdrop panel-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-hidden="true">
@@ -119,17 +121,17 @@
       <div class="modal-visual">
         <div class="modal-visual-card">
           <img id="modalImage" alt="">
-          <div class="fallback"><svg class="icon"><use href="#icon-movement"/></svg><span>Media unavailable</span></div>
-          <button type="button" class="modal-expand-btn" id="modalExpandBtn" aria-label="View full size"><svg class="icon"><use href="#icon-expand"/></svg></button>
+          <div class="fallback"><svg class="icon"><use href="#icon-movement"/></svg><span>رسانه در دسترس نیست</span></div>
+          <button type="button" class="modal-expand-btn" id="modalExpandBtn" aria-label="نمایش در اندازه کامل"><svg class="icon"><use href="#icon-expand"/></svg></button>
         </div>
-        <div class="modal-media-pill"><svg class="icon"><use href="#icon-pause"/></svg><span>tap to pause</span></div>
+        <div class="modal-media-pill"><svg class="icon"><use href="#icon-pause"/></svg><span>مکث</span></div>
       </div>
       <div class="modal-content">
         <div class="modal-kicker" id="modalKicker"></div>
         <h2 id="modalTitle"></h2>
         <div class="modal-badges" id="modalBadges"></div>
-        <div class="modal-progress"><span id="modalProgressSummary">No progress logged yet</span><div class="modal-progress-actions"><button class="modal-like" id="modalLikeExercise" type="button" aria-label="Save exercise" aria-pressed="false"><svg class="icon"><use href="#icon-heart"/></svg></button><button class="modal-tag-button" id="modalTagButton" type="button" aria-label="Edit tags" aria-haspopup="menu" aria-expanded="false"><svg class="icon"><use href="#icon-hash"/></svg></button><button class="modal-icon-button" id="modalLogProgress" type="button" aria-label="Log progress"><svg class="icon"><use href="#icon-progress"/></svg></button></div></div>
-        <h3 class="section-title">How to perform</h3>
+        <div class="modal-progress"><span id="modalProgressSummary">هنوز پیشرفتی ثبت نشده</span><div class="modal-progress-actions"><button class="modal-like" id="modalLikeExercise" type="button" aria-label="ذخیره حرکت" aria-pressed="false"><svg class="icon"><use href="#icon-heart"/></svg></button><button class="modal-tag-button" id="modalTagButton" type="button" aria-label="ویرایش برچسب‌ها" aria-haspopup="menu" aria-expanded="false"><svg class="icon"><use href="#icon-hash"/></svg></button><button class="modal-icon-button" id="modalLogProgress" type="button" aria-label="ثبت پیشرفت"><svg class="icon"><use href="#icon-progress"/></svg></button></div></div>
+        <h3 class="section-title">نحوه اجرا</h3>
         <div id="modalInstructions"></div>
       </div>
     </div>
@@ -138,30 +140,30 @@
 
 <div class="routine-backdrop panel-backdrop" id="routineBackdrop"></div>
 <aside class="routine-drawer panel-drawer" id="routineDrawer" role="dialog" aria-modal="true" aria-labelledby="routineTitle" aria-hidden="true">
-  <div class="routine-header panel-header"><div><h2 id="routineTitle">Your routines</h2><span class="panel-summary" id="routineHeaderSummary">Create your first routine</span></div></div>
-  <button class="routine-new-toggle" id="routineNewToggle" type="button"><svg class="icon"><use href="#icon-plus"/></svg><span>Add routine</span></button>
-  <div class="routine-switch"><label>Routine manager</label><div class="routine-select-row"><div class="routine-editor-control"><button class="routine-selector-button custom-select-button" id="routineSelectorButton" type="button" aria-haspopup="menu" aria-expanded="false">Select a routine to edit</button><input class="routine-name-editor" id="routineEditName" maxlength="40" placeholder="Routine name" aria-label="Routine name" hidden><div class="routine-menu" id="routineMenu" role="menu" hidden></div></div><button class="routine-like" id="likeRoutine" type="button" aria-label="Like routine" aria-pressed="false" disabled><svg class="icon"><use href="#icon-heart"/></svg></button><button id="deleteRoutine" type="button" aria-label="Delete routine" disabled>Delete</button></div></div>
-  <div class="routine-data-actions" aria-label="Routine copy and import tools"><button id="copyRoutine" type="button"><svg class="icon"><use href="#icon-copy"/></svg><span>Copy</span></button><button id="copyAllRoutines" type="button"><svg class="icon"><use href="#icon-copy-all"/></svg><span>Export</span></button><button id="pasteRoutineToggle" type="button" aria-expanded="false" aria-controls="routinePastePanel"><svg class="icon"><use href="#icon-clipboard"/></svg><span>Import</span></button></div>
-  <div class="routine-paste-panel" id="routinePastePanel" hidden><label for="routinePasteText">Paste routine text</label><textarea id="routinePasteText" spellcheck="false" placeholder="Chest&#10;0003 3 * 10&#10;0001 4 * 12 timed min&#10;0006 3 * 10 weighted&#10;&#10;Arms&#10;0006 3 * 10 unweighted"></textarea><div class="routine-paste-actions"><button id="cancelRoutinePaste" type="button">Cancel</button><button id="addRoutineText" type="button">Add routines</button><button id="importRoutineText" type="button">Replace routines</button></div></div>
+  <div class="routine-header panel-header"><div><h2 id="routineTitle">برنامه‌های تمرینی شما</h2><span class="panel-summary" id="routineHeaderSummary">اولین برنامه خود را بسازید</span></div></div>
+  <button class="routine-new-toggle" id="routineNewToggle" type="button"><svg class="icon"><use href="#icon-plus"/></svg><span>افزودن برنامه</span></button>
+  <div class="routine-switch"><label>مدیریت برنامه‌ها</label><div class="routine-select-row"><div class="routine-editor-control"><button class="routine-selector-button custom-select-button" id="routineSelectorButton" type="button" aria-haspopup="menu" aria-expanded="false">برنامه‌ای برای ویرایش انتخاب کنید</button><input class="routine-name-editor" id="routineEditName" maxlength="40" placeholder="نام برنامه" aria-label="نام برنامه" hidden><div class="routine-menu" id="routineMenu" role="menu" hidden></div></div><button class="routine-like" id="likeRoutine" type="button" aria-label="پسندیدن برنامه" aria-pressed="false" disabled><svg class="icon"><use href="#icon-heart"/></svg></button><button id="deleteRoutine" type="button" aria-label="حذف برنامه" disabled>حذف</button></div></div>
+  <div class="routine-data-actions" aria-label="ابزار کپی و درون‌ریزی برنامه‌ها"><button id="copyRoutine" type="button"><svg class="icon"><use href="#icon-copy"/></svg><span>کپی</span></button><button id="copyAllRoutines" type="button"><svg class="icon"><use href="#icon-copy-all"/></svg><span>خروجی</span></button><button id="pasteRoutineToggle" type="button" aria-expanded="false" aria-controls="routinePastePanel"><svg class="icon"><use href="#icon-clipboard"/></svg><span>ورودی</span></button></div>
+  <div class="routine-paste-panel" id="routinePastePanel" hidden><label for="routinePasteText">چسباندن متن برنامه</label><textarea id="routinePasteText" spellcheck="false" placeholder="سینه&#10;0003 3 * 10&#10;0001 4 * 12 timed min&#10;0006 3 * 10 weighted&#10;&#10;بازو&#10;0006 3 * 10 unweighted"></textarea><div class="routine-paste-actions"><button id="cancelRoutinePaste" type="button">انصراف</button><button id="addRoutineText" type="button">افزودن برنامه‌ها</button><button id="importRoutineText" type="button">جایگزینی برنامه‌ها</button></div></div>
   <div class="routine-schedule" id="routineSchedule"></div>
-  <button class="routine-add-exercises" id="routineAddExercises" type="button" hidden>Add exercise</button>
+  <button class="routine-add-exercises" id="routineAddExercises" type="button" hidden>افزودن حرکت</button>
   <div class="routine-items" id="routineItems"></div>
 </aside>
 
 <div class="feature-backdrop panel-backdrop" id="progressBackdrop" role="dialog" aria-modal="true" aria-labelledby="progressTitle" aria-hidden="true">
   <section class="feature-panel progress-panel panel-drawer">
-    <div class="routine-header panel-header"><div><h2 id="progressTitle" class="phone-title">Stats</h2><span class="panel-summary" id="progressSubtitle">Your training stats and recent activity.</span></div></div>
+    <div class="routine-header panel-header"><div><h2 id="progressTitle" class="phone-title">آمار</h2><span class="panel-summary" id="progressSubtitle">آمار تمرینی و فعالیت‌های اخیر شما.</span></div></div>
     <div class="feature-scroll">
-      <section class="progress-dashboard" id="progressDashboard" aria-label="Training dashboard">
+      <section class="progress-dashboard" id="progressDashboard" aria-label="داشبورد تمرین">
         <section class="dashboard-card dashboard-week-card">
-          <div class="dashboard-card-head dashboard-week-head"><div><span class="eyebrow" id="dashboardWeekLabel">This week</span><h3 id="dashboardWeekRange">Training sets</h3></div><div class="date-stepper" id="dashboardWeekNav" aria-label="Week navigation"><button class="date-stepper-btn date-stepper-prev" id="dashboardPreviousWeek" type="button" aria-label="Previous logged week"><svg class="icon"><use href="#icon-chevron"/></svg></button><button class="date-stepper-btn" id="dashboardResetWeek" type="button" aria-label="Reset to current week"><svg class="icon"><use href="#icon-reset"/></svg></button><button class="date-stepper-btn date-stepper-next" id="dashboardNextWeek" type="button" aria-label="Next logged week"><svg class="icon"><use href="#icon-chevron"/></svg></button></div><button class="dashboard-scope-toggle" id="dashboardScopeToggle" type="button" aria-pressed="false" aria-label="Show all-time chart"><svg class="icon"><use href="#icon-progress"/></svg></button></div>
-          <div class="dashboard-week-summary" id="dashboardWeekSummary" aria-live="polite">0 sessions · 0 sets · 0 exercises</div>
-          <div class="weekly-bars" id="dashboardWeeklyBars" aria-label="Sets logged during the selected week"></div>
+          <div class="dashboard-card-head dashboard-week-head"><div><span class="eyebrow" id="dashboardWeekLabel">این هفته</span><h3 id="dashboardWeekRange">ست‌های تمرینی</h3></div><div class="date-stepper" id="dashboardWeekNav" aria-label="پیمایش هفته"><button class="date-stepper-btn date-stepper-prev" id="dashboardPreviousWeek" type="button" aria-label="هفته ثبت‌شده قبلی"><svg class="icon"><use href="#icon-chevron"/></svg></button><button class="date-stepper-btn" id="dashboardResetWeek" type="button" aria-label="بازگشت به هفته جاری"><svg class="icon"><use href="#icon-reset"/></svg></button><button class="date-stepper-btn date-stepper-next" id="dashboardNextWeek" type="button" aria-label="هفته ثبت‌شده بعدی"><svg class="icon"><use href="#icon-chevron"/></svg></button></div><button class="dashboard-scope-toggle" id="dashboardScopeToggle" type="button" aria-pressed="false" aria-label="نمایش نمودار کل زمان"><svg class="icon"><use href="#icon-progress"/></svg></button></div>
+          <div class="dashboard-week-summary" id="dashboardWeekSummary" aria-live="polite">۰ جلسه · ۰ ست · ۰ حرکت</div>
+          <div class="weekly-bars" id="dashboardWeeklyBars" aria-label="ست‌های ثبت‌شده در هفته انتخابی"></div>
           <div class="month-grid" id="dashboardMonthGrid" hidden></div>
           <div class="all-time-chart" id="dashboardAllTimeChart" hidden></div>
         </section>
         <section class="dashboard-card">
-          <div class="dashboard-card-head"><div><span class="eyebrow dashboard-balance-label" id="dashboardBalanceLabel">Weekly</span><h3>Body-part balance</h3></div><span id="dashboardMuscleSummary">No data yet</span></div>
+          <div class="dashboard-card-head"><div><span class="eyebrow dashboard-balance-label" id="dashboardBalanceLabel">هفتگی</span><h3>تعادل بخش‌های بدن</h3></div><span id="dashboardMuscleSummary">بدون داده</span></div>
           <div class="muscle-map-wrap" id="dashboardMuscleMapWrap" hidden>
             <div class="muscle-map-frame" id="dashboardMuscleMapFrame">
               <div class="muscle-map-view" id="dashboardMuscleMapFront"></div>
@@ -170,41 +172,41 @@
           </div>
           <div class="muscle-breakdown" id="dashboardMuscleBreakdown"></div>
         </section>
-        <div class="dashboard-empty" id="dashboardEmpty" hidden><strong>Your stats are empty</strong><span>Open an exercise and select Log progress to start building your training history.</span></div>
+        <div class="dashboard-empty" id="dashboardEmpty" hidden><strong>آمار شما خالی است</strong><span>برای شروع ساخت سابقه تمرینی، یک حرکت را باز کنید و «ثبت پیشرفت» را بزنید.</span></div>
       </section>
       <form class="progress-form" id="progressForm" hidden>
-        <div class="progress-exercise-fixed feature-field-wide"><span>Exercise</span><strong id="progressExerciseName">Choose an exercise from its details page</strong><small id="progressExerciseMeta">Open an exercise and select Log progress.</small></div>
-        <div class="feature-field progress-date-field"><span>Date</span><div class="progress-date-control"><input id="progressDate" type="hidden"><button class="progress-date-button" id="progressDateButton" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="progressDatePicker"><span id="progressDateDisplay"></span><svg class="icon progress-date-icon" aria-hidden="true"><use href="#icon-calendar"/></svg></button></div></div>
-        <div class="feature-field" id="progressSetsField"><span id="progressSetsLabel">Sets</span><div class="routine-stepper"><button class="routine-step progress-step" type="button" data-field="sets" data-delta="-1" aria-label="Decrease sets"><svg class="icon"><use href="#icon-minus"/></svg></button><output id="progressSets" aria-live="polite">3</output><button class="routine-step progress-step" type="button" data-field="sets" data-delta="1" aria-label="Increase sets"><svg class="icon"><use href="#icon-plus"/></svg></button></div></div>
+        <div class="progress-exercise-fixed feature-field-wide"><span>حرکت</span><strong id="progressExerciseName">حرکت را از صفحه جزئیات آن انتخاب کنید</strong><small id="progressExerciseMeta">حرکتی را باز کنید و «ثبت پیشرفت» را بزنید.</small></div>
+        <div class="feature-field progress-date-field"><span>تاریخ</span><div class="progress-date-control"><input id="progressDate" type="hidden"><button class="progress-date-button" id="progressDateButton" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="progressDatePicker"><span id="progressDateDisplay"></span><svg class="icon progress-date-icon" aria-hidden="true"><use href="#icon-calendar"/></svg></button></div></div>
+        <div class="feature-field" id="progressSetsField"><span id="progressSetsLabel">ست</span><div class="routine-stepper"><button class="routine-step progress-step" type="button" data-field="sets" data-delta="-1" aria-label="کاهش ست"><svg class="icon"><use href="#icon-minus"/></svg></button><output id="progressSets" aria-live="polite">۳</output><button class="routine-step progress-step" type="button" data-field="sets" data-delta="1" aria-label="افزایش ست"><svg class="icon"><use href="#icon-plus"/></svg></button></div></div>
         <div class="feature-field feature-field-wide" id="progressSetsDetailField"><div class="set-weight-list" id="progressSetRows"></div></div>
-        <label class="feature-field feature-field-wide"><span>Notes <small>optional</small></span><textarea id="progressNotes" maxlength="160" rows="2" placeholder="Form, tempo, or how the set felt"></textarea></label>
+        <label class="feature-field feature-field-wide"><span>یادداشت <small>اختیاری</small></span><textarea id="progressNotes" maxlength="160" rows="2" placeholder="فرم حرکت، ریتم یا حس ست"></textarea></label>
         <div class="progress-actions feature-field-wide">
           <div class="feature-field" id="progressModeSwitch" hidden>
             <div class="mode-switch">
-              <button type="button" data-mode="reps" aria-pressed="true">Reps</button>
-              <button type="button" data-mode="timed" aria-pressed="false">Timed</button>
+              <button type="button" data-mode="reps" aria-pressed="true">تکراری</button>
+              <button type="button" data-mode="timed" aria-pressed="false">زمانی</button>
             </div>
           </div>
           <div class="mode-switch" id="progressWeightSwitch" hidden>
-            <button type="button" id="progressWeightToggle" aria-pressed="false">Weight</button>
+            <button type="button" id="progressWeightToggle" aria-pressed="false">وزنه</button>
           </div>
-          <button type="button" class="progress-cancel" id="progressCancel">Cancel</button>
-          <button class="feature-primary" id="progressSave" type="submit">Save</button>
+          <button type="button" class="progress-cancel" id="progressCancel">انصراف</button>
+          <button class="feature-primary" id="progressSave" type="submit">ذخیره</button>
         </div>
       </form>
-      <section class="progress-history" id="progressHistorySection"><div class="feature-section-head" id="progressHistoryHead" hidden><div id="progressHistoryContext" aria-live="polite">Current exercise</div></div><div id="progressHistory"></div></section>
+      <section class="progress-history" id="progressHistorySection"><div class="feature-section-head" id="progressHistoryHead" hidden><div id="progressHistoryContext" aria-live="polite">حرکت جاری</div></div><div id="progressHistory"></div></section>
     </div>
     <div class="progress-date-picker-layer" id="progressDatePicker" hidden>
-      <button class="progress-date-picker-scrim" type="button" data-date-picker-close aria-label="Close date selector"></button>
+      <button class="progress-date-picker-scrim" type="button" data-date-picker-close aria-label="بستن انتخابگر تاریخ"></button>
       <section class="progress-date-picker-card" role="dialog" aria-modal="true" aria-labelledby="progressDatePickerTitle">
         <div class="progress-date-picker-head">
-          <button class="progress-date-nav progress-date-prev" id="progressDatePrev" type="button" aria-label="Previous month"><svg class="icon"><use href="#icon-chevron"/></svg></button>
-          <strong id="progressDatePickerTitle">August 2026</strong>
-          <button class="progress-date-nav" id="progressDateNext" type="button" aria-label="Next month"><svg class="icon"><use href="#icon-chevron"/></svg></button>
+          <button class="progress-date-nav progress-date-prev" id="progressDatePrev" type="button" aria-label="ماه قبل"><svg class="icon"><use href="#icon-chevron"/></svg></button>
+          <strong id="progressDatePickerTitle">شهریور ۱۴۰۵</strong>
+          <button class="progress-date-nav" id="progressDateNext" type="button" aria-label="ماه بعد"><svg class="icon"><use href="#icon-chevron"/></svg></button>
         </div>
         <div class="progress-date-weekdays" id="progressDateWeekdays" aria-hidden="true"></div>
-        <div class="progress-date-grid" id="progressDateGrid" role="grid" aria-label="Choose a date"></div>
-        <div class="progress-date-picker-actions"><button id="progressDateToday" type="button">Today</button><button id="progressDateCancel" type="button">Cancel</button></div>
+        <div class="progress-date-grid" id="progressDateGrid" role="grid" aria-label="انتخاب تاریخ"></div>
+        <div class="progress-date-picker-actions"><button id="progressDateToday" type="button">امروز</button><button id="progressDateCancel" type="button">انصراف</button></div>
       </section>
     </div>
   </section>
@@ -213,37 +215,37 @@
 <div class="feature-backdrop panel-backdrop" id="fuelBackdrop" role="dialog" aria-modal="true" aria-labelledby="fuelTitle" aria-hidden="true">
   <section class="feature-panel panel-drawer">
     <div class="routine-header panel-header">
-      <div><h2 id="fuelTitle">Fuel</h2><span class="panel-summary">Daily balance, macros, hydration, and meals.</span></div>
+      <div><h2 id="fuelTitle">تغذیه</h2><span class="panel-summary">تعادل روزانه، درشت‌مغذی‌ها، آب بدن و غذاها.</span></div>
     </div>
     <div class="feature-scroll">
       <div class="fuel-stack">
         <div class="fuel-card fuel-card-clickable" id="topBmiCard" role="button" tabindex="0" aria-haspopup="dialog">
           <div class="fuel-card-head">
             <div>
-              <span class="eyebrow">Body Index & Targets</span>
-              <h3>BMI & Target Engine</h3>
+              <span class="eyebrow">شاخص بدن و اهداف</span>
+              <h3>BMI و موتور اهداف</h3>
             </div>
             <div class="bmi-card-actions">
-              <span class="edit-pill"><svg class="icon"><use href="#icon-edit"/></svg> Edit</span>
+              <span class="edit-pill"><svg class="icon"><use href="#icon-edit"/></svg> ویرایش</span>
             </div>
           </div>
           <div class="grid-2 bmi-grid">
             <div class="bmi-stat-card">
-              <span class="bmi-stat-label">Current BMI</span>
-              <strong id="bmiValDisplay" class="bmi-stat-value">23.7</strong>
-              <span class="bmi-stat-meta">Normal: 18.5 – 24.9</span>
+              <span class="bmi-stat-label">BMI فعلی</span>
+              <strong id="bmiValDisplay" class="bmi-stat-value">۲۳٫۷</strong>
+              <span class="bmi-stat-meta">نرمال: ۱۸٫۵ تا ۲۴٫۹</span>
             </div>
             <div class="bmi-stat-card">
-              <span class="bmi-stat-label">Current Weight</span>
-              <strong id="weightValDisplay" class="bmi-stat-value">75.0 kg</strong>
-              <span id="weightDeltaDisplay" class="bmi-stat-meta positive">3.0 kg to gain</span>
+              <span class="bmi-stat-label">وزن فعلی</span>
+              <strong id="weightValDisplay" class="bmi-stat-value">۷۵٫۰ کیلوگرم</strong>
+              <span id="weightDeltaDisplay" class="bmi-stat-meta positive">۳٫۰ کیلوگرم برای افزایش</span>
             </div>
           </div>
           <div class="macro-bar-row">
             <div class="macro-meta">
-              <span>Start: <b id="lblStartWeight">75.0 kg</b></span>
-              <span id="goalPercentText" class="goal-percent-text">0% complete</span>
-              <span>Target: <b id="lblGoalWeight">78.0 kg</b></span>
+              <span>شروع: <b id="lblStartWeight">۷۵٫۰ کیلوگرم</b></span>
+              <span id="goalPercentText" class="goal-percent-text">۰٪ تکمیل</span>
+              <span>هدف: <b id="lblGoalWeight">۷۸٫۰ کیلوگرم</b></span>
             </div>
             <div class="track bmi-progress-track"><i id="barWeightGoal" style="background:var(--accent); width:0%"></i></div>
           </div>
@@ -254,21 +256,21 @@
             <div class="fuel-daily-head">
               <div>
                 <span class="eyebrow" id="dailyBalanceDateEyebrow">—</span>
-                <h3>Daily Balance</h3>
+                <h3>تعادل روزانه</h3>
               </div>
-              <div class="date-stepper" aria-label="Date navigation">
-                <button class="date-stepper-btn date-stepper-prev" type="button" id="btnPrevDay" aria-label="Previous day">
+              <div class="date-stepper" aria-label="پیمایش تاریخ">
+                <button class="date-stepper-btn date-stepper-prev" type="button" id="btnPrevDay" aria-label="روز قبل">
                   <svg class="icon"><use href="#icon-chevron"/></svg>
                 </button>
-                <button class="date-stepper-btn" type="button" id="btnResetToday" aria-label="Go to today">
+                <button class="date-stepper-btn" type="button" id="btnResetToday" aria-label="رفتن به امروز">
                   <svg class="icon"><use href="#icon-reset"/></svg>
                 </button>
-                <button class="date-stepper-btn date-stepper-next" type="button" id="btnNextDay" aria-label="Next day">
+                <button class="date-stepper-btn date-stepper-next" type="button" id="btnNextDay" aria-label="روز بعد">
                   <svg class="icon"><use href="#icon-chevron"/></svg>
                 </button>
               </div>
               <div class="fuel-daily-head-right">
-                <span id="lblTargetCalorieGoal" class="bmi-stat-meta">Goal: 2,975 kcal</span>
+                <span id="lblTargetCalorieGoal" class="bmi-stat-meta">هدف: ۲٬۹۷۵ کیلوکالری</span>
               </div>
             </div>
           </div>
@@ -280,21 +282,21 @@
                 <circle class="circle-meter" id="calMeter" cx="50" cy="50" r="45"></circle>
               </svg>
               <div class="circle-label">
-                <strong id="calsRemaining">0</strong>
-                <span id="calsRemainingSub">kcal left</span>
+                <strong id="calsRemaining">۰</strong>
+                <span id="calsRemainingSub">کیلوکالری باقی‌مانده</span>
               </div>
             </div>
             <div class="macros-stack">
               <div class="macro-bar-row">
-                <div class="macro-meta"><span>Protein</span><b id="metaProtein">0 / 150g</b></div>
+                <div class="macro-meta"><span>پروتئین</span><b id="metaProtein">۰ / ۱۵۰ گرم</b></div>
                 <div class="track"><i id="barProtein" style="background:var(--positive); width:0%"></i></div>
               </div>
               <div class="macro-bar-row">
-                <div class="macro-meta"><span>Carbs</span><b id="metaCarbs">0 / 411g</b></div>
+                <div class="macro-meta"><span>کربوهیدرات</span><b id="metaCarbs">۰ / ۴۱۱ گرم</b></div>
                 <div class="track"><i id="barCarbs" style="background:var(--carbs); width:0%"></i></div>
               </div>
               <div class="macro-bar-row">
-                <div class="macro-meta"><span>Fats</span><b id="metaFats">0 / 83g</b></div>
+                <div class="macro-meta"><span>چربی</span><b id="metaFats">۰ / ۸۳ گرم</b></div>
                 <div class="track"><i id="barFats" style="background:var(--fats); width:0%"></i></div>
               </div>
             </div>
@@ -305,13 +307,13 @@
           <div class="hydration-section">
             <div class="water-row">
               <div class="water-meta">
-                <span class="eyebrow">Hydration</span>
-                <strong id="waterDisplay">0 / 3,375 ml</strong>
+                <span class="eyebrow">آب بدن</span>
+                <strong id="waterDisplay">۰ / ۳٬۳۷۵ میلی‌لیتر</strong>
               </div>
               <div class="water-actions" id="waterActions">
-                <button type="button" data-water-add="250">+250 ml</button>
-                <button type="button" data-water-add="500">+500 ml</button>
-                <button type="button" data-water-reset style="color:var(--accent)">Reset</button>
+                <button type="button" data-water-add="250">+۲۵۰</button>
+                <button type="button" data-water-add="500">+۵۰۰</button>
+                <button type="button" data-water-reset style="color:var(--accent)">بازنشانی</button>
               </div>
             </div>
             <div class="track" style="margin-top: 10px;">
@@ -332,81 +334,81 @@
 <div class="feature-backdrop panel-backdrop" id="fuelLogMealModal" role="dialog" aria-modal="true" aria-labelledby="logMealTitle" aria-hidden="true">
   <section class="feature-panel panel-drawer">
     <div class="routine-header panel-header">
-      <div><h2 id="logMealTitle">Log meal</h2><span class="panel-summary">Pick a reference meal or enter custom macros.</span></div>
+      <div><h2 id="logMealTitle">ثبت غذا</h2><span class="panel-summary">یک غذای مرجع انتخاب کنید یا درشت‌مغذی‌ها را دستی وارد کنید.</span></div>
     </div>
     <div class="feature-scroll">
       <form class="progress-form" id="foodForm">
         <div class="feature-field feature-field-wide">
           <div class="ingredient-select-wrap">
-            <button class="btn-reset-ingredient" type="button" aria-label="Reset selection">
+            <button class="btn-reset-ingredient" type="button" aria-label="بازنشانی انتخاب">
               <svg class="icon"><use href="#icon-close"/></svg>
             </button>
             <div class="routine-editor-control">
-              <button class="custom-select-button" id="btnCustomIngredientSelect" type="button" aria-haspopup="listbox" aria-expanded="false"><span id="lblCustomIngredient">-- Custom Entry / Other --</span></button>
+              <button class="custom-select-button" id="btnCustomIngredientSelect" type="button" aria-haspopup="listbox" aria-expanded="false"><span id="lblCustomIngredient">-- ورود دستی / دیگر --</span></button>
               <div class="routine-menu" id="menuCustomIngredient" role="listbox" hidden></div>
             </div>
           </div>
         </div>
         <div class="feature-field feature-field-wide">
-          <span>Portion weight (grams)</span>
+          <span>وزن وعده (گرم)</span>
           <div class="portion-inline-row">
             <input type="number" id="inPortionGrams" value="100" min="0" step="1">
             <div class="portion-quick-buttons">
-              <button type="button" data-set-portion="100">100g</button>
-              <button type="button" data-set-portion="150">150g</button>
-              <button type="button" data-set-portion="200">200g</button>
-              <button type="button" data-set-portion="300">300g</button>
+              <button type="button" data-set-portion="100">۱۰۰ گرم</button>
+              <button type="button" data-set-portion="150">۱۵۰ گرم</button>
+              <button type="button" data-set-portion="200">۲۰۰ گرم</button>
+              <button type="button" data-set-portion="300">۳۰۰ گرم</button>
             </div>
           </div>
         </div>
         <div class="feature-field">
-          <span>Food / recipe name</span>
-          <input type="text" id="inFoodName" placeholder="e.g. Chicken Breast (150g)">
+          <span>نام غذا / دستور پخت</span>
+          <input type="text" id="inFoodName" placeholder="مثلاً سینه مرغ (۱۵۰ گرم)">
         </div>
         <div class="feature-field">
-          <label for="inMealCategory">Category</label>
-          <select id="inMealCategory" aria-label="Meal Category">
-            <option value="Breakfast">Breakfast</option>
-            <option value="Lunch">Lunch</option>
-            <option value="Dinner">Dinner</option>
-            <option value="Snacks">Snacks</option>
+          <label for="inMealCategory">دسته</label>
+          <select id="inMealCategory" aria-label="دسته غذا">
+            <option value="صبحانه">صبحانه</option>
+            <option value="ناهار">ناهار</option>
+            <option value="شام">شام</option>
+            <option value="میان‌وعده">میان‌وعده</option>
           </select>
         </div>
         <div class="feature-field">
-          <span>Calories (kcal)</span>
+          <span>کالری (کیلوکالری)</span>
           <div class="routine-stepper">
-            <button class="routine-step" type="button" data-food-field="cals" data-food-delta="-1" aria-label="Decrease calories"><svg class="icon"><use href="#icon-minus"/></svg></button>
-            <input id="inFoodCals" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" enterkeyhint="done" value="0" aria-label="Calories in kcal">
-            <button class="routine-step" type="button" data-food-field="cals" data-food-delta="1" aria-label="Increase calories"><svg class="icon"><use href="#icon-plus"/></svg></button>
+            <button class="routine-step" type="button" data-food-field="cals" data-food-delta="-1" aria-label="کاهش کالری"><svg class="icon"><use href="#icon-minus"/></svg></button>
+            <input id="inFoodCals" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" enterkeyhint="done" value="0" aria-label="کالری به کیلوکالری">
+            <button class="routine-step" type="button" data-food-field="cals" data-food-delta="1" aria-label="افزایش کالری"><svg class="icon"><use href="#icon-plus"/></svg></button>
           </div>
         </div>
         <div class="feature-field">
-          <span>Protein (g)</span>
+          <span>پروتئین (گرم)</span>
           <div class="routine-stepper">
-            <button class="routine-step" type="button" data-food-field="p" data-food-delta="-0.1" aria-label="Decrease protein"><svg class="icon"><use href="#icon-minus"/></svg></button>
-            <input id="inFoodP" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" enterkeyhint="done" value="0.0" aria-label="Protein in grams">
-            <button class="routine-step" type="button" data-food-field="p" data-food-delta="0.1" aria-label="Increase protein"><svg class="icon"><use href="#icon-plus"/></svg></button>
+            <button class="routine-step" type="button" data-food-field="p" data-food-delta="-0.1" aria-label="کاهش پروتئین"><svg class="icon"><use href="#icon-minus"/></svg></button>
+            <input id="inFoodP" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" enterkeyhint="done" value="0.0" aria-label="پروتئین به گرم">
+            <button class="routine-step" type="button" data-food-field="p" data-food-delta="0.1" aria-label="افزایش پروتئین"><svg class="icon"><use href="#icon-plus"/></svg></button>
           </div>
         </div>
         <div class="feature-field">
-          <span>Carbs (g)</span>
+          <span>کربوهیدرات (گرم)</span>
           <div class="routine-stepper">
-            <button class="routine-step" type="button" data-food-field="c" data-food-delta="-0.1" aria-label="Decrease carbs"><svg class="icon"><use href="#icon-minus"/></svg></button>
-            <input id="inFoodC" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" enterkeyhint="done" value="0.0" aria-label="Carbs in grams">
-            <button class="routine-step" type="button" data-food-field="c" data-food-delta="0.1" aria-label="Increase carbs"><svg class="icon"><use href="#icon-plus"/></svg></button>
+            <button class="routine-step" type="button" data-food-field="c" data-food-delta="-0.1" aria-label="کاهش کربوهیدرات"><svg class="icon"><use href="#icon-minus"/></svg></button>
+            <input id="inFoodC" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" enterkeyhint="done" value="0.0" aria-label="کربوهیدرات به گرم">
+            <button class="routine-step" type="button" data-food-field="c" data-food-delta="0.1" aria-label="افزایش کربوهیدرات"><svg class="icon"><use href="#icon-plus"/></svg></button>
           </div>
         </div>
         <div class="feature-field">
-          <span>Fats (g)</span>
+          <span>چربی (گرم)</span>
           <div class="routine-stepper">
-            <button class="routine-step" type="button" data-food-field="f" data-food-delta="-0.1" aria-label="Decrease fats"><svg class="icon"><use href="#icon-minus"/></svg></button>
-            <input id="inFoodF" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" enterkeyhint="done" value="0.0" aria-label="Fats in grams">
-            <button class="routine-step" type="button" data-food-field="f" data-food-delta="0.1" aria-label="Increase fats"><svg class="icon"><use href="#icon-plus"/></svg></button>
+            <button class="routine-step" type="button" data-food-field="f" data-food-delta="-0.1" aria-label="کاهش چربی"><svg class="icon"><use href="#icon-minus"/></svg></button>
+            <input id="inFoodF" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" enterkeyhint="done" value="0.0" aria-label="چربی به گرم">
+            <button class="routine-step" type="button" data-food-field="f" data-food-delta="0.1" aria-label="افزایش چربی"><svg class="icon"><use href="#icon-plus"/></svg></button>
           </div>
         </div>
         <div class="progress-actions feature-field-wide">
-          <button type="button" class="progress-cancel" id="foodCancel">Cancel</button>
-          <button class="feature-primary" id="foodSave" type="submit">Save</button>
+          <button type="button" class="progress-cancel" id="foodCancel">انصراف</button>
+          <button class="feature-primary" id="foodSave" type="submit">ذخیره</button>
         </div>
       </form>
     </div>
@@ -417,21 +419,21 @@
 <div class="feature-backdrop panel-backdrop" id="customExerciseModal" role="dialog" aria-modal="true" aria-labelledby="customExerciseTitle" aria-hidden="true">
   <section class="feature-panel panel-drawer">
     <div class="routine-header panel-header">
-      <div><h2 id="customExerciseTitle" class="phone-title">Custom exercises</h2><span class="panel-summary">Create your own exercises and manage them here.</span></div>
+      <div><h2 id="customExerciseTitle" class="phone-title">حرکات سفارشی</h2><span class="panel-summary">حرکات دلخواه خود را بسازید و از اینجا مدیریت کنید.</span></div>
     </div>
     <div class="feature-scroll">
       <form class="progress-form" id="customExerciseForm">
-        <div class="feature-field feature-field-wide"><span>Name</span><input id="customExerciseName" type="text" maxlength="80" placeholder="e.g. Landmine press" autocomplete="off"></div>
-        <div class="feature-field feature-field-wide"><span>Body part</span><div class="pill-row" id="customExerciseBodyPart" role="group" aria-label="Body part"></div></div>
-        <div class="feature-field feature-field-wide"><span>Target <small>required</small></span><div class="pill-row" id="customExerciseTarget" role="group" aria-label="Target muscle"></div></div>
-        <div class="feature-field feature-field-wide"><span>Equipment <small>optional</small></span><div class="pill-row" id="customExerciseEquipment" role="group" aria-label="Equipment"></div></div>
-        <label class="feature-field feature-field-wide"><span>Description <small>optional</small></span><textarea id="customExerciseDescription" maxlength="300" rows="2" placeholder="Setup, form cues, or notes"></textarea></label>
+        <div class="feature-field feature-field-wide"><span>نام</span><input id="customExerciseName" type="text" maxlength="80" placeholder="مثلاً پرس زمین‌ماین" autocomplete="off"></div>
+        <div class="feature-field feature-field-wide"><span>بخش بدن</span><div class="pill-row" id="customExerciseBodyPart" role="group" aria-label="بخش بدن"></div></div>
+        <div class="feature-field feature-field-wide"><span>عضله هدف <small>الزامی</small></span><div class="pill-row" id="customExerciseTarget" role="group" aria-label="عضله هدف"></div></div>
+        <div class="feature-field feature-field-wide"><span>تجهیزات <small>اختیاری</small></span><div class="pill-row" id="customExerciseEquipment" role="group" aria-label="تجهیزات"></div></div>
+        <label class="feature-field feature-field-wide"><span>توضیحات <small>اختیاری</small></span><textarea id="customExerciseDescription" maxlength="300" rows="2" placeholder="آماده‌سازی، نکات فرم یا یادداشت‌ها"></textarea></label>
         <div class="progress-actions feature-field-wide">
-          <button type="button" class="progress-cancel" id="customExerciseCancel">Cancel</button>
-          <button class="feature-primary" id="customExerciseSave" type="submit" disabled>Add exercise</button>
+          <button type="button" class="progress-cancel" id="customExerciseCancel">انصراف</button>
+          <button class="feature-primary" id="customExerciseSave" type="submit" disabled>افزودن حرکت</button>
         </div>
       </form>
-      <section class="custom-exercise-list" id="customExerciseList" aria-label="Saved custom exercises"></section>
+      <section class="custom-exercise-list" id="customExerciseList" aria-label="حرکات سفارشی ذخیره‌شده"></section>
     </div>
   </section>
 </div>
@@ -441,101 +443,101 @@
   <div class="fuel-modal">
     <div class="modal-header-row">
       <div>
-        <h2 id="metricsModalTitle" class="modal-header-title">Body Metrics & Targets</h2>
+        <h2 id="metricsModalTitle" class="modal-header-title">مشخصات بدنی و اهداف</h2>
       </div>
     </div>
 
     <form id="bodyMetricsForm">
       <div class="grid-2">
         <div class="feature-field">
-          <label>Age (Years)</label>
+          <label>سن (سال)</label>
           <div class="routine-stepper">
-            <button class="routine-step" type="button" data-target="inAge" data-delta="-1" aria-label="Decrease age"><svg class="icon"><use href="#icon-minus"/></svg></button>
-            <input id="inAge" type="text" readonly tabindex="-1" value="22" aria-label="Age">
-            <button class="routine-step" type="button" data-target="inAge" data-delta="1" aria-label="Increase age"><svg class="icon"><use href="#icon-plus"/></svg></button>
+            <button class="routine-step" type="button" data-target="inAge" data-delta="-1" aria-label="کاهش سن"><svg class="icon"><use href="#icon-minus"/></svg></button>
+            <input id="inAge" type="text" readonly tabindex="-1" value="22" aria-label="سن">
+            <button class="routine-step" type="button" data-target="inAge" data-delta="1" aria-label="افزایش سن"><svg class="icon"><use href="#icon-plus"/></svg></button>
           </div>
         </div>
         <div class="feature-field">
-          <label for="inSex">Biological Sex</label>
-          <select id="inSex" aria-label="Biological Sex">
-            <option value="m" selected>Male (+5 BMR)</option>
-            <option value="f">Female (-161 BMR)</option>
+          <label for="inSex">جنسیت</label>
+          <select id="inSex" aria-label="جنسیت">
+            <option value="m" selected>مرد (+۵ BMR)</option>
+            <option value="f">زن (−۱۶۱ BMR)</option>
           </select>
         </div>
       </div>
 
       <div class="grid-2">
         <div class="feature-field">
-          <label>Height (cm)</label>
+          <label>قد (سانتی‌متر)</label>
           <div class="routine-stepper">
-            <button class="routine-step" type="button" data-target="inHeight" data-delta="-1" aria-label="Decrease height"><svg class="icon"><use href="#icon-minus"/></svg></button>
-            <input id="inHeight" type="text" readonly tabindex="-1" value="178" aria-label="Height in centimeters">
-            <button class="routine-step" type="button" data-target="inHeight" data-delta="1" aria-label="Increase height"><svg class="icon"><use href="#icon-plus"/></svg></button>
+            <button class="routine-step" type="button" data-target="inHeight" data-delta="-1" aria-label="کاهش قد"><svg class="icon"><use href="#icon-minus"/></svg></button>
+            <input id="inHeight" type="text" readonly tabindex="-1" value="178" aria-label="قد به سانتی‌متر">
+            <button class="routine-step" type="button" data-target="inHeight" data-delta="1" aria-label="افزایش قد"><svg class="icon"><use href="#icon-plus"/></svg></button>
           </div>
         </div>
         <div class="feature-field">
-          <label>Current Weight (kg)</label>
+          <label>وزن فعلی (کیلوگرم)</label>
           <div class="routine-stepper">
-            <button class="routine-step" type="button" data-target="inCurrentWeight" data-delta="-0.5" aria-label="Decrease current weight"><svg class="icon"><use href="#icon-minus"/></svg></button>
-            <input id="inCurrentWeight" type="text" readonly tabindex="-1" value="75.0" aria-label="Current weight in kilograms">
-            <button class="routine-step" type="button" data-target="inCurrentWeight" data-delta="0.5" aria-label="Increase current weight"><svg class="icon"><use href="#icon-plus"/></svg></button>
+            <button class="routine-step" type="button" data-target="inCurrentWeight" data-delta="-0.5" aria-label="کاهش وزن فعلی"><svg class="icon"><use href="#icon-minus"/></svg></button>
+            <input id="inCurrentWeight" type="text" readonly tabindex="-1" value="75.0" aria-label="وزن فعلی به کیلوگرم">
+            <button class="routine-step" type="button" data-target="inCurrentWeight" data-delta="0.5" aria-label="افزایش وزن فعلی"><svg class="icon"><use href="#icon-plus"/></svg></button>
           </div>
         </div>
       </div>
 
       <div class="grid-2">
         <div class="feature-field">
-          <label>Start Weight (kg)</label>
+          <label>وزن شروع (کیلوگرم)</label>
           <div class="routine-stepper">
-            <button class="routine-step" type="button" data-target="inStartWeight" data-delta="-0.5" aria-label="Decrease start weight"><svg class="icon"><use href="#icon-minus"/></svg></button>
-            <input id="inStartWeight" type="text" readonly tabindex="-1" value="75.0" aria-label="Start weight in kilograms">
-            <button class="routine-step" type="button" data-target="inStartWeight" data-delta="0.5" aria-label="Increase start weight"><svg class="icon"><use href="#icon-plus"/></svg></button>
+            <button class="routine-step" type="button" data-target="inStartWeight" data-delta="-0.5" aria-label="کاهش وزن شروع"><svg class="icon"><use href="#icon-minus"/></svg></button>
+            <input id="inStartWeight" type="text" readonly tabindex="-1" value="75.0" aria-label="وزن شروع به کیلوگرم">
+            <button class="routine-step" type="button" data-target="inStartWeight" data-delta="0.5" aria-label="افزایش وزن شروع"><svg class="icon"><use href="#icon-plus"/></svg></button>
           </div>
         </div>
         <div class="feature-field">
-          <label>Goal Target (kg)</label>
+          <label>هدف وزنی (کیلوگرم)</label>
           <div class="routine-stepper">
-            <button class="routine-step" type="button" data-target="inGoalWeight" data-delta="-0.5" aria-label="Decrease goal weight"><svg class="icon"><use href="#icon-minus"/></svg></button>
-            <input id="inGoalWeight" type="text" readonly tabindex="-1" value="78.0" aria-label="Goal weight in kilograms">
-            <button class="routine-step" type="button" data-target="inGoalWeight" data-delta="0.5" aria-label="Increase goal weight"><svg class="icon"><use href="#icon-plus"/></svg></button>
+            <button class="routine-step" type="button" data-target="inGoalWeight" data-delta="-0.5" aria-label="کاهش وزن هدف"><svg class="icon"><use href="#icon-minus"/></svg></button>
+            <input id="inGoalWeight" type="text" readonly tabindex="-1" value="78.0" aria-label="وزن هدف به کیلوگرم">
+            <button class="routine-step" type="button" data-target="inGoalWeight" data-delta="0.5" aria-label="افزایش وزن هدف"><svg class="icon"><use href="#icon-plus"/></svg></button>
           </div>
         </div>
       </div>
 
       <div class="feature-field">
-        <label for="inActivity">Daily Activity Level</label>
-        <select id="inActivity" aria-label="Daily Activity Level">
-          <option value="1.2">Sedentary (Desk job, no workouts, &lt;5,000 steps/day)</option>
-          <option value="1.375">Light Activity (Desk job + gym 1–3 days/wk or ~7,000 steps)</option>
-          <option value="1.55" selected>Moderate Activity (Desk job + gym 3–5 days/wk or ~10,000 steps)</option>
-          <option value="1.725">Heavy Activity (Active job + gym 5–6 days/wk or ~13,000 steps)</option>
-          <option value="1.9">Athlete / Extreme (Physical job + hard daily training)</option>
+        <label for="inActivity">سطح فعالیت روزانه</label>
+        <select id="inActivity" aria-label="سطح فعالیت روزانه">
+          <option value="1.2">کم‌تحرک (کار پشت میز، بدون تمرین، کمتر از ۵٬۰۰۰ قدم در روز)</option>
+          <option value="1.375">فعالیت سبک (کار پشت میز + باشگاه ۱ تا ۳ روز در هفته یا حدود ۷٬۰۰۰ قدم)</option>
+          <option value="1.55" selected>فعالیت متوسط (کار پشت میز + باشگاه ۳ تا ۵ روز در هفته یا حدود ۱۰٬۰۰۰ قدم)</option>
+          <option value="1.725">فعالیت زیاد (شغل فعال + باشگاه ۵ تا ۶ روز در هفته یا حدود ۱۳٬۰۰۰ قدم)</option>
+          <option value="1.9">ورزشکار / بسیار زیاد (کار بدنی + تمرین سنگین روزانه)</option>
         </select>
       </div>
 
       <div class="feature-field">
-        <label for="inStrategy">Calorie Goal Strategy</label>
-        <select id="inStrategy" aria-label="Calorie Goal Strategy">
-          <option value="-500">Cut (-500 kcal · ~0.5 kg loss/wk)</option>
-          <option value="-250">Mild Cut (-250 kcal · ~0.25 kg loss/wk)</option>
-          <option value="0">Maintain (0 kcal · Weight maintenance)</option>
-          <option value="250" selected>Lean Bulk (+250 kcal · Clean muscle gain)</option>
-          <option value="500">Aggressive Bulk (+500 kcal · Maximum growth)</option>
+        <label for="inStrategy">استراتژی هدف کالری</label>
+        <select id="inStrategy" aria-label="استراتژی هدف کالری">
+          <option value="-500">کاهش وزن (−۵۰۰ کیلوکالری · حدود ۰٫۵ کیلو کاهش در هفته)</option>
+          <option value="-250">کاهش ملایم (−۲۵۰ کیلوکالری · حدود ۰٫۲۵ کیلو کاهش در هفته)</option>
+          <option value="0">تثبیت وزن (۰ کیلوکالری · حفظ وزن فعلی)</option>
+          <option value="250" selected>حجم تمیز (۲۵۰+ کیلوکالری · عضله‌سازی با کیفیت)</option>
+          <option value="500">حجم شدید (۵۰۰+ کیلوکالری · حداکثر رشد)</option>
         </select>
       </div>
 
       <div class="feature-field">
-        <label for="inProteinRate">Protein Target</label>
-        <select id="inProteinRate" aria-label="Protein Target">
-          <option value="2.0" selected>2.0 g/kg · Muscle Growth (Optimal Hypertrophy)</option>
-          <option value="2.2">2.2 g/kg · Fat Loss / Cut (Preserves Muscle in Deficit)</option>
-          <option value="1.8">1.8 g/kg · Maintenance (Balanced Fitness)</option>
-          <option value="1.6">1.6 g/kg · Baseline / Endurance (General Health)</option>
+        <label for="inProteinRate">هدف پروتئین</label>
+        <select id="inProteinRate" aria-label="هدف پروتئین">
+          <option value="2.0" selected>۲٫۰ گرم به ازای هر کیلوگرم · عضله‌سازی (هایپرتروفی بهینه)</option>
+          <option value="2.2">۲٫۲ گرم به ازای هر کیلوگرم · چربی‌سوزی (حفظ عضله در کسری کالری)</option>
+          <option value="1.8">۱٫۸ گرم به ازای هر کیلوگرم · تثبیت (تناسب متعادل)</option>
+          <option value="1.6">۱٫۶ گرم به ازای هر کیلوگرم · پایه / استقامتی (سلامت عمومی)</option>
         </select>
       </div>
 
       <button type="submit" class="feature-primary modal-submit-btn">
-        Save Metrics & Compute Targets
+        ذخیره مشخصات و محاسبه اهداف
       </button>
     </form>
   </div>
@@ -545,146 +547,146 @@
 <div class="fuel-drawer-backdrop fuel-overlay" id="fuelSettingsBackdrop" role="dialog" aria-modal="true" aria-labelledby="fuelSettingsTitle" aria-hidden="true">
   <aside class="fuel-drawer fuel-manager-drawer">
     <div class="routine-header panel-header">
-      <div><h2 id="fuelSettingsTitle">Your meals</h2><span class="panel-summary" id="fuelHeaderSummary">Create your first meal</span></div>
+      <div><h2 id="fuelSettingsTitle">غذاهای شما</h2><span class="panel-summary" id="fuelHeaderSummary">اولین غذای خود را بسازید</span></div>
     </div>
-    <button class="routine-new-toggle" id="fuelNewMealToggle" type="button"><svg class="icon"><use href="#icon-plus"/></svg><span>Add meal</span></button>
+    <button class="routine-new-toggle" id="fuelNewMealToggle" type="button"><svg class="icon"><use href="#icon-plus"/></svg><span>افزودن غذا</span></button>
     <div class="routine-switch">
-      <label>Meal manager</label>
+      <label>مدیریت غذاها</label>
       <div class="routine-select-row">
         <div class="routine-editor-control">
-          <button class="custom-select-button" id="btnCustomManageSelect" type="button" aria-haspopup="menu" aria-expanded="false">Select a meal to edit</button>
-          <input class="routine-name-editor" id="manageMealEditName" maxlength="40" placeholder="Meal name" aria-label="Meal name" hidden>
+          <button class="custom-select-button" id="btnCustomManageSelect" type="button" aria-haspopup="menu" aria-expanded="false">غذایی برای ویرایش انتخاب کنید</button>
+          <input class="routine-name-editor" id="manageMealEditName" maxlength="40" placeholder="نام غذا" aria-label="نام غذا" hidden>
           <div class="routine-menu" id="menuCustomManageSelect" role="menu" hidden></div>
         </div>
-        <button class="routine-like" id="btnManageLike" type="button" aria-label="Like meal" aria-pressed="false" disabled><svg class="icon"><use href="#icon-heart"/></svg></button>
-        <button id="btnManageDelete" type="button" aria-label="Delete meal" disabled>Delete</button>
+        <button class="routine-like" id="btnManageLike" type="button" aria-label="پسندیدن غذا" aria-pressed="false" disabled><svg class="icon"><use href="#icon-heart"/></svg></button>
+        <button id="btnManageDelete" type="button" aria-label="حذف غذا" disabled>حذف</button>
       </div>
     </div>
-    <div class="routine-data-actions" aria-label="Meal library copy and import tools">
-      <button id="copyManagedMeal" type="button"><svg class="icon"><use href="#icon-copy"/></svg><span>Copy</span></button>
-      <button id="copyAllMeals" type="button"><svg class="icon"><use href="#icon-copy-all"/></svg><span>Export</span></button>
-      <button id="pasteMealToggle" type="button" aria-expanded="false" aria-controls="mealPastePanel"><svg class="icon"><use href="#icon-clipboard"/></svg><span>Import</span></button>
+    <div class="routine-data-actions" aria-label="ابزار کپی و درون‌ریزی کتابخانه غذا">
+      <button id="copyManagedMeal" type="button"><svg class="icon"><use href="#icon-copy"/></svg><span>کپی</span></button>
+      <button id="copyAllMeals" type="button"><svg class="icon"><use href="#icon-copy-all"/></svg><span>خروجی</span></button>
+      <button id="pasteMealToggle" type="button" aria-expanded="false" aria-controls="mealPastePanel"><svg class="icon"><use href="#icon-clipboard"/></svg><span>ورودی</span></button>
     </div>
-    <div class="routine-paste-panel" id="mealPastePanel" hidden><label for="mealPasteText">Paste meal text</label><textarea id="mealPasteText" spellcheck="false" placeholder="Chicken Breast, raw / skinless - Poultry (200g)&#10;Per100g 103cal 23.1pro 0carb 1.2fat&#10;&#10;Egg, whole raw (1 large ≈ 50g) - Dairy/Eggs (150g)&#10;Per100g 139cal 12.6pro 0.7carb 9.5fat"></textarea><div class="routine-paste-actions"><button id="cancelMealPaste" type="button">Cancel</button><button id="addMealText" type="button">Add meals</button><button id="importMealText" type="button">Replace meals</button></div></div>
+    <div class="routine-paste-panel" id="mealPastePanel" hidden><label for="mealPasteText">چسباندن متن غذا</label><textarea id="mealPasteText" spellcheck="false" placeholder="سینه مرغ خام بدون پوست - مرغ (200g)&#10;Per100g 103cal 23.1pro 0carb 1.2fat&#10;&#10;تخم‌مرغ کامل خام (۱ عدد ≈ 50g) - لبنیات و تخم‌مرغ (150g)&#10;Per100g 139cal 12.6pro 0.7carb 9.5fat"></textarea><div class="routine-paste-actions"><button id="cancelMealPaste" type="button">انصراف</button><button id="addMealText" type="button">افزودن غذاها</button><button id="importMealText" type="button">جایگزینی غذاها</button></div></div>
 
     <div class="fuel-manager-scroll">
-    <section class="fuel-target-editor" id="fuelTargetEditor" aria-label="Daily target overrides" hidden>
-      <div class="fuel-target-head"><h3>Daily Targets</h3><button type="button" id="fuelTargetsReset" class="fuel-target-reset">Reset all</button></div>
-      <p class="fuel-target-hint">Tap + / − to override a calculated target. Auto follows your body metrics.</p>
+    <section class="fuel-target-editor" id="fuelTargetEditor" aria-label="دستی‌سازی اهداف روزانه" hidden>
+      <div class="fuel-target-head"><h3>اهداف روزانه</h3><button type="button" id="fuelTargetsReset" class="fuel-target-reset">بازنشانی همه</button></div>
+      <p class="fuel-target-hint">برای دستی‌کردن هدف محاسبه‌شده، + / − را بزنید. حالت «خودکار» از مشخصات بدنی شما پیروی می‌کند.</p>
       <div class="grid-2">
         <div class="feature-field fuel-target-row" data-fuel-target="cals">
-          <label>Kcal</label>
+          <label>کیلوکالری</label>
           <div class="routine-stepper">
-            <button class="routine-step" type="button" data-target-step="-10" aria-label="Decrease calorie target"><svg class="icon"><use href="#icon-minus"/></svg></button>
-            <input type="text" inputmode="numeric" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="Calorie target">
-            <button class="routine-step" type="button" data-target-step="10" aria-label="Increase calorie target"><svg class="icon"><use href="#icon-plus"/></svg></button>
-            <button class="fuel-target-auto" type="button" data-target-clear aria-label="Reset calories to calculated target" hidden>Auto</button>
+            <button class="routine-step" type="button" data-target-step="-10" aria-label="کاهش هدف کالری"><svg class="icon"><use href="#icon-minus"/></svg></button>
+            <input type="text" inputmode="numeric" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="هدف کالری">
+            <button class="routine-step" type="button" data-target-step="10" aria-label="افزایش هدف کالری"><svg class="icon"><use href="#icon-plus"/></svg></button>
+            <button class="fuel-target-auto" type="button" data-target-clear aria-label="بازنشانی کالری به هدف محاسبه‌شده" hidden>خودکار</button>
           </div>
         </div>
         <div class="feature-field fuel-target-row" data-fuel-target="p">
-          <label>Protein (g)</label>
+          <label>پروتئین (گرم)</label>
           <div class="routine-stepper">
-            <button class="routine-step" type="button" data-target-step="-5" aria-label="Decrease protein target"><svg class="icon"><use href="#icon-minus"/></svg></button>
-            <input type="text" inputmode="numeric" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="Protein target">
-            <button class="routine-step" type="button" data-target-step="5" aria-label="Increase protein target"><svg class="icon"><use href="#icon-plus"/></svg></button>
-            <button class="fuel-target-auto" type="button" data-target-clear aria-label="Reset protein to calculated target" hidden>Auto</button>
+            <button class="routine-step" type="button" data-target-step="-5" aria-label="کاهش هدف پروتئین"><svg class="icon"><use href="#icon-minus"/></svg></button>
+            <input type="text" inputmode="numeric" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="هدف پروتئین">
+            <button class="routine-step" type="button" data-target-step="5" aria-label="افزایش هدف پروتئین"><svg class="icon"><use href="#icon-plus"/></svg></button>
+            <button class="fuel-target-auto" type="button" data-target-clear aria-label="بازنشانی پروتئین به هدف محاسبه‌شده" hidden>خودکار</button>
           </div>
         </div>
       </div>
       <div class="grid-2">
         <div class="feature-field fuel-target-row" data-fuel-target="c">
-          <label>Carbs (g)</label>
+          <label>کربوهیدرات (گرم)</label>
           <div class="routine-stepper">
-            <button class="routine-step" type="button" data-target-step="-5" aria-label="Decrease carb target"><svg class="icon"><use href="#icon-minus"/></svg></button>
-            <input type="text" inputmode="numeric" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="Carbs target">
-            <button class="routine-step" type="button" data-target-step="5" aria-label="Increase carb target"><svg class="icon"><use href="#icon-plus"/></svg></button>
-            <button class="fuel-target-auto" type="button" data-target-clear aria-label="Reset carbs to calculated target" hidden>Auto</button>
+            <button class="routine-step" type="button" data-target-step="-5" aria-label="کاهش هدف کربوهیدرات"><svg class="icon"><use href="#icon-minus"/></svg></button>
+            <input type="text" inputmode="numeric" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="هدف کربوهیدرات">
+            <button class="routine-step" type="button" data-target-step="5" aria-label="افزایش هدف کربوهیدرات"><svg class="icon"><use href="#icon-plus"/></svg></button>
+            <button class="fuel-target-auto" type="button" data-target-clear aria-label="بازنشانی کربوهیدرات به هدف محاسبه‌شده" hidden>خودکار</button>
           </div>
         </div>
         <div class="feature-field fuel-target-row" data-fuel-target="f">
-          <label>Fats (g)</label>
+          <label>چربی (گرم)</label>
           <div class="routine-stepper">
-            <button class="routine-step" type="button" data-target-step="-1" aria-label="Decrease fat target"><svg class="icon"><use href="#icon-minus"/></svg></button>
-            <input type="text" inputmode="numeric" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="Fats target">
-            <button class="routine-step" type="button" data-target-step="1" aria-label="Increase fat target"><svg class="icon"><use href="#icon-plus"/></svg></button>
-            <button class="fuel-target-auto" type="button" data-target-clear aria-label="Reset fats to calculated target" hidden>Auto</button>
+            <button class="routine-step" type="button" data-target-step="-1" aria-label="کاهش هدف چربی"><svg class="icon"><use href="#icon-minus"/></svg></button>
+            <input type="text" inputmode="numeric" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="هدف چربی">
+            <button class="routine-step" type="button" data-target-step="1" aria-label="افزایش هدف چربی"><svg class="icon"><use href="#icon-plus"/></svg></button>
+            <button class="fuel-target-auto" type="button" data-target-clear aria-label="بازنشانی چربی به هدف محاسبه‌شده" hidden>خودکار</button>
           </div>
         </div>
       </div>
       <div class="feature-field fuel-target-row fuel-target-water" data-fuel-target="water">
-        <label>Water (ml)</label>
+        <label>آب (میلی‌لیتر)</label>
         <div class="routine-stepper">
-          <button class="routine-step" type="button" data-target-step="-100" aria-label="Decrease water target"><svg class="icon"><use href="#icon-minus"/></svg></button>
-          <input type="text" inputmode="numeric" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="Water target">
-          <button class="routine-step" type="button" data-target-step="100" aria-label="Increase water target"><svg class="icon"><use href="#icon-plus"/></svg></button>
-          <button class="fuel-target-auto" type="button" data-target-clear aria-label="Reset water to calculated target" hidden>Auto</button>
+          <button class="routine-step" type="button" data-target-step="-100" aria-label="کاهش هدف آب"><svg class="icon"><use href="#icon-minus"/></svg></button>
+          <input type="text" inputmode="numeric" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="هدف آب">
+          <button class="routine-step" type="button" data-target-step="100" aria-label="افزایش هدف آب"><svg class="icon"><use href="#icon-plus"/></svg></button>
+          <button class="fuel-target-auto" type="button" data-target-clear aria-label="بازنشانی آب به هدف محاسبه‌شده" hidden>خودکار</button>
         </div>
       </div>
     </section>
     <form class="fuel-meal-editor" id="mealEditorForm" hidden>
       <div class="grid-2">
         <div class="feature-field">
-          <label for="editMealCat">Category</label>
-          <select id="editMealCat" aria-label="Meal Category">
-            <option value="Breakfast">Breakfast</option>
-            <option value="Lunch">Lunch</option>
-            <option value="Dinner">Dinner</option>
-            <option value="Snacks">Snacks</option>
-            <option value="Poultry">Poultry</option>
-            <option value="Meat">Meat</option>
-            <option value="Seafood">Seafood</option>
-            <option value="Dairy/Eggs">Dairy/Eggs</option>
-            <option value="Grains">Grains</option>
-            <option value="Legumes">Legumes</option>
-            <option value="Vegetables">Vegetables</option>
-            <option value="Fruits">Fruits</option>
-            <option value="Nuts/Fats">Nuts/Fats</option>
-            <option value="Supplements">Supplements</option>
-            <option value="Other">Other</option>
+          <label for="editMealCat">دسته</label>
+          <select id="editMealCat" aria-label="دسته غذا">
+            <option value="صبحانه">صبحانه</option>
+            <option value="ناهار">ناهار</option>
+            <option value="شام">شام</option>
+            <option value="میان‌وعده">میان‌وعده</option>
+            <option value="مرغ">مرغ</option>
+            <option value="گوشت قرمز">گوشت قرمز</option>
+            <option value="آبزیان">آبزیان</option>
+            <option value="لبنیات و تخم‌مرغ">لبنیات و تخم‌مرغ</option>
+            <option value="غلات">غلات</option>
+            <option value="حبوبات">حبوبات</option>
+            <option value="سبزیجات">سبزیجات</option>
+            <option value="میوه‌ها">میوه‌ها</option>
+            <option value="آجیل و چربی">آجیل و چربی</option>
+            <option value="مکمل‌ها">مکمل‌ها</option>
+            <option value="دیگر">دیگر</option>
           </select>
         </div>
         <div class="feature-field">
-          <label for="editMealDefaultGrams">Standard Grams</label>
+          <label for="editMealDefaultGrams">گرم پیش‌فرض</label>
           <div class="routine-stepper">
-            <button class="routine-step" type="button" data-meal-step="editMealDefaultGrams" data-meal-delta="-5" aria-label="Decrease standard grams"><svg class="icon"><use href="#icon-minus"/></svg></button>
-            <input type="text" inputmode="numeric" autocomplete="off" spellcheck="false" enterkeyhint="done" id="editMealDefaultGrams" value="100" aria-label="Standard grams">
-            <button class="routine-step" type="button" data-meal-step="editMealDefaultGrams" data-meal-delta="5" aria-label="Increase standard grams"><svg class="icon"><use href="#icon-plus"/></svg></button>
+            <button class="routine-step" type="button" data-meal-step="editMealDefaultGrams" data-meal-delta="-5" aria-label="کاهش گرم پیش‌فرض"><svg class="icon"><use href="#icon-minus"/></svg></button>
+            <input type="text" inputmode="numeric" autocomplete="off" spellcheck="false" enterkeyhint="done" id="editMealDefaultGrams" value="100" aria-label="گرم پیش‌فرض">
+            <button class="routine-step" type="button" data-meal-step="editMealDefaultGrams" data-meal-delta="5" aria-label="افزایش گرم پیش‌فرض"><svg class="icon"><use href="#icon-plus"/></svg></button>
           </div>
         </div>
       </div>
       <div class="grid-2">
         <div class="feature-field">
-          <label for="editMealCals">Kcal / 100g</label>
+          <label for="editMealCals">کیلوکالری / ۱۰۰ گرم</label>
           <div class="routine-stepper">
-            <button class="routine-step" type="button" data-meal-step="editMealCals" data-meal-delta="-1" aria-label="Decrease kcal"><svg class="icon"><use href="#icon-minus"/></svg></button>
-            <input type="text" inputmode="numeric" autocomplete="off" spellcheck="false" enterkeyhint="done" id="editMealCals" value="0" aria-label="Kcal per 100g">
-            <button class="routine-step" type="button" data-meal-step="editMealCals" data-meal-delta="1" aria-label="Increase kcal"><svg class="icon"><use href="#icon-plus"/></svg></button>
+            <button class="routine-step" type="button" data-meal-step="editMealCals" data-meal-delta="-1" aria-label="کاهش کیلوکالری"><svg class="icon"><use href="#icon-minus"/></svg></button>
+            <input type="text" inputmode="numeric" autocomplete="off" spellcheck="false" enterkeyhint="done" id="editMealCals" value="0" aria-label="کیلوکالری در ۱۰۰ گرم">
+            <button class="routine-step" type="button" data-meal-step="editMealCals" data-meal-delta="1" aria-label="افزایش کیلوکالری"><svg class="icon"><use href="#icon-plus"/></svg></button>
           </div>
         </div>
         <div class="feature-field">
-          <label for="editMealP">Protein / 100g</label>
+          <label for="editMealP">پروتئین / ۱۰۰ گرم</label>
           <div class="routine-stepper">
-            <button class="routine-step" type="button" data-meal-step="editMealP" data-meal-delta="-0.1" aria-label="Decrease protein"><svg class="icon"><use href="#icon-minus"/></svg></button>
-            <input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" enterkeyhint="done" id="editMealP" value="0" aria-label="Protein per 100g">
-            <button class="routine-step" type="button" data-meal-step="editMealP" data-meal-delta="0.1" aria-label="Increase protein"><svg class="icon"><use href="#icon-plus"/></svg></button>
+            <button class="routine-step" type="button" data-meal-step="editMealP" data-meal-delta="-0.1" aria-label="کاهش پروتئین"><svg class="icon"><use href="#icon-minus"/></svg></button>
+            <input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" enterkeyhint="done" id="editMealP" value="0" aria-label="پروتئین در ۱۰۰ گرم">
+            <button class="routine-step" type="button" data-meal-step="editMealP" data-meal-delta="0.1" aria-label="افزایش پروتئین"><svg class="icon"><use href="#icon-plus"/></svg></button>
           </div>
         </div>
       </div>
       <div class="grid-2">
         <div class="feature-field">
-          <label for="editMealC">Carbs / 100g</label>
+          <label for="editMealC">کربوهیدرات / ۱۰۰ گرم</label>
           <div class="routine-stepper">
-            <button class="routine-step" type="button" data-meal-step="editMealC" data-meal-delta="-0.1" aria-label="Decrease carbs"><svg class="icon"><use href="#icon-minus"/></svg></button>
-            <input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" enterkeyhint="done" id="editMealC" value="0" aria-label="Carbs per 100g">
-            <button class="routine-step" type="button" data-meal-step="editMealC" data-meal-delta="0.1" aria-label="Increase carbs"><svg class="icon"><use href="#icon-plus"/></svg></button>
+            <button class="routine-step" type="button" data-meal-step="editMealC" data-meal-delta="-0.1" aria-label="کاهش کربوهیدرات"><svg class="icon"><use href="#icon-minus"/></svg></button>
+            <input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" enterkeyhint="done" id="editMealC" value="0" aria-label="کربوهیدرات در ۱۰۰ گرم">
+            <button class="routine-step" type="button" data-meal-step="editMealC" data-meal-delta="0.1" aria-label="افزایش کربوهیدرات"><svg class="icon"><use href="#icon-plus"/></svg></button>
           </div>
         </div>
         <div class="feature-field">
-          <label for="editMealF">Fats / 100g</label>
+          <label for="editMealF">چربی / ۱۰۰ گرم</label>
           <div class="routine-stepper">
-            <button class="routine-step" type="button" data-meal-step="editMealF" data-meal-delta="-0.1" aria-label="Decrease fats"><svg class="icon"><use href="#icon-minus"/></svg></button>
-            <input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" enterkeyhint="done" id="editMealF" value="0" aria-label="Fats per 100g">
-            <button class="routine-step" type="button" data-meal-step="editMealF" data-meal-delta="0.1" aria-label="Increase fats"><svg class="icon"><use href="#icon-plus"/></svg></button>
+            <button class="routine-step" type="button" data-meal-step="editMealF" data-meal-delta="-0.1" aria-label="کاهش چربی"><svg class="icon"><use href="#icon-minus"/></svg></button>
+            <input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" enterkeyhint="done" id="editMealF" value="0" aria-label="چربی در ۱۰۰ گرم">
+            <button class="routine-step" type="button" data-meal-step="editMealF" data-meal-delta="0.1" aria-label="افزایش چربی"><svg class="icon"><use href="#icon-plus"/></svg></button>
           </div>
         </div>
       </div>
@@ -697,170 +699,170 @@
 <div class="feature-backdrop panel-backdrop" id="settingsBackdrop" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" aria-hidden="true">
   <section class="feature-panel settings-panel panel-drawer">
     <div class="routine-header panel-header">
-      <div><h2 id="settingsTitle">Settings</h2><span class="panel-summary">Preferences, filters, and data tools.</span></div>
+      <div><h2 id="settingsTitle">تنظیمات</h2><span class="panel-summary">تنظیمات، فیلترها و ابزارهای داده.</span></div>
     </div>
     <div class="feature-scroll">
       <div class="settings-stack">
         <section class="settings-group">
-          <h3 class="settings-heading">Training</h3>
+          <h3 class="settings-heading">تمرین</h3>
           <div class="settings-card">
             <div class="settings-row">
-              <span class="settings-row-main"><svg class="icon"><use href="#icon-calendar"/></svg><span>Week starts on</span></span>
-              <div class="seg-control" data-pref-seg="weekStart" role="group" aria-label="Week starts on">
-                <button type="button" data-pref-value="6" aria-pressed="false">Sat</button>
-                <button type="button" data-pref-value="0" aria-pressed="false">Sun</button>
-                <button type="button" data-pref-value="1" aria-pressed="false">Mon</button>
+              <span class="settings-row-main"><svg class="icon"><use href="#icon-calendar"/></svg><span>شروع هفته</span></span>
+              <div class="seg-control" data-pref-seg="weekStart" role="group" aria-label="شروع هفته">
+                <button type="button" data-pref-value="6" aria-pressed="false">شنبه</button>
+                <button type="button" data-pref-value="0" aria-pressed="false">یکشنبه</button>
+                <button type="button" data-pref-value="1" aria-pressed="false">دوشنبه</button>
               </div>
             </div>
             <div class="settings-row">
-              <span class="settings-row-main"><svg class="icon"><use href="#icon-progress"/></svg><span>Default view</span></span>
-              <div class="seg-control" data-pref-seg="defaultView" role="group" aria-label="Default dashboard view">
-                <button type="button" data-pref-value="week" aria-pressed="false">Weekly</button>
-                <button type="button" data-pref-value="month" aria-pressed="false">Monthly</button>
-                <button type="button" data-pref-value="all" aria-pressed="false">All-time</button>
+              <span class="settings-row-main"><svg class="icon"><use href="#icon-progress"/></svg><span>نمای پیش‌فرض</span></span>
+              <div class="seg-control" data-pref-seg="defaultView" role="group" aria-label="نمای پیش‌فرض داشبورد">
+                <button type="button" data-pref-value="week" aria-pressed="false">هفتگی</button>
+                <button type="button" data-pref-value="month" aria-pressed="false">ماهانه</button>
+                <button type="button" data-pref-value="all" aria-pressed="false">کل زمان</button>
               </div>
             </div>
             <div class="settings-row">
-              <span class="settings-row-main"><svg class="icon"><use href="#icon-routine"/></svg><span>Workout reminder</span></span>
-              <button type="button" class="settings-switch" id="workoutReminder" role="switch" aria-checked="true" aria-label="Workout reminder banner"></button>
+              <span class="settings-row-main"><svg class="icon"><use href="#icon-routine"/></svg><span>یادآور تمرین</span></span>
+              <button type="button" class="settings-switch" id="workoutReminder" role="switch" aria-checked="true" aria-label="بنر یادآور تمرین"></button>
             </div>
             <button type="button" class="settings-row settings-row-action" id="addCustomExerciseBtn">
-              <span class="settings-row-main"><svg class="icon"><use href="#icon-plus"/></svg><span>Add custom exercise</span></span>
+              <span class="settings-row-main"><svg class="icon"><use href="#icon-plus"/></svg><span>افزودن حرکت سفارشی</span></span>
             </button>
           </div>
         </section>
 
         <section class="settings-group">
-          <h3 class="settings-heading">Rest timer</h3>
+          <h3 class="settings-heading">تایمر استراحت</h3>
           <div class="settings-card">
             <div class="settings-row">
-              <span class="settings-row-main"><svg class="icon"><use href="#icon-pause"/></svg><span>Rest timer</span></span>
-              <button type="button" class="settings-switch" id="restEnabled" role="switch" aria-checked="false" aria-label="Rest timer"></button>
+              <span class="settings-row-main"><svg class="icon"><use href="#icon-pause"/></svg><span>تایمر استراحت</span></span>
+              <button type="button" class="settings-switch" id="restEnabled" role="switch" aria-checked="false" aria-label="تایمر استراحت"></button>
             </div>
             <div class="settings-row">
-              <span class="settings-row-main"><svg class="icon"><use href="#icon-reset"/></svg><span>Rest between sets</span></span>
-              <div class="routine-stepper settings-stepper" data-rest-stepper="betweenSets" role="group" aria-label="Default rest between sets" aria-disabled="true">
-                <button class="routine-step" type="button" data-rest-step="-1" aria-label="Decrease rest between sets"><svg class="icon"><use href="#icon-minus"/></svg></button>
-                <output aria-live="polite">60 sec</output>
-                <button class="routine-step" type="button" data-rest-step="1" aria-label="Increase rest between sets"><svg class="icon"><use href="#icon-plus"/></svg></button>
+              <span class="settings-row-main"><svg class="icon"><use href="#icon-reset"/></svg><span>استراحت بین ست‌ها</span></span>
+              <div class="routine-stepper settings-stepper" data-rest-stepper="betweenSets" role="group" aria-label="استراحت پیش‌فرض بین ست‌ها" aria-disabled="true">
+                <button class="routine-step" type="button" data-rest-step="-1" aria-label="کاهش استراحت بین ست‌ها"><svg class="icon"><use href="#icon-minus"/></svg></button>
+                <output aria-live="polite">۶۰ ثانیه</output>
+                <button class="routine-step" type="button" data-rest-step="1" aria-label="افزایش استراحت بین ست‌ها"><svg class="icon"><use href="#icon-plus"/></svg></button>
               </div>
             </div>
             <div class="settings-row">
-              <span class="settings-row-main"><svg class="icon"><use href="#icon-reset"/></svg><span>Rest between exercises</span></span>
-              <div class="routine-stepper settings-stepper" data-rest-stepper="betweenExercise" role="group" aria-label="Default rest between exercises" aria-disabled="true">
-                <button class="routine-step" type="button" data-rest-step="-1" aria-label="Decrease rest between exercises"><svg class="icon"><use href="#icon-minus"/></svg></button>
-                <output aria-live="polite">90 sec</output>
-                <button class="routine-step" type="button" data-rest-step="1" aria-label="Increase rest between exercises"><svg class="icon"><use href="#icon-plus"/></svg></button>
+              <span class="settings-row-main"><svg class="icon"><use href="#icon-reset"/></svg><span>استراحت بین حرکات</span></span>
+              <div class="routine-stepper settings-stepper" data-rest-stepper="betweenExercise" role="group" aria-label="استراحت پیش‌فرض بین حرکات" aria-disabled="true">
+                <button class="routine-step" type="button" data-rest-step="-1" aria-label="کاهش استراحت بین حرکات"><svg class="icon"><use href="#icon-minus"/></svg></button>
+                <output aria-live="polite">۹۰ ثانیه</output>
+                <button class="routine-step" type="button" data-rest-step="1" aria-label="افزایش استراحت بین حرکات"><svg class="icon"><use href="#icon-plus"/></svg></button>
               </div>
             </div>
           </div>
         </section>
 
         <section class="settings-group">
-          <h3 class="settings-heading">Workout filters</h3>
-          <div class="settings-card" id="pillRowEditor" role="group" aria-label="Filter pill rows">
+          <h3 class="settings-heading">فیلترهای تمرین</h3>
+          <div class="settings-card" id="pillRowEditor" role="group" aria-label="ردیف‌های فیلتر">
             <div class="settings-row">
-              <span class="settings-row-main"><span>Routines</span></span>
-              <div class="seg-control" data-editor-seg="routine" role="group" aria-label="Routines row visibility">
-                <button type="button" data-editor-mode="default" aria-pressed="false">Default</button>
-                <button type="button" data-editor-mode="pin" aria-pressed="false">Pin</button>
-                <button type="button" data-editor-mode="hidden" aria-pressed="false">Hidden</button>
+              <span class="settings-row-main"><span>برنامه‌های تمرینی</span></span>
+              <div class="seg-control" data-editor-seg="routine" role="group" aria-label="نمایش ردیف برنامه‌ها">
+                <button type="button" data-editor-mode="default" aria-pressed="false">پیش‌فرض</button>
+                <button type="button" data-editor-mode="pin" aria-pressed="false">سنجاق</button>
+                <button type="button" data-editor-mode="hidden" aria-pressed="false">مخفی</button>
               </div>
             </div>
             <div class="settings-row">
-              <span class="settings-row-main"><span>Body parts</span></span>
-              <div class="seg-control" data-editor-seg="category" role="group" aria-label="Body parts row visibility">
-                <button type="button" data-editor-mode="default" aria-pressed="false">Default</button>
-                <button type="button" data-editor-mode="pin" aria-pressed="false">Pin</button>
-                <button type="button" data-editor-mode="hidden" aria-pressed="false">Hidden</button>
+              <span class="settings-row-main"><span>بخش‌های بدن</span></span>
+              <div class="seg-control" data-editor-seg="category" role="group" aria-label="نمایش ردیف بخش‌های بدن">
+                <button type="button" data-editor-mode="default" aria-pressed="false">پیش‌فرض</button>
+                <button type="button" data-editor-mode="pin" aria-pressed="false">سنجاق</button>
+                <button type="button" data-editor-mode="hidden" aria-pressed="false">مخفی</button>
               </div>
             </div>
             <div class="settings-row">
-              <span class="settings-row-main"><span>Target muscles</span></span>
-              <div class="seg-control" data-editor-seg="target" role="group" aria-label="Target muscles row visibility">
-                <button type="button" data-editor-mode="default" aria-pressed="false">Default</button>
-                <button type="button" data-editor-mode="pin" aria-pressed="false">Pin</button>
-                <button type="button" data-editor-mode="hidden" aria-pressed="false">Hidden</button>
+              <span class="settings-row-main"><span>عضلات هدف</span></span>
+              <div class="seg-control" data-editor-seg="target" role="group" aria-label="نمایش ردیف عضلات هدف">
+                <button type="button" data-editor-mode="default" aria-pressed="false">پیش‌فرض</button>
+                <button type="button" data-editor-mode="pin" aria-pressed="false">سنجاق</button>
+                <button type="button" data-editor-mode="hidden" aria-pressed="false">مخفی</button>
               </div>
             </div>
             <div class="settings-row">
-              <span class="settings-row-main"><span>Equipments</span></span>
-              <div class="seg-control" data-editor-seg="equipment" role="group" aria-label="Equipments row visibility">
-                <button type="button" data-editor-mode="default" aria-pressed="false">Default</button>
-                <button type="button" data-editor-mode="pin" aria-pressed="false">Pin</button>
-                <button type="button" data-editor-mode="hidden" aria-pressed="false">Hidden</button>
+              <span class="settings-row-main"><span>تجهیزات</span></span>
+              <div class="seg-control" data-editor-seg="equipment" role="group" aria-label="نمایش ردیف تجهیزات">
+                <button type="button" data-editor-mode="default" aria-pressed="false">پیش‌فرض</button>
+                <button type="button" data-editor-mode="pin" aria-pressed="false">سنجاق</button>
+                <button type="button" data-editor-mode="hidden" aria-pressed="false">مخفی</button>
               </div>
             </div>
             <div class="settings-row">
-              <span class="settings-row-main"><span>Tags</span></span>
-              <div class="seg-control" data-editor-seg="tags" role="group" aria-label="Tags row visibility">
-                <button type="button" data-editor-mode="default" aria-pressed="false">Default</button>
-                <button type="button" data-editor-mode="pin" aria-pressed="false">Pin</button>
-                <button type="button" data-editor-mode="hidden" aria-pressed="false">Hidden</button>
+              <span class="settings-row-main"><span>برچسب‌ها</span></span>
+              <div class="seg-control" data-editor-seg="tags" role="group" aria-label="نمایش ردیف برچسب‌ها">
+                <button type="button" data-editor-mode="default" aria-pressed="false">پیش‌فرض</button>
+                <button type="button" data-editor-mode="pin" aria-pressed="false">سنجاق</button>
+                <button type="button" data-editor-mode="hidden" aria-pressed="false">مخفی</button>
               </div>
             </div>
             <button type="button" class="settings-row settings-row-action" data-editor-row="toggles">
-              <span class="settings-row-main"><span>Liked / Logged buttons</span></span>
+              <span class="settings-row-main"><span>دکمه‌های پسند / ثبت</span></span>
               <span class="settings-row-value" id="togglesHostValue"></span>
             </button>
           </div>
         </section>
 
         <section class="settings-group">
-          <h3 class="settings-heading">Appearance</h3>
+          <h3 class="settings-heading">ظاهر</h3>
           <div class="settings-card">
-            <div class="accent-row" id="accentRow" role="radiogroup" aria-label="Accent color">
-              <button type="button" class="accent-swatch" role="radio" data-accent="red" aria-checked="true" aria-label="Red" style="--swatch:#ff453a"></button>
-              <button type="button" class="accent-swatch" role="radio" data-accent="blue" aria-checked="false" aria-label="Blue" style="--swatch:#0a84ff"></button>
-              <button type="button" class="accent-swatch" role="radio" data-accent="green" aria-checked="false" aria-label="Green" style="--swatch:#30d158"></button>
-              <button type="button" class="accent-swatch" role="radio" data-accent="orange" aria-checked="false" aria-label="Orange" style="--swatch:#ff9f0a"></button>
-              <button type="button" class="accent-swatch" role="radio" data-accent="purple" aria-checked="false" aria-label="Purple" style="--swatch:#bf5af2"></button>
-              <button type="button" class="accent-swatch" role="radio" data-accent="pink" aria-checked="false" aria-label="Pink" style="--swatch:#ff64d9"></button>
+            <div class="accent-row" id="accentRow" role="radiogroup" aria-label="رنگ تاکیدی">
+              <button type="button" class="accent-swatch" role="radio" data-accent="red" aria-checked="true" aria-label="قرمز" style="--swatch:#ff453a"></button>
+              <button type="button" class="accent-swatch" role="radio" data-accent="blue" aria-checked="false" aria-label="آبی" style="--swatch:#0a84ff"></button>
+              <button type="button" class="accent-swatch" role="radio" data-accent="green" aria-checked="false" aria-label="سبز" style="--swatch:#30d158"></button>
+              <button type="button" class="accent-swatch" role="radio" data-accent="orange" aria-checked="false" aria-label="نارنجی" style="--swatch:#ff9f0a"></button>
+              <button type="button" class="accent-swatch" role="radio" data-accent="purple" aria-checked="false" aria-label="بنفش" style="--swatch:#bf5af2"></button>
+              <button type="button" class="accent-swatch" role="radio" data-accent="pink" aria-checked="false" aria-label="صورتی" style="--swatch:#ff64d9"></button>
             </div>
           </div>
         </section>
 
         <section class="settings-group">
-          <h3 class="settings-heading">Data</h3>
+          <h3 class="settings-heading">داده</h3>
           <div class="settings-card">
             <div class="settings-row">
-              <span class="settings-row-main"><svg class="icon"><use href="#icon-archive"/></svg><span>Vault folder</span></span>
+              <span class="settings-row-main"><svg class="icon"><use href="#icon-archive"/></svg><span>پوشه خزانه</span></span>
               <span class="vault-path-prefix">Documents/</span>
-              <input id="vaultFolderPath" class="vault-path-input" type="text" placeholder="Gym2026" aria-label="Vault folder name" autocomplete="off" spellcheck="false" readonly>
-              <button type="button" class="vault-reload-btn" id="vaultReloadBtn" aria-label="Reload vault from disk"><svg class="icon"><use href="#icon-reset"/></svg></button>
+              <input id="vaultFolderPath" class="vault-path-input" type="text" placeholder="Gym2026" aria-label="نام پوشه خزانه" autocomplete="off" spellcheck="false" readonly>
+              <button type="button" class="vault-reload-btn" id="vaultReloadBtn" aria-label="بازخوانی خزانه از دیسک"><svg class="icon"><use href="#icon-reset"/></svg></button>
             </div>
             <div class="settings-row">
-              <span class="settings-row-main"><svg class="icon"><use href="#icon-progress"/></svg><span>Training logs</span></span>
+              <span class="settings-row-main"><svg class="icon"><use href="#icon-progress"/></svg><span>گزارش‌های تمرین</span></span>
               <div class="settings-io-actions">
-                <button type="button" class="pill" id="progressCopyLog">Export</button>
-                <button type="button" class="pill" id="progressPasteLog" aria-expanded="false" aria-controls="progressLogPaste">Import</button>
+                <button type="button" class="pill" id="progressCopyLog">خروجی</button>
+                <button type="button" class="pill" id="progressPasteLog" aria-expanded="false" aria-controls="progressLogPaste">ورودی</button>
               </div>
             </div>
-            <div class="progress-log-paste" id="progressLogPaste" hidden><label for="progressLogPasteText">Progress log text</label><textarea id="progressLogPasteText" spellcheck="false" placeholder="exercise: &quot;Lever Alternating Narrow Grip Seated Row&quot;&#10;exerciseId: #0571&#10;date: 2026-08-27&#10;int: 3&#10;dur(sec): 15, 15, 15&#10;dist(km): 2, 2, 2&#10;notes:&#10;id: 1787840342296&#10;&#10;exercise: &quot;Cable Lateral Pulldown With V-Bar&quot;&#10;exerciseId: #2616&#10;date: 2026-08-27&#10;sets: 3&#10;weight(kg): 25, 25, 25&#10;reps: 12, 12, 12&#10;notes:&#10;id: 1787840342296"></textarea><div><button id="progressLogPasteCancel" type="button">Cancel</button><button id="progressLogPasteAdd" type="button">Add log</button><button id="progressLogPasteImport" type="button">Replace log</button></div></div>
+            <div class="progress-log-paste" id="progressLogPaste" hidden><label for="progressLogPasteText">متن گزارش پیشرفت</label><textarea id="progressLogPasteText" spellcheck="false" placeholder="exercise: &quot;زیربغل سیم‌کش دسته‌جمعی نشسته&quot;&#10;exerciseId: #0571&#10;date: 2026-08-27&#10;int: 3&#10;dur(sec): 15, 15, 15&#10;dist(km): 2, 2, 2&#10;notes:&#10;id: 1787840342296&#10;&#10;exercise: &quot;زیربغل سیم‌کش از بالا با دسته V&quot;&#10;exerciseId: #2616&#10;date: 2026-08-27&#10;sets: 3&#10;weight(kg): 25, 25, 25&#10;reps: 12, 12, 12&#10;notes:&#10;id: 1787840342296"></textarea><div><button id="progressLogPasteCancel" type="button">انصراف</button><button id="progressLogPasteAdd" type="button">افزودن گزارش</button><button id="progressLogPasteImport" type="button">جایگزینی گزارش</button></div></div>
             <div class="settings-row">
-              <span class="settings-row-main"><svg class="icon"><use href="#icon-flame"/></svg><span>Meal logs</span></span>
+              <span class="settings-row-main"><svg class="icon"><use href="#icon-flame"/></svg><span>گزارش‌های غذایی</span></span>
               <div class="settings-io-actions">
-                <button type="button" class="pill" id="mealCopyLog">Export</button>
-                <button type="button" class="pill" id="mealPasteLog" aria-expanded="false" aria-controls="mealLogPaste">Import</button>
+                <button type="button" class="pill" id="mealCopyLog">خروجی</button>
+                <button type="button" class="pill" id="mealPasteLog" aria-expanded="false" aria-controls="mealLogPaste">ورودی</button>
               </div>
             </div>
-            <div class="progress-log-paste" id="mealLogPaste" hidden><label for="mealLogPasteText">Meal log text</label><textarea id="mealLogPasteText" spellcheck="false" placeholder='date: 2026-08-11&#10;water: 1000 ml&#10;&#10;date: 2026-08-11&#10;Egg (150g) - Dinner&#10;209cal 18.9pro 1carb 14.3fat&#10;id: 1786473550906'></textarea><div><button id="mealLogPasteCancel" type="button">Cancel</button><button id="mealLogPasteAdd" type="button">Add log</button><button id="mealLogPasteImport" type="button">Replace log</button></div></div>
+            <div class="progress-log-paste" id="mealLogPaste" hidden><label for="mealLogPasteText">متن گزارش غذا</label><textarea id="mealLogPasteText" spellcheck="false" placeholder='date: 2026-08-11&#10;water: 1000 ml&#10;&#10;date: 2026-08-11&#10;تخم‌مرغ (150g) - شام&#10;209cal 18.9pro 1carb 14.3fat&#10;id: 1786473550906'></textarea><div><button id="mealLogPasteCancel" type="button">انصراف</button><button id="mealLogPasteAdd" type="button">افزودن گزارش</button><button id="mealLogPasteImport" type="button">جایگزینی گزارش</button></div></div>
             <div class="settings-row">
-              <span class="settings-row-main"><svg class="icon"><use href="#icon-dumbbell"/></svg><span>Custom exercises</span></span>
+              <span class="settings-row-main"><svg class="icon"><use href="#icon-dumbbell"/></svg><span>حرکات سفارشی</span></span>
               <div class="settings-io-actions">
-                <button type="button" class="pill" id="customExerciseCopyLog">Export</button>
-                <button type="button" class="pill" id="customExercisePasteLog" aria-expanded="false" aria-controls="customExercisePaste">Import</button>
+                <button type="button" class="pill" id="customExerciseCopyLog">خروجی</button>
+                <button type="button" class="pill" id="customExercisePasteLog" aria-expanded="false" aria-controls="customExercisePaste">ورودی</button>
               </div>
             </div>
-            <div class="progress-log-paste" id="customExercisePaste" hidden><label for="customExercisePasteText">Custom exercises text</label><textarea id="customExercisePasteText" spellcheck="false" placeholder='## Custom Exercises&#10;- name: Landmine press&#10;  id: c-1750000000-ab12cd&#10;  category: chest&#10;  target: pectorals&#10;  equipment: barbell&#10;  description: Press from angle'></textarea><div><button id="customExercisePasteCancel" type="button">Cancel</button><button id="customExercisePasteAdd" type="button">Add exercises</button><button id="customExercisePasteImport" type="button">Replace all</button></div></div>
+            <div class="progress-log-paste" id="customExercisePaste" hidden><label for="customExercisePasteText">متن حرکات سفارشی</label><textarea id="customExercisePasteText" spellcheck="false" placeholder='## Custom Exercises&#10;- name: پرس زمین‌ماین&#10;  id: c-1750000000-ab12cd&#10;  category: chest&#10;  target: pectorals&#10;  equipment: barbell&#10;  description: پرس از زاویه'></textarea><div><button id="customExercisePasteCancel" type="button">انصراف</button><button id="customExercisePasteAdd" type="button">افزودن حرکات</button><button id="customExercisePasteImport" type="button">جایگزینی همه</button></div></div>
             <button type="button" class="settings-row settings-row-action settings-row-danger" id="progressClearDataBtn">
-              <span class="settings-row-main"><svg class="icon"><use href="#icon-trash"/></svg><span>Clear data…</span></span>
+              <span class="settings-row-main"><svg class="icon"><use href="#icon-trash"/></svg><span>پاک‌کردن داده…</span></span>
               <svg class="icon settings-chevron" aria-hidden="true"><use href="#icon-chevron-right"/></svg>
             </button>
           </div>
         </section>
 
-        <footer class="settings-footer"><span>Form · v3 · <span id="settingsExerciseCount">0</span> exercises</span><span>Made by TheHHR</span></footer>
+        <footer class="settings-footer"><span>Form · نسخه ۳ · <span id="settingsExerciseCount">۰</span> حرکت</span><span>ساخته‌شده توسط TheHHR</span></footer>
       </div>
     </div>
   </section>
@@ -871,25 +873,25 @@
   <div class="fuel-modal">
     <div class="modal-header-row">
       <div>
-        <h2 id="clearDataTitle" class="modal-header-title">Clear data</h2>
+        <h2 id="clearDataTitle" class="modal-header-title">پاک‌کردن داده</h2>
       </div>
     </div>
-    <p class="panel-summary" style="margin-bottom: var(--space-4);">Select the categories of data you want to permanently reset.</p>
+    <p class="panel-summary" style="margin-bottom: var(--space-4);">دسته‌های داده‌ای را که می‌خواهید برای همیشه بازنشانی کنید انتخاب کنید.</p>
     <form id="clearDataForm">
       <div class="filter-checks clear-data-checks">
-        <label class="check check-select-all"><input type="checkbox" id="chkClearAll"><strong>Select all</strong></label>
+        <label class="check check-select-all"><input type="checkbox" id="chkClearAll"><strong>انتخاب همه</strong></label>
         <div class="fuel-card-divider" style="margin: 6px 0 10px;"></div>
-        <label class="check"><input type="checkbox" id="chkClearLogs"><span>Training progress logs</span></label>
-        <label class="check"><input type="checkbox" id="chkClearRoutines"><span>Workout routines</span></label>
-        <label class="check"><input type="checkbox" id="chkClearSaved"><span>Saved exercises</span></label>
-        <label class="check"><input type="checkbox" id="chkClearFuelDiary"><span>Nutrition food & hydration diary</span></label>
-        <label class="check"><input type="checkbox" id="chkClearMeals"><span>Custom meal library</span></label>
-        <label class="check"><input type="checkbox" id="chkClearCustomExercises"><span>Custom exercises</span></label>
-        <label class="check"><input type="checkbox" id="chkClearTags"><span>Exercise tags</span></label>
+        <label class="check"><input type="checkbox" id="chkClearLogs"><span>گزارش‌های پیشرفت تمرین</span></label>
+        <label class="check"><input type="checkbox" id="chkClearRoutines"><span>برنامه‌های تمرینی</span></label>
+        <label class="check"><input type="checkbox" id="chkClearSaved"><span>حرکات ذخیره‌شده</span></label>
+        <label class="check"><input type="checkbox" id="chkClearFuelDiary"><span>دفتر غذای تغذیه و آب بدن</span></label>
+        <label class="check"><input type="checkbox" id="chkClearMeals"><span>کتابخانه غذاهای سفارشی</span></label>
+        <label class="check"><input type="checkbox" id="chkClearCustomExercises"><span>حرکات سفارشی</span></label>
+        <label class="check"><input type="checkbox" id="chkClearTags"><span>برچسب‌های حرکات</span></label>
       </div>
       <div class="clear-data-actions">
-        <button type="button" class="btn-clear-cancel">Cancel</button>
-        <button type="submit" class="btn-clear-submit" id="clearDataSubmit">Clear selected</button>
+        <button type="button" class="btn-clear-cancel">انصراف</button>
+        <button type="submit" class="btn-clear-submit" id="clearDataSubmit">پاک‌کردن موارد انتخاب‌شده</button>
       </div>
     </form>
   </div>
@@ -900,29 +902,36 @@
   <div class="fuel-modal">
     <div class="modal-header-row">
       <div>
-        <h2 id="confirmDialogTitle" class="modal-header-title">Confirm</h2>
+        <h2 id="confirmDialogTitle" class="modal-header-title">تایید</h2>
       </div>
     </div>
     <p class="panel-summary" style="margin-bottom: var(--space-4);" id="confirmDialogMessage"></p>
     <div class="clear-data-actions">
-      <button type="button" class="btn-clear-cancel" id="confirmDialogCancel">Cancel</button>
-      <button type="button" class="btn-clear-submit" id="confirmDialogOk">Confirm</button>
+      <button type="button" class="btn-clear-cancel" id="confirmDialogCancel">انصراف</button>
+      <button type="button" class="btn-clear-submit" id="confirmDialogOk">تایید</button>
     </div>
   </div>
 </div>
 
-<div class="aw-rest-pill" id="awRestPill" role="timer" aria-label="Rest countdown" hidden>
+<div class="aw-rest-pill" id="awRestPill" role="timer" aria-label="شمارش معکوس استراحت" hidden>
   <span class="aw-rest-ring" aria-hidden="true"></span>
   <strong id="awRestTime">1:00</strong>
-  <button type="button" data-rest-action="extend">+30s</button>
-  <button type="button" data-rest-action="skip">Skip</button>
+  <button type="button" data-rest-action="extend">+۳۰ ثانیه</button>
+  <button type="button" data-rest-action="skip">رد کردن</button>
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<div class="routine-menu exercise-tag-menu" id="exerciseTagMenu" role="menu" aria-label="Exercise tags" hidden>
-  <div class="tag-menu-input-wrap"><input id="exerciseTagInput" type="text" maxlength="24" placeholder="New tag" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="New tag"><button type="button" class="exercise-tag-submit" id="exerciseTagSubmit" aria-label="Add tag"><svg class="icon"><use href="#icon-plus"/></svg></button></div>
+<div class="routine-menu exercise-tag-menu" id="exerciseTagMenu" role="menu" aria-label="برچسب‌های حرکات" hidden>
+  <div class="tag-menu-input-wrap"><input id="exerciseTagInput" type="text" maxlength="24" placeholder="برچسب جدید" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="برچسب جدید"><button type="button" class="exercise-tag-submit" id="exerciseTagSubmit" aria-label="افزودن برچسب"><svg class="icon"><use href="#icon-plus"/></svg></button></div>
   <div id="exerciseTagOptions" class="exercise-tag-options"></div>
 </div>
+<script src="fa-data.js" defer></script>
+<script src="fa-ex-1.js" defer></script>
+<script src="fa-ex-2.js" defer></script>
+<script src="fa-ex-3.js" defer></script>
+<script src="fa-ex-4.js" defer></script>
+<script src="fa-ex-5.js" defer></script>
+<script src="fa-ex-6.js" defer></script>
 <script src="app.js" defer></script>
 </body>
 </html>

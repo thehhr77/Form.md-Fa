@@ -12,7 +12,29 @@ const EXERCISES=[{"id":"0001","name":"3/4 sit-up","category":"waist","equipment"
       `,this.container.style.position=this.container.style.position||"relative",this.container.appendChild(this._tooltipEl))}disableTooltip(){this._tooltipEnabled=!1,this._tooltipEl?.remove(),this._tooltipEl=null}enableAnimation(e=300){this._animated=!0,this._animDuration=e}disableAnimation(){this._animated=!1,this._animRAF&&cancelAnimationFrame(this._animRAF)}enablePulse(e=1.5,t=.6,s=1){this._pulseEnabled=!0,this._pulseSpeed=e,this._pulseMin=t,this._pulseMax=s,this.startPulseLoop()}disablePulse(){this._pulseEnabled=!1,this._pulseRAF&&cancelAnimationFrame(this._pulseRAF),this.draw()}setLongPressDuration(e){this._longPressDuration=e}on(e,t){this.eventHandlers.has(e)||this.eventHandlers.set(e,new Set),this.eventHandlers.get(e).add(t)}off(e,t){this.eventHandlers.get(e)?.delete(t)}destroy(){this.destroyed=!0,this._paintRAF&&cancelAnimationFrame(this._paintRAF),this.canvas.removeEventListener("pointerdown",this.handlePointerDown),this.canvas.removeEventListener("pointermove",this.handlePointerMove),this.canvas.removeEventListener("pointerup",this.handlePointerUp),this.canvas.removeEventListener("pointerleave",this.handlePointerLeave),this._pulseRAF&&cancelAnimationFrame(this._pulseRAF),this._animRAF&&cancelAnimationFrame(this._animRAF),this._tooltipEl?.remove(),this.resizeObserver?.disconnect(),this.canvas.remove(),this.eventHandlers.clear()}makeRenderer(e){return new B(this.gender,this.side,e??this.highlights,this.style,this.selectedMuscles,this.hideSubGroups)}draw(){this.destroyed||this._paintRAF||(this._paintRAF=requestAnimationFrame(()=>{this._paintRAF=0,this.paint()}))}paint(){if(this.destroyed)return;let e=this.canvas.width/this.dpr,t=this.canvas.height/this.dpr;this.ctx.setTransform(1,0,0,1,0,0),this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height),this.makeRenderer().render(this.ctx,e,t,this.dpr)}drawAnimated(){if(!this._animated||this._animProgress>=1){this.paint();return}let e=this.canvas.width/this.dpr,t=this.canvas.height/this.dpr;this.ctx.setTransform(1,0,0,1,0,0),this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);let s=this.blendHighlights(this._animProgress);this.makeRenderer(s).render(this.ctx,e,t,this.dpr)}blendHighlights(e){if(e>=1)return this.highlights;let t=new Map,s=new Set([...this._prevHighlights.keys(),...this.highlights.keys()]);for(let i of s){let a=this._prevHighlights.get(i),r=this.highlights.get(i);if(!a&&r)t.set(i,{...r,opacity:r.opacity*e});else if(a&&!r)t.set(i,{...a,opacity:a.opacity*(1-e)});else if(a&&r){let l=a.opacity+(r.opacity-a.opacity)*e,d;a.fill.type==="color"&&r.fill.type==="color"?d={type:"color",color:H(a.fill.color,r.fill.color,e)}:d=e<.5?a.fill:r.fill,t.set(i,{muscle:i,fill:d,opacity:l})}}return t}startAnimationLoop(){this._animStartTime=performance.now(),this._animProgress=0;let e=t=>{let s=t-this._animStartTime;this._animProgress=Math.min(1,s/this._animDuration);let i=this._animProgress,a=i<.5?2*i*i:1-Math.pow(-2*i+2,2)/2;this._animProgress=a,this.drawAnimated(),a<1&&!this.destroyed&&(this._animRAF=requestAnimationFrame(e))};this._animRAF=requestAnimationFrame(e)}startPulseLoop(){let e=()=>{if(!this._pulseEnabled||this.destroyed||this.selectedMuscles.size===0){this._pulseRAF=0;return}let t=performance.now()/1e3,s=(Math.sin(t*this._pulseSpeed*Math.PI*2)+1)/2,i=this._pulseMin+s*(this._pulseMax-this._pulseMin),a=this.canvas.width/this.dpr,r=this.canvas.height/this.dpr;this.ctx.setTransform(1,0,0,1,0,0),this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);let l=new Map(this.highlights);for(let q of this.selectedMuscles){let n=l.get(q);n&&l.set(q,{...n,opacity:n.opacity*i})}this.makeRenderer(l).render(this.ctx,a,r,this.dpr),this._pulseRAF=requestAnimationFrame(e)};this._pulseRAF=requestAnimationFrame(e)}drawWithAnimation(){this._animated&&this._prevHighlights.size>0?this.startAnimationLoop():this.draw()}pushHistory(){this._historyEnabled&&(this._undoStack.push(new Set(this.selectedMuscles)),this._undoStack.length>this._historyMax&&this._undoStack.shift(),this._redoStack=[])}resize(){if(this.destroyed)return;let e=this.container.getBoundingClientRect();this.dpr=Math.min(window.devicePixelRatio||1,2),this.canvas.width=e.width*this.dpr,this.canvas.height=e.height*this.dpr,this.paint()}doHitTest(e,t){let s=this.canvas.width/this.dpr,i=this.canvas.height/this.dpr;return this.makeRenderer().hitTest(this.ctx,e,t,s,i)}updateTooltip(e,t){if(!this._tooltipEnabled||!this._tooltipEl||!this._tooltipRenderer)return;this._tooltipEl.innerHTML=this._tooltipRenderer(e,t),this._tooltipEl.style.opacity="1";let s=this.getBoundingRect(e);if(s){let i=this._tooltipEl.offsetHeight||30,a=8,r=s.y-i-a;r<0&&(r=s.y+s.height+a);let l=s.x+s.width/2-(this._tooltipEl.offsetWidth||60)/2;l=Math.max(4,Math.min(l,this.container.clientWidth-(this._tooltipEl.offsetWidth||60)-4)),this._tooltipEl.style.top=`${r}px`,this._tooltipEl.style.left=`${l}px`}}hideTooltip(){this._tooltipEl&&(this._tooltipEl.style.opacity="0")}canvasCoords(e){let t=this.canvas.getBoundingClientRect();return{x:e.clientX-t.left,y:e.clientY-t.top}}emit(e,...t){let s=this.eventHandlers.get(e);if(s)for(let i of s)i(...t)}},x1={topToBottom:[.5,0,.5,1],bottomToTop:[.5,1,.5,0],leftToRight:[0,.5,1,.5],rightToLeft:[1,.5,0,.5]};var I=class{constructor(e,t){this.container=e,this.orientation=t.orientation??"horizontal",this.barThickness=t.barThickness??16,this.steps=Math.max(t.steps??32,2),this.interpolation=t.interpolation??{type:"linear"},t.colorScale instanceof m?this.scale=t.colorScale:this.scale=b(t.colorScale);let s=document.createElement("div");if(s.className="mm-legend",s.style.cssText="display:flex;gap:4px;align-items:stretch;font-family:system-ui,sans-serif;",s.setAttribute("role","img"),s.setAttribute("aria-label","Heatmap intensity legend"),this.orientation==="horizontal"?s.style.flexDirection="column":s.style.flexDirection="row",this.canvas=document.createElement("canvas"),this.canvas.style.borderRadius=`${this.barThickness/4}px`,this.canvas.style.display="block",this.ctx=this.canvas.getContext("2d"),this.labelMinEl=document.createElement("span"),this.labelMinEl.textContent=t.labelMin??"Low",this.labelMinEl.style.cssText="font-size:11px;color:#888;",this.labelMaxEl=document.createElement("span"),this.labelMaxEl.textContent=t.labelMax??"High",this.labelMaxEl.style.cssText="font-size:11px;color:#888;",this.orientation==="horizontal"){s.appendChild(this.canvas);let a=document.createElement("div");a.style.cssText="display:flex;justify-content:space-between;",a.appendChild(this.labelMinEl),a.appendChild(this.labelMaxEl),s.appendChild(a)}else{let a=document.createElement("div");a.style.cssText="display:flex;flex-direction:column;justify-content:space-between;",a.appendChild(this.labelMaxEl),a.appendChild(this.labelMinEl),s.appendChild(a),s.appendChild(this.canvas)}e.appendChild(s),this.resize(),new ResizeObserver(()=>this.resize()).observe(e)}setColorScale(e){e instanceof m?this.scale=e:this.scale=b(e),this.draw()}setInterpolation(e){this.interpolation=e,this.draw()}resize(){let e=window.devicePixelRatio||1,t=this.container.getBoundingClientRect();this.orientation==="horizontal"?(this.canvas.style.width="100%",this.canvas.style.height=`${this.barThickness}px`,this.canvas.width=t.width*e,this.canvas.height=this.barThickness*e):(this.canvas.style.width=`${this.barThickness}px`,this.canvas.style.height="100%",this.canvas.width=this.barThickness*e,this.canvas.height=t.height*e),this.draw()}draw(){let e=this.canvas.width,t=this.canvas.height;this.ctx.clearRect(0,0,e,t);let s=this.steps,i=this.orientation==="horizontal";for(let a=0;a<s;a++){let r=a/(s-1),l=w(this.interpolation,r),d=this.scale.color(l);if(this.ctx.fillStyle=d,i){let q=e/s;this.ctx.fillRect(a*q,0,q+1,t)}else{let q=t/s,n=s-1-a;this.ctx.fillRect(0,n*q,e,q+1)}}}};var E={en:{abs:"Abs",adductors:"Adductors",ankles:"Ankles",biceps:"Biceps",calves:"Calves",chest:"Chest",deltoids:"Deltoids",feet:"Feet",forearm:"Forearm",gluteal:"Gluteal",hamstring:"Hamstring",hands:"Hands",head:"Head",knees:"Knees","lower-back":"Lower Back",neck:"Neck",obliques:"Obliques",quadriceps:"Quadriceps",tibialis:"Tibialis",trapezius:"Trapezius",triceps:"Triceps","upper-back":"Upper Back","rotator-cuff":"Rotator Cuff","hip-flexors":"Hip Flexors",serratus:"Serratus",rhomboids:"Rhomboids","upper-chest":"Upper Chest","lower-chest":"Lower Chest","inner-quad":"Inner Quad","outer-quad":"Outer Quad","upper-abs":"Upper Abs","lower-abs":"Lower Abs","front-deltoid":"Front Deltoid","rear-deltoid":"Rear Deltoid","upper-trapezius":"Upper Trapezius","lower-trapezius":"Lower Trapezius"},ar:{abs:"\u0639\u0636\u0644\u0627\u062A \u0627\u0644\u0628\u0637\u0646",adductors:"\u0627\u0644\u0639\u0636\u0644\u0627\u062A \u0627\u0644\u0645\u0642\u0631\u0628\u0629",ankles:"\u0627\u0644\u0643\u0627\u062D\u0644\u0627\u0646",biceps:"\u0627\u0644\u0639\u0636\u0644\u0629 \u0630\u0627\u062A \u0627\u0644\u0631\u0623\u0633\u064A\u0646",calves:"\u0631\u0628\u0644\u0629 \u0627\u0644\u0633\u0627\u0642",chest:"\u0627\u0644\u0635\u062F\u0631",deltoids:"\u0627\u0644\u062F\u0627\u0644\u064A\u0629",feet:"\u0627\u0644\u0642\u062F\u0645\u0627\u0646",forearm:"\u0627\u0644\u0633\u0627\u0639\u062F",gluteal:"\u0627\u0644\u0623\u0631\u062F\u0627\u0641",hamstring:"\u0623\u0648\u062A\u0627\u0631 \u0627\u0644\u0631\u0643\u0628\u0629",hands:"\u0627\u0644\u064A\u062F\u0627\u0646",head:"\u0627\u0644\u0631\u0623\u0633",knees:"\u0627\u0644\u0631\u0643\u0628\u062A\u0627\u0646","lower-back":"\u0623\u0633\u0641\u0644 \u0627\u0644\u0638\u0647\u0631",neck:"\u0627\u0644\u0631\u0642\u0628\u0629",obliques:"\u0627\u0644\u0645\u0627\u0626\u0644\u0629",quadriceps:"\u0639\u0636\u0644\u0627\u062A \u0627\u0644\u0641\u062E\u0630 \u0627\u0644\u0623\u0645\u0627\u0645\u064A\u0629",tibialis:"\u0627\u0644\u0642\u0635\u0628\u0629",trapezius:"\u0634\u0628\u0647 \u0627\u0644\u0645\u0646\u062D\u0631\u0641\u0629",triceps:"\u0627\u0644\u0639\u0636\u0644\u0629 \u062B\u0644\u0627\u062B\u064A\u0629 \u0627\u0644\u0631\u0624\u0648\u0633","upper-back":"\u0623\u0639\u0644\u0649 \u0627\u0644\u0638\u0647\u0631","rotator-cuff":"\u0627\u0644\u0643\u0641\u0629 \u0627\u0644\u0645\u062F\u0648\u0631\u0629","hip-flexors":"\u062B\u0646\u064A\u0627\u062A \u0627\u0644\u0648\u0631\u0643",serratus:"\u0627\u0644\u0645\u0646\u0634\u0627\u0631\u064A\u0629",rhomboids:"\u0627\u0644\u0645\u0639\u064A\u0646\u064A\u0629","upper-chest":"\u0623\u0639\u0644\u0649 \u0627\u0644\u0635\u062F\u0631","lower-chest":"\u0623\u0633\u0641\u0644 \u0627\u0644\u0635\u062F\u0631","inner-quad":"\u0627\u0644\u0641\u062E\u0630 \u0627\u0644\u062F\u0627\u062E\u0644\u064A","outer-quad":"\u0627\u0644\u0641\u062E\u0630 \u0627\u0644\u062E\u0627\u0631\u062C\u064A","upper-abs":"\u0627\u0644\u0628\u0637\u0646 \u0627\u0644\u0639\u0644\u0648\u064A\u0629","lower-abs":"\u0627\u0644\u0628\u0637\u0646 \u0627\u0644\u0633\u0641\u0644\u064A\u0629","front-deltoid":"\u0627\u0644\u062F\u0627\u0644\u064A\u0629 \u0627\u0644\u0623\u0645\u0627\u0645\u064A\u0629","rear-deltoid":"\u0627\u0644\u062F\u0627\u0644\u064A\u0629 \u0627\u0644\u062E\u0644\u0641\u064A\u0629","upper-trapezius":"\u0634\u0628\u0647 \u0627\u0644\u0645\u0646\u062D\u0631\u0641\u0629 \u0627\u0644\u0639\u0644\u0648\u064A\u0629","lower-trapezius":"\u0634\u0628\u0647 \u0627\u0644\u0645\u0646\u062D\u0631\u0641\u0629 \u0627\u0644\u0633\u0641\u0644\u064A\u0629"},de:{abs:"Bauchmuskeln",adductors:"Adduktoren",ankles:"Kn\xF6chel",biceps:"Bizeps",calves:"Waden",chest:"Brust",deltoids:"Deltamuskeln",feet:"F\xFC\xDFe",forearm:"Unterarm",gluteal:"Ges\xE4\xDFmuskeln",hamstring:"Oberschenkelr\xFCckseite",hands:"H\xE4nde",head:"Kopf",knees:"Knie","lower-back":"Unterer R\xFCcken",neck:"Nacken",obliques:"Schr\xE4ge Bauchmuskeln",quadriceps:"Quadrizeps",tibialis:"Schienbeinmuskel",trapezius:"Trapezmuskel",triceps:"Trizeps","upper-back":"Oberer R\xFCcken","rotator-cuff":"Rotatorenmanschette","hip-flexors":"H\xFCftbeuger",serratus:"S\xE4gemuskel",rhomboids:"Rautenmuskeln","upper-chest":"Obere Brust","lower-chest":"Untere Brust","inner-quad":"Innerer Quadrizeps","outer-quad":"\xC4u\xDFerer Quadrizeps","upper-abs":"Obere Bauchmuskeln","lower-abs":"Untere Bauchmuskeln","front-deltoid":"Vorderer Deltamuskel","rear-deltoid":"Hinterer Deltamuskel","upper-trapezius":"Oberer Trapezmuskel","lower-trapezius":"Unterer Trapezmuskel"},es:{abs:"Abdominales",adductors:"Aductores",ankles:"Tobillos",biceps:"B\xEDceps",calves:"Pantorrillas",chest:"Pecho",deltoids:"Deltoides",feet:"Pies",forearm:"Antebrazo",gluteal:"Gl\xFAteos",hamstring:"Isquiotibiales",hands:"Manos",head:"Cabeza",knees:"Rodillas","lower-back":"Espalda Baja",neck:"Cuello",obliques:"Oblicuos",quadriceps:"Cu\xE1driceps",tibialis:"Tibial",trapezius:"Trapecio",triceps:"Tr\xEDceps","upper-back":"Espalda Alta","rotator-cuff":"Manguito Rotador","hip-flexors":"Flexores de Cadera",serratus:"Serrato",rhomboids:"Romboides","upper-chest":"Pecho Superior","lower-chest":"Pecho Inferior","inner-quad":"Cu\xE1driceps Interno","outer-quad":"Cu\xE1driceps Externo","upper-abs":"Abdominales Superiores","lower-abs":"Abdominales Inferiores","front-deltoid":"Deltoides Anterior","rear-deltoid":"Deltoides Posterior","upper-trapezius":"Trapecio Superior","lower-trapezius":"Trapecio Inferior"},fr:{abs:"Abdominaux",adductors:"Adducteurs",ankles:"Chevilles",biceps:"Biceps",calves:"Mollets",chest:"Poitrine",deltoids:"Delto\xEFdes",feet:"Pieds",forearm:"Avant-bras",gluteal:"Fessiers",hamstring:"Ischio-jambiers",hands:"Mains",head:"T\xEAte",knees:"Genoux","lower-back":"Bas du Dos",neck:"Cou",obliques:"Obliques",quadriceps:"Quadriceps",tibialis:"Tibial",trapezius:"Trap\xE8ze",triceps:"Triceps","upper-back":"Haut du Dos","rotator-cuff":"Coiffe des Rotateurs","hip-flexors":"Fl\xE9chisseurs de Hanche",serratus:"Dentel\xE9",rhomboids:"Rhombo\xEFdes","upper-chest":"Poitrine Haute","lower-chest":"Poitrine Basse","inner-quad":"Quadriceps Interne","outer-quad":"Quadriceps Externe","upper-abs":"Abdominaux Sup\xE9rieurs","lower-abs":"Abdominaux Inf\xE9rieurs","front-deltoid":"Delto\xEFde Ant\xE9rieur","rear-deltoid":"Delto\xEFde Post\xE9rieur","upper-trapezius":"Trap\xE8ze Sup\xE9rieur","lower-trapezius":"Trap\xE8ze Inf\xE9rieur"},ja:{abs:"\u8179\u7B4B",adductors:"\u5185\u8EE2\u7B4B",ankles:"\u8DB3\u9996",biceps:"\u4E0A\u8155\u4E8C\u982D\u7B4B",calves:"\u3075\u304F\u3089\u306F\u304E",chest:"\u80F8",deltoids:"\u4E09\u89D2\u7B4B",feet:"\u8DB3",forearm:"\u524D\u8155",gluteal:"\u81C0\u7B4B",hamstring:"\u30CF\u30E0\u30B9\u30C8\u30EA\u30F3\u30B0",hands:"\u624B",head:"\u982D",knees:"\u819D","lower-back":"\u8170",neck:"\u9996",obliques:"\u8179\u659C\u7B4B",quadriceps:"\u5927\u817F\u56DB\u982D\u7B4B",tibialis:"\u524D\u811B\u9AA8\u7B4B",trapezius:"\u50E7\u5E3D\u7B4B",triceps:"\u4E0A\u8155\u4E09\u982D\u7B4B","upper-back":"\u4E0A\u80CC\u90E8","rotator-cuff":"\u56DE\u65CB\u7B4B\u8171\u677F","hip-flexors":"\u80A1\u95A2\u7BC0\u5C48\u7B4B",serratus:"\u524D\u92F8\u7B4B",rhomboids:"\u83F1\u5F62\u7B4B","upper-chest":"\u5927\u80F8\u7B4B\u4E0A\u90E8","lower-chest":"\u5927\u80F8\u7B4B\u4E0B\u90E8","inner-quad":"\u5185\u5074\u5E83\u7B4B","outer-quad":"\u5916\u5074\u5E83\u7B4B","upper-abs":"\u4E0A\u8179\u90E8","lower-abs":"\u4E0B\u8179\u90E8","front-deltoid":"\u4E09\u89D2\u7B4B\u524D\u90E8","rear-deltoid":"\u4E09\u89D2\u7B4B\u5F8C\u90E8","upper-trapezius":"\u4E0A\u90E8\u50E7\u5E3D\u7B4B","lower-trapezius":"\u4E0B\u90E8\u50E7\u5E3D\u7B4B"},ko:{abs:"\uBCF5\uADFC",adductors:"\uB0B4\uC804\uADFC",ankles:"\uBC1C\uBAA9",biceps:"\uC774\uB450\uADFC",calves:"\uC885\uC544\uB9AC",chest:"\uAC00\uC2B4",deltoids:"\uC0BC\uAC01\uADFC",feet:"\uBC1C",forearm:"\uC804\uC644",gluteal:"\uB454\uADFC",hamstring:"\uD584\uC2A4\uD2B8\uB9C1",hands:"\uC190",head:"\uBA38\uB9AC",knees:"\uBB34\uB98E","lower-back":"\uD558\uBD80 \uB4F1",neck:"\uBAA9",obliques:"\uBCF5\uC0AC\uADFC",quadriceps:"\uB300\uD1F4\uC0AC\uB450\uADFC",tibialis:"\uC804\uACBD\uACE8\uADFC",trapezius:"\uC2B9\uBAA8\uADFC",triceps:"\uC0BC\uB450\uADFC","upper-back":"\uC0C1\uBD80 \uB4F1","rotator-cuff":"\uD68C\uC804\uADFC\uAC1C","hip-flexors":"\uACE0\uAD00\uC808 \uAD74\uADFC",serratus:"\uC804\uAC70\uADFC",rhomboids:"\uB2A5\uD615\uADFC","upper-chest":"\uC0C1\uBD80 \uAC00\uC2B4","lower-chest":"\uD558\uBD80 \uAC00\uC2B4","inner-quad":"\uB0B4\uCE21\uAD11\uADFC","outer-quad":"\uC678\uCE21\uAD11\uADFC","upper-abs":"\uC0C1\uBCF5\uBD80","lower-abs":"\uD558\uBCF5\uBD80","front-deltoid":"\uC804\uBA74 \uC0BC\uAC01\uADFC","rear-deltoid":"\uD6C4\uBA74 \uC0BC\uAC01\uADFC","upper-trapezius":"\uC0C1\uBD80 \uC2B9\uBAA8\uADFC","lower-trapezius":"\uD558\uBD80 \uC2B9\uBAA8\uADFC"},"pt-BR":{abs:"Abdominais",adductors:"Adutores",ankles:"Tornozelos",biceps:"B\xEDceps",calves:"Panturrilhas",chest:"Peito",deltoids:"Deltoides",feet:"P\xE9s",forearm:"Antebra\xE7o",gluteal:"Gl\xFAteos",hamstring:"Posteriores da Coxa",hands:"M\xE3os",head:"Cabe\xE7a",knees:"Joelhos","lower-back":"Lombar",neck:"Pesco\xE7o",obliques:"Obl\xEDquos",quadriceps:"Quadr\xEDceps",tibialis:"Tibial",trapezius:"Trap\xE9zio",triceps:"Tr\xEDceps","upper-back":"Costas Superiores","rotator-cuff":"Manguito Rotador","hip-flexors":"Flexores do Quadril",serratus:"Serr\xE1til",rhomboids:"Romboides","upper-chest":"Peito Superior","lower-chest":"Peito Inferior","inner-quad":"Quadr\xEDceps Interno","outer-quad":"Quadr\xEDceps Externo","upper-abs":"Abdominais Superiores","lower-abs":"Abdominais Inferiores","front-deltoid":"Deltoide Anterior","rear-deltoid":"Deltoide Posterior","upper-trapezius":"Trap\xE9zio Superior","lower-trapezius":"Trap\xE9zio Inferior"},ru:{abs:"\u041F\u0440\u0435\u0441\u0441",adductors:"\u041F\u0440\u0438\u0432\u043E\u0434\u044F\u0449\u0438\u0435 \u043C\u044B\u0448\u0446\u044B",ankles:"\u041B\u043E\u0434\u044B\u0436\u043A\u0438",biceps:"\u0411\u0438\u0446\u0435\u043F\u0441",calves:"\u0418\u043A\u0440\u044B",chest:"\u0413\u0440\u0443\u0434\u044C",deltoids:"\u0414\u0435\u043B\u044C\u0442\u043E\u0432\u0438\u0434\u043D\u044B\u0435",feet:"\u0421\u0442\u043E\u043F\u044B",forearm:"\u041F\u0440\u0435\u0434\u043F\u043B\u0435\u0447\u044C\u0435",gluteal:"\u042F\u0433\u043E\u0434\u0438\u0447\u043D\u044B\u0435",hamstring:"\u0411\u0438\u0446\u0435\u043F\u0441 \u0431\u0435\u0434\u0440\u0430",hands:"\u041A\u0438\u0441\u0442\u0438",head:"\u0413\u043E\u043B\u043E\u0432\u0430",knees:"\u041A\u043E\u043B\u0435\u043D\u0438","lower-back":"\u041F\u043E\u044F\u0441\u043D\u0438\u0446\u0430",neck:"\u0428\u0435\u044F",obliques:"\u041A\u043E\u0441\u044B\u0435 \u043C\u044B\u0448\u0446\u044B",quadriceps:"\u041A\u0432\u0430\u0434\u0440\u0438\u0446\u0435\u043F\u0441",tibialis:"\u0411\u043E\u043B\u044C\u0448\u0435\u0431\u0435\u0440\u0446\u043E\u0432\u0430\u044F \u043C\u044B\u0448\u0446\u0430",trapezius:"\u0422\u0440\u0430\u043F\u0435\u0446\u0438\u044F",triceps:"\u0422\u0440\u0438\u0446\u0435\u043F\u0441","upper-back":"\u0412\u0435\u0440\u0445\u043D\u044F\u044F \u0447\u0430\u0441\u0442\u044C \u0441\u043F\u0438\u043D\u044B","rotator-cuff":"\u0420\u043E\u0442\u0430\u0442\u043E\u0440\u043D\u0430\u044F \u043C\u0430\u043D\u0436\u0435\u0442\u0430","hip-flexors":"\u0421\u0433\u0438\u0431\u0430\u0442\u0435\u043B\u0438 \u0431\u0435\u0434\u0440\u0430",serratus:"\u0417\u0443\u0431\u0447\u0430\u0442\u0430\u044F \u043C\u044B\u0448\u0446\u0430",rhomboids:"\u0420\u043E\u043C\u0431\u043E\u0432\u0438\u0434\u043D\u044B\u0435","upper-chest":"\u0412\u0435\u0440\u0445\u043D\u044F\u044F \u0433\u0440\u0443\u0434\u044C","lower-chest":"\u041D\u0438\u0436\u043D\u044F\u044F \u0433\u0440\u0443\u0434\u044C","inner-quad":"\u0412\u043D\u0443\u0442\u0440\u0435\u043D\u043D\u0438\u0439 \u043A\u0432\u0430\u0434\u0440\u0438\u0446\u0435\u043F\u0441","outer-quad":"\u0412\u043D\u0435\u0448\u043D\u0438\u0439 \u043A\u0432\u0430\u0434\u0440\u0438\u0446\u0435\u043F\u0441","upper-abs":"\u0412\u0435\u0440\u0445\u043D\u0438\u0439 \u043F\u0440\u0435\u0441\u0441","lower-abs":"\u041D\u0438\u0436\u043D\u0438\u0439 \u043F\u0440\u0435\u0441\u0441","front-deltoid":"\u041F\u0435\u0440\u0435\u0434\u043D\u044F\u044F \u0434\u0435\u043B\u044C\u0442\u0430","rear-deltoid":"\u0417\u0430\u0434\u043D\u044F\u044F \u0434\u0435\u043B\u044C\u0442\u0430","upper-trapezius":"\u0412\u0435\u0440\u0445\u043D\u044F\u044F \u0442\u0440\u0430\u043F\u0435\u0446\u0438\u044F","lower-trapezius":"\u041D\u0438\u0436\u043D\u044F\u044F \u0442\u0440\u0430\u043F\u0435\u0446\u0438\u044F"},tr:{abs:"Kar\u0131n Kaslar\u0131",adductors:"Addukt\xF6rler",ankles:"Bilekler",biceps:"Biseps",calves:"Bald\u0131rlar",chest:"G\xF6\u011F\xFCs",deltoids:"Deltoidler",feet:"Ayaklar",forearm:"\xD6n Kol",gluteal:"Kal\xE7a",hamstring:"Arka Bacak",hands:"Eller",head:"Ba\u015F",knees:"Dizler","lower-back":"Bel",neck:"Boyun",obliques:"Oblikler",quadriceps:"Kuadriseps",tibialis:"Tibialis",trapezius:"Trapez",triceps:"Triseps","upper-back":"\xDCst S\u0131rt","rotator-cuff":"Rotator Kaf","hip-flexors":"Kal\xE7a Fleks\xF6rleri",serratus:"Serratus",rhomboids:"Romboidler","upper-chest":"\xDCst G\xF6\u011F\xFCs","lower-chest":"Alt G\xF6\u011F\xFCs","inner-quad":"\u0130\xE7 Kuadriseps","outer-quad":"D\u0131\u015F Kuadriseps","upper-abs":"\xDCst Kar\u0131n","lower-abs":"Alt Kar\u0131n","front-deltoid":"\xD6n Deltoid","rear-deltoid":"Arka Deltoid","upper-trapezius":"\xDCst Trapez","lower-trapezius":"Alt Trapez"},"zh-Hans":{abs:"\u8179\u808C",adductors:"\u5185\u6536\u808C",ankles:"\u811A\u8E1D",biceps:"\u80B1\u4E8C\u5934\u808C",calves:"\u5C0F\u817F\u808C",chest:"\u80F8\u90E8",deltoids:"\u4E09\u89D2\u808C",feet:"\u8DB3\u90E8",forearm:"\u524D\u81C2",gluteal:"\u81C0\u808C",hamstring:"\u8158\u7EF3\u808C",hands:"\u624B",head:"\u5934\u90E8",knees:"\u819D\u76D6","lower-back":"\u4E0B\u80CC",neck:"\u9888\u90E8",obliques:"\u8179\u659C\u808C",quadriceps:"\u80A1\u56DB\u5934\u808C",tibialis:"\u80EB\u9AA8\u524D\u808C",trapezius:"\u659C\u65B9\u808C",triceps:"\u80B1\u4E09\u5934\u808C","upper-back":"\u4E0A\u80CC","rotator-cuff":"\u80A9\u8896","hip-flexors":"\u9ACB\u5C48\u808C",serratus:"\u524D\u952F\u808C",rhomboids:"\u83F1\u5F62\u808C","upper-chest":"\u4E0A\u80F8","lower-chest":"\u4E0B\u80F8","inner-quad":"\u80A1\u5185\u4FA7\u808C","outer-quad":"\u80A1\u5916\u4FA7\u808C","upper-abs":"\u4E0A\u8179","lower-abs":"\u4E0B\u8179","front-deltoid":"\u4E09\u89D2\u808C\u524D\u675F","rear-deltoid":"\u4E09\u89D2\u808C\u540E\u675F","upper-trapezius":"\u4E0A\u659C\u65B9\u808C","lower-trapezius":"\u4E0B\u659C\u65B9\u808C"}},q1={en:{selected:"Selected",notSelected:"Not selected",hintTap:"Double tap to select",hintLongPress:"Long press for details",bodyMap:"Body muscle map",legendLow:"Low",legendHigh:"High",heatmapLegend:"Heatmap intensity legend"},ar:{selected:"\u0645\u062D\u062F\u062F",notSelected:"\u063A\u064A\u0631 \u0645\u062D\u062F\u062F",hintTap:"\u0627\u0636\u063A\u0637 \u0645\u0631\u062A\u064A\u0646 \u0644\u0644\u062A\u062D\u062F\u064A\u062F",hintLongPress:"\u0627\u0636\u063A\u0637 \u0645\u0637\u0648\u0644\u0627\u064B \u0644\u0644\u062A\u0641\u0627\u0635\u064A\u0644",bodyMap:"\u062E\u0631\u064A\u0637\u0629 \u0639\u0636\u0644\u0627\u062A \u0627\u0644\u062C\u0633\u0645",legendLow:"\u0645\u0646\u062E\u0641\u0636",legendHigh:"\u0645\u0631\u062A\u0641\u0639",heatmapLegend:"\u0645\u0642\u064A\u0627\u0633 \u0627\u0644\u0643\u062B\u0627\u0641\u0629 \u0627\u0644\u062D\u0631\u0627\u0631\u064A\u0629"},de:{selected:"Ausgew\xE4hlt",notSelected:"Nicht ausgew\xE4hlt",hintTap:"Doppeltippen zum Ausw\xE4hlen",hintLongPress:"Lange dr\xFCcken f\xFCr Details",bodyMap:"K\xF6rpermuskelkarte",legendLow:"Niedrig",legendHigh:"Hoch",heatmapLegend:"Heatmap-Intensit\xE4tslegende"},es:{selected:"Seleccionado",notSelected:"No seleccionado",hintTap:"Toca dos veces para seleccionar",hintLongPress:"Mant\xE9n presionado para detalles",bodyMap:"Mapa muscular del cuerpo",legendLow:"Bajo",legendHigh:"Alto",heatmapLegend:"Leyenda de intensidad del mapa de calor"},fr:{selected:"S\xE9lectionn\xE9",notSelected:"Non s\xE9lectionn\xE9",hintTap:"Appuyez deux fois pour s\xE9lectionner",hintLongPress:"Appui long pour les d\xE9tails",bodyMap:"Carte musculaire du corps",legendLow:"Faible",legendHigh:"\xC9lev\xE9",heatmapLegend:"L\xE9gende d'intensit\xE9 de la carte thermique"},ja:{selected:"\u9078\u629E\u4E2D",notSelected:"\u672A\u9078\u629E",hintTap:"\u30C0\u30D6\u30EB\u30BF\u30C3\u30D7\u3067\u9078\u629E",hintLongPress:"\u9577\u62BC\u3057\u3067\u8A73\u7D30",bodyMap:"\u8EAB\u4F53\u7B4B\u8089\u30DE\u30C3\u30D7",legendLow:"\u4F4E",legendHigh:"\u9AD8",heatmapLegend:"\u30D2\u30FC\u30C8\u30DE\u30C3\u30D7\u5F37\u5EA6\u51E1\u4F8B"},ko:{selected:"\uC120\uD0DD\uB428",notSelected:"\uC120\uD0DD \uC548\uB428",hintTap:"\uB450 \uBC88 \uD0ED\uD558\uC5EC \uC120\uD0DD",hintLongPress:"\uAE38\uAC8C \uB20C\uB7EC \uC0C1\uC138 \uBCF4\uAE30",bodyMap:"\uADFC\uC721 \uC9C0\uB3C4",legendLow:"\uB0AE\uC74C",legendHigh:"\uB192\uC74C",heatmapLegend:"\uD788\uD2B8\uB9F5 \uAC15\uB3C4 \uBC94\uB840"},"pt-BR":{selected:"Selecionado",notSelected:"N\xE3o selecionado",hintTap:"Toque duas vezes para selecionar",hintLongPress:"Pressione e segure para detalhes",bodyMap:"Mapa muscular do corpo",legendLow:"Baixo",legendHigh:"Alto",heatmapLegend:"Legenda de intensidade do mapa de calor"},ru:{selected:"\u0412\u044B\u0431\u0440\u0430\u043D\u043E",notSelected:"\u041D\u0435 \u0432\u044B\u0431\u0440\u0430\u043D\u043E",hintTap:"\u041D\u0430\u0436\u043C\u0438\u0442\u0435 \u0434\u0432\u0430\u0436\u0434\u044B \u0434\u043B\u044F \u0432\u044B\u0431\u043E\u0440\u0430",hintLongPress:"\u0423\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0439\u0442\u0435 \u0434\u043B\u044F \u043F\u043E\u0434\u0440\u043E\u0431\u043D\u043E\u0441\u0442\u0435\u0439",bodyMap:"\u041A\u0430\u0440\u0442\u0430 \u043C\u044B\u0448\u0446 \u0442\u0435\u043B\u0430",legendLow:"\u041D\u0438\u0437\u043A\u043E",legendHigh:"\u0412\u044B\u0441\u043E\u043A\u043E",heatmapLegend:"\u041B\u0435\u0433\u0435\u043D\u0434\u0430 \u0438\u043D\u0442\u0435\u043D\u0441\u0438\u0432\u043D\u043E\u0441\u0442\u0438 \u0442\u0435\u043F\u043B\u043E\u0432\u043E\u0439 \u043A\u0430\u0440\u0442\u044B"},tr:{selected:"Se\xE7ildi",notSelected:"Se\xE7ilmedi",hintTap:"Se\xE7mek i\xE7in \xE7ift dokunun",hintLongPress:"Ayr\u0131nt\u0131lar i\xE7in uzun bas\u0131n",bodyMap:"V\xFCcut kas haritas\u0131",legendLow:"D\xFC\u015F\xFCk",legendHigh:"Y\xFCksek",heatmapLegend:"Is\u0131 haritas\u0131 yo\u011Funluk g\xF6stergesi"},"zh-Hans":{selected:"\u5DF2\u9009\u62E9",notSelected:"\u672A\u9009\u62E9",hintTap:"\u53CC\u51FB\u9009\u62E9",hintLongPress:"\u957F\u6309\u67E5\u770B\u8BE6\u60C5",bodyMap:"\u8EAB\u4F53\u808C\u8089\u56FE",legendLow:"\u4F4E",legendHigh:"\u9AD8",heatmapLegend:"\u70ED\u529B\u56FE\u5F3A\u5EA6\u56FE\u4F8B"}},P="en";function p1(c){P=c}function m1(){return P}function g1(){return Object.keys(E)}function f1(c,e){return E[e??P]?.[c]??E.en[c]??c}function M1(c){return E[c??P]??E.en}function z1(c,e){return q1[e??P]?.[c]??q1.en[c]??c}return k1(L1);})();
 const $ = selector => document.querySelector(selector);
 const icon=name=>`<svg class="icon" aria-hidden="true"><use href="#icon-${name}"></use></svg>`;
-const title=value=>value?String(value).replace(/\b\w/g,c=>c.toUpperCase()):'';
+/* ===== Farsi (fa) layer: exercise overlay + slug display ===== */
+(function applyFaExerciseOverlay(){
+  const overlay=window.FA_EX;
+  if(!overlay||typeof overlay!=='object')return;
+  for(const exercise of EXERCISES){
+    const fa=overlay[String(exercise.id)];
+    if(!fa)continue;
+    if(fa.name)exercise.name=fa.name;
+    if(Array.isArray(fa.steps)&&fa.steps.length)exercise.instruction_steps={en:fa.steps};
+  }
+})();
+const FA_LOCALE='fa-IR';
+const faNum=value=>{const n=Number(value);return Number.isFinite(n)?n.toLocaleString(FA_LOCALE,{maximumFractionDigits:2}):String(value??'')};
+const faDate=(value,opts)=>new Date(value).toLocaleDateString(FA_LOCALE,opts||{});
+const title=value=>{
+  if(!value)return '';
+  const raw=String(value).trim();
+  const key=raw.toLowerCase();
+  const fa=window.FA;
+  const mapped=fa&&(fa.categories[key]||fa.targets[key]||fa.equipment[key]||fa.muscles[key]||fa.foodCategories[key]);
+  if(mapped)return mapped;
+  return raw.replace(/\b\w/g,c=>c.toUpperCase());
+};
 const esc=value=>String(value??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const STORAGE_KEYS=Object.freeze({
   saved:'form-saved-exercises',
@@ -139,16 +161,16 @@ function toggleExerciseTag(exerciseId,tag){
     persistExerciseTags();
     return false;
   }
-  if(tags.length>=TAG_LIMITS.perExercise){toast(`Max ${TAG_LIMITS.perExercise} tags per exercise`);return null;}
+  if(tags.length>=TAG_LIMITS.perExercise){toast(`حداکثر ${faNum(TAG_LIMITS.perExercise)} برچسب برای هر حرکت`);return null;}
   const assigned=new Set(Object.values(state.exerciseTags).flat().map(item=>item.toLowerCase()));
-  if(!assigned.has(key)&&assigned.size>=TAG_LIMITS.distinct){toast(`Max ${TAG_LIMITS.distinct} distinct tags`);return null;}
+  if(!assigned.has(key)&&assigned.size>=TAG_LIMITS.distinct){toast(`حداکثر ${faNum(TAG_LIMITS.distinct)} برچسب متمایز`);return null;}
   tags.push(tag);state.exerciseTags[id]=tags;persistExerciseTags();return true;
 }
 function createExerciseTag(exerciseId,value){
   const tag=sanitizeTagName(value);
-  if(!tag){toast('Tag name is empty');return null;}
+  if(!tag){toast('نام برچسب خالی است');return null;}
   const tags=exerciseTagsOf(exerciseId);
-  if(tags.some(item=>item.toLowerCase()===tag.toLowerCase())){toast('Tag already assigned');return null;}
+  if(tags.some(item=>item.toLowerCase()===tag.toLowerCase())){toast('این برچسب قبلاً ثبت شده');return null;}
   const result=toggleExerciseTag(exerciseId,tag);
   if(result!==null){
     const exercise=getExercise(exerciseId);
@@ -208,8 +230,8 @@ function mergeCustomExercisesImported(parsed){
 }
 async function copyCustomExercises(){
   const text=customExercisesToText();
-  if(!text)return toast('No custom exercises to export');
-  if(await copyTextToClipboard(text)){toast('Custom exercises copied');return;}
+  if(!text)return toast('حرکتی برای خروجی گرفتن نیست');
+  if(await copyTextToClipboard(text)){toast('حرکات سفارشی کپی شد');return;}
   showCustomExercisePastePanel(text);
 }
 function deleteProgressLogsForExercises(exerciseIds){
@@ -226,18 +248,18 @@ async function importCustomExercises(mode='add'){
   try{
     parsed=parseCustomExercisesText($('#customExercisePasteText').value);
   }catch(error){
-    return toast('No valid custom exercises found');
+    return toast('حرکت سفارشی معتبری پیدا نشد');
   }
   if(mode==='add'){
     const added=mergeCustomExercisesImported(parsed);
     closeCustomExercisePaste();
-    toast(added?`${added} custom exercise${added===1?'':'s'} added`:'No new custom exercises to add');
+    toast(`${added} حرکت سفارشی اضافه شد`);
     return;
   }
   const keptIds=new Set(parsed.map(exercise=>exercise.id));
   const removedIds=new Set(CUSTOM_EXERCISES.map(item=>item.id).filter(id=>!keptIds.has(id)));
-  if(state.activeWorkout&&awRows().some(({exercise})=>exercise.custom&&removedIds.has(exercise.id)))return toast('Finish the active workout first');
-  if(CUSTOM_EXERCISES.length&&!(await appConfirm('Replace all existing custom exercises? Removed exercises are deleted from routines along with their progress logs.',{title:'Import custom exercises',okLabel:'Replace'})))return;
+  if(state.activeWorkout&&awRows().some(({exercise})=>exercise.custom&&removedIds.has(exercise.id)))return toast('ابتدا تمرین فعال را تمام کنید');
+  if(CUSTOM_EXERCISES.length&&!(await appConfirm('همه حرکات سفارشی فعلی جایگزین شوند؟ حرکات حذف‌شده به همراه گزارش پیشرفتشان از برنامه‌ها هم پاک می‌شوند.',{title:'ورود حرکات سفارشی',okLabel:'جایگزینی'})))return;
   for(const exercise of CUSTOM_EXERCISES){
     const arrayIndex=EXERCISES.indexOf(exercise);
     if(arrayIndex!==-1)EXERCISES.splice(arrayIndex,1);
@@ -261,7 +283,7 @@ async function importCustomExercises(mode='add'){
   render();
   renderFilterPills();
   renderProgressHistory();
-  toast(`Replaced with ${parsed.length} custom exercise${parsed.length===1?'':'s'}`);
+  toast(`${parsed.length} حرکت سفارشی جایگزین شد`);
 }
 function deleteCustomExercise(exerciseId){
   const index=CUSTOM_EXERCISES.findIndex(item=>item.id===exerciseId);
@@ -308,7 +330,7 @@ function parseLocalDate(value){const [year,month,day]=String(value).split('-').m
 function formatProgressDateValue(value){if(!isValidProgressDate(value))return'';const date=parseLocalDate(value);return `${String(date.getMonth()+1).padStart(2,'0')}/${String(date.getDate()).padStart(2,'0')}/${date.getFullYear()}`}
 
 const DEFAULT_FOOD_DB = [
-  { id: 'custom', name: '-- Custom Entry / Other --', cat: 'Other', p100: 0, c100: 0, f100: 0, cals100: 0, defaultMeal: 'Lunch', defaultGrams: 100, liked: false },
+  { id: 'custom', name: '-- ورود دستی / دیگر --', cat: 'دیگر', p100: 0, c100: 0, f100: 0, cals100: 0, defaultMeal: 'ناهار', defaultGrams: 100, liked: false },
 ];
 
 function kcalFromMacros(p, c, f) { return Math.round((p * 4) + (c * 4) + (f * 9)); }
@@ -406,12 +428,12 @@ function clearActiveWorkout(){
 
 let progressDatePickerMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1,12),progressDatePickerReturnFocus=null;
 function setProgressDateValue(value){const next=isValidProgressDate(value)?value:localDateValue();$('#progressDate').value=next;$('#progressDateDisplay').textContent=formatProgressDateValue(next)}
-function renderProgressDatePicker(){const selectedValue=$('#progressDate').value||localDateValue(),selected=parseLocalDate(selectedValue),todayValue=localDateValue(),year=progressDatePickerMonth.getFullYear(),month=progressDatePickerMonth.getMonth(),firstDay=Number(state.progressPreferences.firstDay),weekStart=[0,1,6].includes(firstDay)?firstDay:1,monthStart=new Date(year,month,1,12),offset=(monthStart.getDay()-weekStart+7)%7,start=new Date(year,month,1-offset,12);$('#progressDatePickerTitle').textContent=monthStart.toLocaleDateString(undefined,{month:'long',year:'numeric'});const weekBase=new Date(2024,0,7+weekStart,12);$('#progressDateWeekdays').innerHTML=Array.from({length:7},(_,index)=>{const day=new Date(weekBase);day.setDate(weekBase.getDate()+index);return `<span>${esc(day.toLocaleDateString(undefined,{weekday:'short'}).slice(0,2))}</span>`}).join('');const cells=Array.from({length:42},(_,index)=>{const date=new Date(start);date.setDate(start.getDate()+index);const value=localDateValue(date),outside=date.getMonth()!==month,selectedDay=value===selectedValue,today=value===todayValue;return `<button class="progress-date-day${outside?' outside-month':''}${selectedDay?' selected':''}${today?' today':''}" type="button" role="gridcell" data-date="${value}" aria-selected="${selectedDay}" aria-label="${esc(date.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'}))}">${date.getDate()}</button>`});
+function renderProgressDatePicker(){const selectedValue=$('#progressDate').value||localDateValue(),selected=parseLocalDate(selectedValue),todayValue=localDateValue(),year=progressDatePickerMonth.getFullYear(),month=progressDatePickerMonth.getMonth(),firstDay=Number(state.progressPreferences.firstDay),weekStart=[0,1,6].includes(firstDay)?firstDay:1,monthStart=new Date(year,month,1,12),offset=(monthStart.getDay()-weekStart+7)%7,start=new Date(year,month,1-offset,12);$('#progressDatePickerTitle').textContent=monthStart.toLocaleDateString(FA_LOCALE,{month:'long',year:'numeric'});const weekBase=new Date(2024,0,7+weekStart,12);$('#progressDateWeekdays').innerHTML=Array.from({length:7},(_,index)=>{const day=new Date(weekBase);day.setDate(weekBase.getDate()+index);return `<span>${esc(day.toLocaleDateString(FA_LOCALE,{weekday:'short'}))}</span>`}).join('');const cells=Array.from({length:42},(_,index)=>{const date=new Date(start);date.setDate(start.getDate()+index);const value=localDateValue(date),outside=date.getMonth()!==month,selectedDay=value===selectedValue,today=value===todayValue;return `<button class="progress-date-day${outside?' outside-month':''}${selectedDay?' selected':''}${today?' today':''}" type="button" role="gridcell" data-date="${value}" aria-selected="${selectedDay}" aria-label="${esc(date.toLocaleDateString(FA_LOCALE,{weekday:'long',month:'long',day:'numeric',year:'numeric'}))}">${date.getDate()}</button>`});
 $('#progressDateGrid').innerHTML=Array.from({length:6},(_,week)=>`<div role="row">${cells.slice(week*7,week*7+7).join('')}</div>`).join('')}
 function openProgressDatePicker(returnFocus=document.activeElement){const selected=parseLocalDate($('#progressDate').value||localDateValue());progressDatePickerMonth=new Date(selected.getFullYear(),selected.getMonth(),1,12);progressDatePickerReturnFocus=returnFocus;renderProgressDatePicker();const picker=$('#progressDatePicker');picker.hidden=false;$('#progressDateButton').setAttribute('aria-expanded','true');picker.classList.add('open');picker.querySelector(`[data-date="${$('#progressDate').value}"]`)?.focus({preventScroll:true})}
 function closeProgressDatePicker(restoreFocus=true){const picker=$('#progressDatePicker');if(!picker||picker.hidden)return;picker.classList.remove('open');$('#progressDateButton').setAttribute('aria-expanded','false');picker.hidden=true;if(restoreFocus&&progressDatePickerReturnFocus?.isConnected)progressDatePickerReturnFocus.focus({preventScroll:true});progressDatePickerReturnFocus=null}
 
-function normalizeRoutine(routine){if(!routine||typeof routine!=='object'||!String(routine.id??''))return null;const seen=new Set();return{id:String(routine.id),name:String(routine.name??'Routine').trim().slice(0,LIMITS.routineName)||'Routine',liked:Boolean(routine.liked),items:(Array.isArray(routine.items)?routine.items:[]).filter(item=>item&&VALID_EXERCISE_IDS.has(String(item.exerciseId))&&!seen.has(String(item.exerciseId))&&seen.add(String(item.exerciseId))).map(item=>({exerciseId:String(item.exerciseId),sets:clamp(item.sets,1,LIMITS.sets),reps:clamp(item.reps,0,item.mode==='timed'?60:LIMITS.reps),...(item.mode==='timed'?{mode:'timed',...(item.unit==='sec'||item.unit==='min'?{unit:item.unit}:{})}:item.mode==='reps'?{mode:'reps'}:{}),...(item.weighted?{weighted:true}:{}),...(item.unweighted?{unweighted:true}:{})}))}}
+function normalizeRoutine(routine){if(!routine||typeof routine!=='object'||!String(routine.id??''))return null;const seen=new Set();return{id:String(routine.id),name:String(routine.name??'برنامه').trim().slice(0,LIMITS.routineName)||'برنامه',liked:Boolean(routine.liked),items:(Array.isArray(routine.items)?routine.items:[]).filter(item=>item&&VALID_EXERCISE_IDS.has(String(item.exerciseId))&&!seen.has(String(item.exerciseId))&&seen.add(String(item.exerciseId))).map(item=>({exerciseId:String(item.exerciseId),sets:clamp(item.sets,1,LIMITS.sets),reps:clamp(item.reps,0,item.mode==='timed'?60:LIMITS.reps),...(item.mode==='timed'?{mode:'timed',...(item.unit==='sec'||item.unit==='min'?{unit:item.unit}:{})}:item.mode==='reps'?{mode:'reps'}:{}),...(item.weighted?{weighted:true}:{}),...(item.unweighted?{unweighted:true}:{})}))}}
 function sanitizeSetWeights(value){if(!Array.isArray(value))return null;const list=value.map(entry=>entry===''||entry==null?0:Math.min(LIMITS.weight,Math.max(0,Number(entry)||0))).slice(0,LIMITS.sets);return list.length?list:null}
 function sanitizeSetReps(value,fallbackLength){if(!Array.isArray(value))return null;const list=value.map(entry=>clamp(Number(entry)||1,1,LIMITS.reps)).slice(0,fallbackLength||LIMITS.sets);return list.length?list:null}
 function setRepsFromUniform(reps,count){const value=clamp(Number(reps)||1,1,LIMITS.reps);return count>0?Array.from({length:count},()=>value):null}
@@ -809,7 +831,7 @@ function parseNutritionDiaryMd(text) {
   let lastMeal = null;
   const pushMeal = (meal) => {
     if (!currentDate || !history[currentDate]) return;
-    const entry = normalizeMealLogEntry({ ...meal, category: meal.category || currentCategory || 'Snacks' });
+    const entry = normalizeMealLogEntry({ ...meal, category: meal.category || currentCategory || 'میان‌وعده' });
     if (!entry) return;
     history[currentDate].meals.push(entry);
     lastMeal = entry;
@@ -999,7 +1021,7 @@ function trainingLogsToMd(logs) {
     for (const log of byDate[date]) {
       const fields = [];
       const exercise = getExercise(log.exerciseId);
-      fields.push(`exercise: ${JSON.stringify(title(exercise?.name || 'Unknown exercise'))}`);
+      fields.push(`exercise: ${JSON.stringify(title(exercise?.name || 'حرکت ناشناخته'))}`);
       fields.push(`exerciseId: #${log.exerciseId}`);
       if (isTimedCardioLog(log)) {
         const durUnit = log.durUnit === 'sec' || log.durUnit === 'min' ? log.durUnit : (isTimedCardioExercise(exercise) ? 'min' : 'sec');
@@ -1018,7 +1040,7 @@ function trainingLogsToMd(logs) {
       const notesText = sanitize(log.notes || '');
       if (notesText) fields.push(`notes: ${notesText}`);
       fields.push(`id: ${log.id}`);
-      lines.push(fields.map((field) => `- ${field}`).join('\n'));
+      lines.push(fields.map((field, idx) => (idx === 0 ? `- ${field}` : `\t- ${field}`)).join('\n'));
       lines.push('');
     }
   }
@@ -1036,9 +1058,9 @@ function nutritionDiaryToMd(history) {
     if (!water && !meals.length) continue;
     lines.push(`## ${vaultDateHeading(date)}`);
     if (water) lines.push(`water: ${water} ml`);
-    const cats = ['Breakfast', 'Lunch', 'Dinner', 'Snacks', 'Other'];
+    const cats = ['صبحانه', 'ناهار', 'شام', 'میان‌وعده', 'دیگر'];
     for (const cat of cats) {
-      const catMeals = meals.filter(m => (m.category || 'Snacks') === cat);
+      const catMeals = meals.filter(m => (m.category || 'میان‌وعده') === cat);
       if (!catMeals.length) continue;
       lines.push(`### ${cat}`);
       for (const m of catMeals) {
@@ -1322,7 +1344,7 @@ const vaultSaving = {};
 function scheduleVaultSave(fileKey, silent) {
   clearTimeout(vaultSaveTimers[fileKey]);
   const folder = VAULT.folder;
-  vaultSaveTimers[fileKey] = setTimeout(() => { writeVaultFile(fileKey, folder).catch(err => { if (silent) return; console.warn('Vault save failed:', VAULT_FILES[fileKey], err); toast('Save failed: ' + VAULT_FILES[fileKey]); }); }, VAULT_SAVE_DEBOUNCE);
+  vaultSaveTimers[fileKey] = setTimeout(() => { writeVaultFile(fileKey, folder).catch(err => { if (silent) return; console.warn('Vault save failed:', VAULT_FILES[fileKey], err); toast('خطا در ذخیره: ' + VAULT_FILES[fileKey]); }); }, VAULT_SAVE_DEBOUNCE);
 }
 
 function getSerializer(fileKey) {
@@ -1517,20 +1539,20 @@ async function loadVault(folder, options) {
     updateVaultUI();
     renderEverything();
     finishBootGate();
-    if (!silent) toast(allMissing ? `Created new vault in Documents/${VAULT.folder}` : `Vault loaded from Documents/${VAULT.folder}`);
+    if (!silent) toast(allMissing ? `خزانه جدید در Documents/${VAULT.folder} ساخته شد` : `خزانه از Documents/${VAULT.folder} بارگذاری شد`);
   } catch (err) {
     console.error('Vault load error:', err);
     finishBootGate();
-    if (!silent) toast('Vault load failed');
+    if (!silent) toast('بارگذاری خزانه ناموفق بود');
   }
 }
 
-function updateExerciseCount(){const el=$('#settingsExerciseCount');if(el)el.textContent=EXERCISES.length.toLocaleString()}
+function updateExerciseCount(){const el=$('#settingsExerciseCount');if(el)el.textContent=faNum(EXERCISES.length)}
 
 async function switchVault(folder) {
   const clean = sanitizeVaultFolder(folder);
   if (state.mobileTab === 'plan' && state.planSection === 'meals' && mealEditorBusy()) {
-    toast('Save your meal first');
+    toast('ابتدا غذای خود را ذخیره کنید');
     return;
   }
   state.activeWorkout = null;
@@ -1543,7 +1565,7 @@ async function switchVault(folder) {
 
 async function reloadVault() {
   if (state.mobileTab === 'plan' && state.planSection === 'meals' && mealEditorBusy()) {
-    toast('Save your meal first');
+    toast('ابتدا غذای خود را ذخیره کنید');
     return;
   }
   await loadVault(VAULT.folder, { silent: false });
@@ -1617,7 +1639,7 @@ window.addEventListener('popstate', (event) => {
 
 function uniqueValues(key){return[...new Set(EXERCISES.map(exercise=>exercise[key]).filter(Boolean))].sort()}
 const CUSTOM_SELECT_IDS=['inMealCategory','inSex','inActivity','inStrategy','inProteinRate','editMealCat'];
-function customSelectLabel(select){return select.getAttribute('aria-label')||select.closest('label')?.querySelector('span')?.textContent?.trim()||select.closest('.feature-field')?.querySelector('label')?.textContent?.trim()||select.closest('.feature-field')?.querySelector('span')?.textContent?.trim()||'Choose an option'}
+function customSelectLabel(select){return select.getAttribute('aria-label')||select.closest('label')?.querySelector('span')?.textContent?.trim()||select.closest('.feature-field')?.querySelector('label')?.textContent?.trim()||select.closest('.feature-field')?.querySelector('span')?.textContent?.trim()||'یک گزینه انتخاب کنید'}
 function syncCustomSelect(select){
   if(!select?.dataset.customSelectReady)return;
   const wrapper=select.closest('.custom-select'),button=wrapper?.querySelector('.custom-select-button'),menu=wrapper?.querySelector('.custom-select-menu');
@@ -1627,7 +1649,7 @@ function syncCustomSelect(select){
   button.textContent=selected?.textContent||customSelectLabel(select);
   button.disabled=select.disabled;
   button.classList.toggle('custom-select-filled',Boolean(selected&&selected.value!==''));
-  menu.innerHTML=menuOptions.map(option=>`<button type="button" role="option" data-select-value="${esc(option.value)}" aria-selected="${String(option.value===select.value)}"${option.disabled?' disabled':''}>${esc(option.textContent)}</button>`).join('')||'<span class="routine-menu-empty">No options</span>';
+  menu.innerHTML=menuOptions.map(option=>`<button type="button" role="option" data-select-value="${esc(option.value)}" aria-selected="${String(option.value===select.value)}"${option.disabled?' disabled':''}>${esc(option.textContent)}</button>`).join('')||'<span class="routine-menu-empty">گزینه‌ای نیست</span>';
 }
 function closeCustomSelect(wrapper,restoreFocus=false){
   if(!wrapper)return;
@@ -1677,7 +1699,10 @@ function positionMenuBetween(menu, button, options=null){
   const minWidth=Math.max(0,options?.minWidth||0);
   const viewportMargin=6;
   const menuWidth=Math.max(Math.round(buttonRect.width),Math.min(minWidth,window.innerWidth-viewportMargin*2));
-  const menuLeft=alignRight?buttonRect.right-menuWidth:buttonRect.left;
+  const rtl=document.documentElement.getAttribute('dir')==='rtl';
+  const menuLeft=rtl
+    ? (alignRight?buttonRect.left:buttonRect.right-menuWidth)
+    : (alignRight?buttonRect.right-menuWidth:buttonRect.left);
 
   let left=Math.round(Math.min(Math.max(viewportMargin,menuLeft),window.innerWidth-menuWidth-viewportMargin));
   let top;let bottom;
@@ -1698,6 +1723,7 @@ function positionMenuBetween(menu, button, options=null){
   }
 
   menu.style.position='fixed';
+  menu.style.right='auto';
   menu.style.left=`${left}px`;
   menu.style.width=`${menuWidth}px`;
   menu.style.zIndex='250';
@@ -1773,7 +1799,7 @@ function renderModalTagMenu(){
     const aOn=assigned.has(a.toLowerCase())?0:1,bOn=assigned.has(b.toLowerCase())?0:1;
     return aOn-bOn||a.localeCompare(b,undefined,{sensitivity:'base'});
   });
-  list.innerHTML=options.length?options.map(tag=>`<button type="button" role="menuitemcheckbox" aria-checked="${String(assigned.has(tag.toLowerCase()))}" data-tag-option="${esc(tag)}">${esc(tag)}</button>`).join(''):'<span class="routine-menu-empty">No tags yet</span>';
+  list.innerHTML=options.length?options.map(tag=>`<button type="button" role="menuitemcheckbox" aria-checked="${String(assigned.has(tag.toLowerCase()))}" data-tag-option="${esc(tag)}">${esc(tag)}</button>`).join(''):'<span class="routine-menu-empty">هنوز برچسبی نیست</span>';
   const input=$('#exerciseTagInput');
   if(input)input.value='';
 }
@@ -1969,13 +1995,13 @@ function buildFilterContext(skipKey=null){
 }
 function matchesFiltered(exercise,ctx){
   const{query,idQuery,routine,loggedIds,tag,skipKey}=ctx;
-  const matchesQuery=!query||(idQuery?exercise.id.startsWith(idQuery):[exercise.name,exercise.category,exercise.target,exercise.equipment,exercise.muscle_group,...exerciseTagsOf(exercise.id)].some(value=>String(value||'').toLowerCase().includes(query)));
+  const matchesQuery=!query||(idQuery?exercise.id.startsWith(idQuery):[exercise.name,exercise.category,exercise.target,exercise.equipment,exercise.muscle_group,...exerciseTagsOf(exercise.id),title(exercise.category),title(exercise.target),title(exercise.equipment),title(exercise.muscle_group)].some(value=>String(value||'').toLowerCase().includes(query)));
   const matchesTag=!tag||skipKey==='tags'||exerciseTagsOf(exercise.id).some(item=>item.toLowerCase()===tag);
   return matchesQuery&&matchesTag&&(skipKey==='category'||!state.category||exercise.category===state.category)&&(skipKey==='target'||!state.target||exercise.target===state.target)&&(skipKey==='equipment'||!state.equipment||exercise.equipment===state.equipment)&&(!state.savedOnly||state.saved.has(exercise.id))&&(!loggedIds||loggedIds.has(exercise.id))&&(!state.routineFilter||routine?.items.some(item=>item.exerciseId===exercise.id))
 }
-function getFiltered(){const ctx=buildFilterContext();const routine=ctx.routine;const filtered=EXERCISES.filter(exercise=>matchesFiltered(exercise,ctx));if(state.sort==='custom'&&routine){const order=new Map(routine.items.map((item,index)=>[item.exerciseId,index]));filtered.sort((a,b)=>(order.get(a.id)??Number.MAX_SAFE_INTEGER)-(order.get(b.id)??Number.MAX_SAFE_INTEGER))}else filtered.sort((a,b)=>state.sort==='name-desc'?b.name.localeCompare(a.name):state.sort==='category'?(a.category||'').localeCompare(b.category||'')||a.name.localeCompare(b.name):state.sort==='id'?String(a.id).localeCompare(String(b.id)):a.name.localeCompare(b.name));return filtered}
+function getFiltered(){const ctx=buildFilterContext();const routine=ctx.routine;const filtered=EXERCISES.filter(exercise=>matchesFiltered(exercise,ctx));if(state.sort==='custom'&&routine){const order=new Map(routine.items.map((item,index)=>[item.exerciseId,index]));filtered.sort((a,b)=>(order.get(a.id)??Number.MAX_SAFE_INTEGER)-(order.get(b.id)??Number.MAX_SAFE_INTEGER))}else filtered.sort((a,b)=>state.sort==='name-desc'?b.name.localeCompare(a.name,'fa'):state.sort==='category'?(title(a.category)||'').localeCompare(title(b.category)||'','fa')||a.name.localeCompare(b.name,'fa'):state.sort==='id'?String(a.id).localeCompare(String(b.id)):a.name.localeCompare(b.name,'fa'));return filtered}
 function latestLogFor(exerciseId){return[...state.progress.logs].filter(log=>log.exerciseId===exerciseId).sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt-a.createdAt)[0]||null}
-function formatRange(values,suffix=''){const min=Math.min(...values),max=Math.max(...values);return min===max?`${min}${suffix}`:`${min}-${max}${suffix}`}
+function formatRange(values,suffix=''){const min=Math.min(...values),max=Math.max(...values);return min===max?`${faNum(min)}${suffix}`:`${faNum(min)}-${faNum(max)}${suffix}`}
 function formatWeightValue(value){return String(Math.round(value*10)/10)}
 function isTimedCardioLog(log){return log!=null&&(Number(log.intervals)>0||Array.isArray(log.setDurations)||Array.isArray(log.setDistances))}
 function logSetsCount(log){return isTimedCardioLog(log)?Number(log.intervals)||0:Number(log.sets)||0}
@@ -1994,17 +2020,17 @@ function formatProgress(log){
   if(isTimedCardioLog(log)){
     const totals=timedLogTotals(log);
     const parts=[];
-    if(totals.intervals>0)parts.push(`${totals.intervals} ${totals.intervals===1?'interval':'intervals'}`);
-    if(totals.duration>0)parts.push(`${formatWeightValue(totals.duration)} min`);
-    if(totals.distance>0)parts.push(`${formatWeightValue(totals.distance)} km`);
+    if(totals.intervals>0)parts.push(`${faNum(totals.intervals)} بازه`);
+    if(totals.duration>0)parts.push(`${faNum(formatWeightValue(totals.duration))} دقیقه`);
+    if(totals.distance>0)parts.push(`${faNum(formatWeightValue(totals.distance))} کیلومتر`);
     return parts.join(' · ');
   }
-  const setsText=`${log.sets} sets`;
+  const setsText=`${faNum(log.sets)} ست`;
   let weights=Array.isArray(log.setWeights)&&log.setWeights.length?log.setWeights.map(Number).filter(value=>value>0):[];
   if(!weights.length&&Number(log.weight)>0)weights=[Number(log.weight)];
   const weightText=weights.length?` × ${formatRange(weights,' kg')}`:'';
-  if(Array.isArray(log.setReps)&&log.setReps.length)return`${setsText} × ${formatRange(log.setReps.map(Number), ' reps')}${weightText}`;
-  return`${setsText} × ${log.reps} reps${weightText}`;
+  if(Array.isArray(log.setReps)&&log.setReps.length)return`${setsText} × ${formatRange(log.setReps.map(Number), ' تکرار')}${weightText}`;
+  return`${setsText} × ${faNum(log.reps)} تکرار${weightText}`;
 }
 function cardAction(className,iconName,label,pressed=null){return`<button class="card-action ${className}" type="button" aria-label="${esc(label)}"${pressed==null?'':` aria-pressed="${pressed}"`}>${icon(iconName)}</button>`}
 function renderCard(exercise){
@@ -2020,15 +2046,15 @@ function renderCard(exercise){
     subtitleText = `${formatProgress(latestLog)} · ${title(exercise.target)}`;
   }
 
-  const normalLike=cardAction(`save-button${state.saved.has(exercise.id)?' saved':''}`,'heart',`${state.saved.has(exercise.id)?'Remove from':'Add to'} saved exercises`,state.saved.has(exercise.id));
-  const editAction=editingRoutine?(editingItem?cardAction('routine-check','check',`Remove ${exercise.name} from ${editingRoutine.name}`):cardAction('add-routine','plus',`Add ${exercise.name} to ${editingRoutine.name}`)):'';
-  const progressAction=cardAction('card-progress','progress',`Log progress for ${exercise.name}`);
+  const normalLike=cardAction(`save-button${state.saved.has(exercise.id)?' saved':''}`,'heart',`${state.saved.has(exercise.id)?'حذف از':'افزودن به'} حرکات ذخیره‌شده`,state.saved.has(exercise.id));
+  const editAction=editingRoutine?(editingItem?cardAction('routine-check','check',`حذف ${exercise.name} از ${editingRoutine.name}`):cardAction('add-routine','plus',`افزودن ${exercise.name} به ${editingRoutine.name}`)):'';
+  const progressAction=cardAction('card-progress','progress',`ثبت پیشرفت برای ${exercise.name}`);
   const cardActions=editingRoutine?editAction:(routineItem||state.loggedOnly)?progressAction:normalLike;
 
   const mediaBlock=exercise.custom
     ?`<div class="media media-custom"><div class="custom-icon">${icon('movement')}</div></div>`
-    :`<div class="media"><img src="${esc(exercise.image)}" alt="${esc(exercise.name)}" loading="lazy"><div class="fallback">${icon('movement')}<span>Preview unavailable</span></div></div>`;
-  return `<article class="card" data-id="${esc(exercise.id)}" tabindex="0" aria-label="Open ${esc(exercise.name)} details">${mediaBlock}<div class="card-body"><div class="card-top"><h3>${esc(exercise.name)}</h3></div><div class="meta"><span class="badge primary">${esc(subtitleText)}</span></div></div><div class="card-actions">${cardActions}</div></article>`;
+    :`<div class="media"><img src="${esc(exercise.image)}" alt="${esc(exercise.name)}" loading="lazy"><div class="fallback">${icon('movement')}<span>پیش‌نمایش در دسترس نیست</span></div></div>`;
+  return `<article class="card" data-id="${esc(exercise.id)}" tabindex="0" aria-label="جزئیات ${esc(exercise.name)}">${mediaBlock}<div class="card-body"><div class="card-top"><h3>${esc(exercise.name)}</h3></div><div class="meta"><span class="badge primary">${esc(subtitleText)}</span></div></div><div class="card-actions">${cardActions}</div></article>`;
 }
 function imageFallback(image){image.style.display='none';if(image.nextElementSibling)image.nextElementSibling.style.display='grid'}
 function awMediaFallback(img,exerciseId){
@@ -2052,7 +2078,7 @@ function render(){
     $('#grid').innerHTML=renderActiveWorkout();
   }else{
     $('#grid').className='grid list-view';
-    $('#grid').innerHTML=shown.length?shown.map(renderCard).join(''):`<div class="empty">${icon('movement')}<strong>No exercises found</strong><span>Try removing a filter or searching for another movement.</span></div>`;
+    $('#grid').innerHTML=shown.length?shown.map(renderCard).join(''):`<div class="empty">${icon('movement')}<strong>حرکتی پیدا نشد</strong><span>یک فیلتر را حذف کنید یا حرکت دیگری را جستجو کنید.</span></div>`;
   }
   $('#grid').querySelectorAll('img').forEach(image=>{
     if(image.dataset.awMedia!==undefined)image.addEventListener('error',()=>awMediaFallback(image,image.dataset.awExercise));
@@ -2061,9 +2087,9 @@ function render(){
   const mobileCount=$('#mobileResultCount');
   const mobileContext=$('#mobileResultContext');
   const mobileTitle=document.querySelector('.mobile-phone-title');
-  if(mobileTitle)mobileTitle.textContent=awSession?(state.routines.find(item=>item.id===state.activeWorkout.routineId)?.name||'Workout'):'Exercises';
-  if(mobileCount){const counts=awSession?awCounts():null;mobileCount.textContent=awSession?`${counts.done}/${counts.total} exercises`:`${all.length.toLocaleString()} exercises`;}
-  if(mobileContext) mobileContext.textContent=awSession?'in active workout':routine?`in ${routine.name}`:hasFilters()?'matching filters':'with animations';
+  if(mobileTitle)mobileTitle.textContent=awSession?(state.routines.find(item=>item.id===state.activeWorkout.routineId)?.name||'تمرین'):'حرکات';
+  if(mobileCount){const counts=awSession?awCounts():null;mobileCount.textContent=awSession?`${faNum(counts.done)}/${faNum(counts.total)} حرکت`:`${faNum(all.length)} حرکت`;}
+  if(mobileContext) mobileContext.textContent=awSession?'در تمرین فعال':routine?`در ${routine.name}`:hasFilters()?'مطابق فیلترها':'با انیمیشن';
 
   $('#loadMore').style.display=!awSession&&shown.length<all.length?'block':'none';
   const resetBtn=$('#mobileResetFiltersBtn');
@@ -2086,7 +2112,7 @@ function resetFilters(){
 function toast(message){const element=$('#toast');element.textContent=message;element.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>element.classList.remove('show'),1600)}
 
 let confirmDialogState=null;
-function appConfirm(message,{title='Please confirm',okLabel='Confirm'}={}){
+function appConfirm(message,{title='تایید',okLabel='تایید'}={}){
   if(confirmDialogState)return confirmDialogState.promise.then(()=>appConfirm(message,{title,okLabel}));
   $('#confirmDialogTitle').textContent=title;
   $('#confirmDialogMessage').textContent=message;
@@ -2191,7 +2217,7 @@ function openOverlay(key,returnFocus=document.activeElement){
 
 function closeOverlay(key,restoreFocus=true){
   if(key==='mealManager'&&mealEditorBusy()){
-    toast('Save your meal first');
+    toast('ابتدا غذای خود را ذخیره کنید');
     return;
   }
 
@@ -2263,11 +2289,11 @@ function setSavedExercise(exerciseId,saved=!state.saved.has(exerciseId)){
 function syncLikeButton(button,saved){
   button.classList.toggle('saved',saved);
   button.setAttribute('aria-pressed',String(saved));
-  button.setAttribute('aria-label',`${saved?'Remove from':'Add to'} saved exercises`);
+  button.setAttribute('aria-label',`${saved?'حذف از':'افزودن به'} حرکات ذخیره‌شده`);
 }
 function syncMediaPill(paused){
   const text=document.querySelector('.modal-media-pill span'),iconUse=document.querySelector('.modal-media-pill use');
-  if(text)text.textContent=paused?'tap to play':'tap to pause';
+  if(text)text.textContent=paused?'پخش':'مکث';
   if(iconUse)iconUse.setAttribute('href',paused?'#icon-movement':'#icon-pause');
 }
 
@@ -2297,7 +2323,7 @@ function cancelNewRoutine(){
 }
 function saveRoutineEditor(){
   const clean=String(state.routineDraftName||$('#routineEditName').value||'').trim().slice(0,LIMITS.routineName);
-  if(!clean)return toast('Name your routine first');
+  if(!clean)return toast('ابتدا نام برنامه را وارد کنید');
   if(state.routineCreating)return createRoutine(clean);
   const routine=currentRoutine();
   if(!routine)return;
@@ -2307,7 +2333,7 @@ function saveRoutineEditor(){
   state.routineDraftName='';
   saveRoutines();
   renderRoutineDrawer();
-  toast(`${clean} routine saved`);
+  toast(`برنامه «${clean}» ذخیره شد`);
 }
 function orderedRoutines(){
   const liked=state.routines.filter(routine=>routine.liked).sort((a,b)=>a.name.localeCompare(b.name,undefined,{sensitivity:'base'}));
@@ -2419,9 +2445,9 @@ async function importRoutineText(mode='replace'){
     const routines=parseRoutineText($('#routinePasteText').value);
     if(mode==='add'){
       state.routines.push(...routines);
-      toast(`${routines.length} routine${routines.length===1?'':'s'} added`);
+      toast(`${routines.length} برنامه اضافه شد`);
     }else{
-      if(state.routines.length&&!(await appConfirm('Replace all existing routines?',{title:'Import routines',okLabel:'Replace'})))return;
+      if(state.routines.length&&!(await appConfirm('همه برنامه‌های فعلی جایگزین شوند؟',{title:'ورود برنامه‌ها',okLabel:'جایگزینی'})))return;
       if(VAULT.loaded)for(const r of state.routines)markDeleted('routines',r.id);
       state.routines=routines;
       const validIds = new Set(routines.map(r => r.id));
@@ -2429,7 +2455,7 @@ async function importRoutineText(mode='replace'){
         if (!validIds.has(state.schedule[i])) state.schedule[i] = '';
       }
       syncScheduleState();
-      toast(`${routines.length} routine${routines.length===1?'':'s'} imported`);
+      toast(`${routines.length} برنامه درون‌ریزی شد`);
     }
     state.activeRoutineId=null;
     state.routineCreating=false;
@@ -2437,11 +2463,11 @@ async function importRoutineText(mode='replace'){
     saveRoutines();
     renderRoutineDrawer();
     closeRoutinePastePanel();
-  }catch{toast('Invalid format');}
+  }catch{toast('قالب نامعتبر است');}
 }
 function createRoutine(name){
   const clean=String(name||'').trim();
-  if(!clean)return toast('Name your routine first');
+  if(!clean)return toast('ابتدا نام برنامه را وارد کنید');
   const routine={id:`r-${Date.now()}`,name:clean.slice(0,LIMITS.routineName),liked:false,items:[]};
   state.routines.push(routine);
   state.activeRoutineId=routine.id;
@@ -2449,7 +2475,7 @@ function createRoutine(name){
   state.routineDraftName=routine.name;
   saveRoutines();
   renderRoutineDrawer();
-  toast(`${routine.name} routine created`);
+  toast(`برنامه «${routine.name}» ساخته شد`);
 }
 function addToRoutine(exerciseId){
   const routine=currentRoutine();
@@ -2458,51 +2484,51 @@ function addToRoutine(exerciseId){
   routine.items.push({exerciseId,sets:DEFAULTS.sets,reps:DEFAULTS.reps});
   saveRoutines();
   renderRoutineDrawer();
-  toast(`Added to ${routine.name} routine`);
+  toast(`به برنامه «${routine.name}» اضافه شد`);
 }
 
 function renderRoutineDrawer(){
   syncRoutineSort();
-  const sortedRoutines=orderedRoutines(),filterOptions='<option value="">All exercises</option>'+sortedRoutines.map(routine=>`<option value="${esc(routine.id)}"${routine.id===state.routineFilter?' selected':''}>${routine.liked?'♥ ':''}${esc(routine.name)}</option>`).join('');
+  const sortedRoutines=orderedRoutines(),filterOptions='<option value="">همه حرکات</option>'+sortedRoutines.map(routine=>`<option value="${esc(routine.id)}"${routine.id===state.routineFilter?' selected':''}>${routine.liked?'♥ ':''}${esc(routine.name)}</option>`).join('');
   $('#mainRoutineSelect').innerHTML=filterOptions;
   const routine=currentRoutine(),editing=Boolean(routine)||state.routineCreating,items=routine?.items||[],totalSets=items.reduce((sum,item)=>sum+item.sets,0),selector=$('#routineSelectorButton'),nameInput=$('#routineEditName'),menu=$('#routineMenu'),modeButton=$('#routineNewToggle'),modeText=modeButton.querySelector('span'),modeIcon=modeButton.querySelector('use'),deleteButton=$('#deleteRoutine'),likeButton=$('#likeRoutine');
-  menu.innerHTML=sortedRoutines.length?sortedRoutines.map(item=>`<button type="button" role="menuitem" data-edit-routine="${esc(item.id)}">${item.liked?'♥ ':''}${esc(item.name)}</button>`).join(''):'<span class="routine-menu-empty">No routines yet</span>';
+  menu.innerHTML=sortedRoutines.length?sortedRoutines.map(item=>`<button type="button" role="menuitem" data-edit-routine="${esc(item.id)}">${item.liked?'♥ ':''}${esc(item.name)}</button>`).join(''):'<span class="routine-menu-empty">هنوز برنامه‌ای نیست</span>';
   selector.hidden=editing;
   nameInput.hidden=!editing;
   if(state.routineCreating){
     nameInput.value=state.routineDraftName;
-    modeText.textContent='Cancel';
+    modeText.textContent='انصراف';
     modeIcon?.setAttribute('href','#icon-close');
-    deleteButton.textContent='Done';
-    deleteButton.setAttribute('aria-label','Create routine');
+    deleteButton.textContent='انجام شد';
+    deleteButton.setAttribute('aria-label','ساخت برنامه');
     deleteButton.classList.add('routine-done');
     deleteButton.disabled=false;
   }else if(routine){
     nameInput.value=state.routineDraftName;
-    modeText.textContent='Save routine';
+    modeText.textContent='ذخیره برنامه';
     modeIcon?.setAttribute('href','#icon-check');
-    deleteButton.textContent='Delete';
-    deleteButton.setAttribute('aria-label','Delete routine');
+    deleteButton.textContent='حذف';
+    deleteButton.setAttribute('aria-label','حذف برنامه');
     deleteButton.classList.remove('routine-done');
     deleteButton.disabled=false;
   }else{
     nameInput.value='';
-    modeText.textContent='Add routine';
+    modeText.textContent='افزودن برنامه';
     modeIcon?.setAttribute('href','#icon-plus');
-    deleteButton.textContent='Delete';
-    deleteButton.setAttribute('aria-label','Delete routine');
+    deleteButton.textContent='حذف';
+    deleteButton.setAttribute('aria-label','حذف برنامه');
     deleteButton.classList.remove('routine-done');
     deleteButton.disabled=true;
   }
-  selector.textContent='Select a routine to edit';
+  selector.textContent='برنامه‌ای برای ویرایش انتخاب کنید';
   selector.setAttribute('aria-expanded',String(!menu.hidden&&!editing));
   likeButton.disabled=!routine;
   $('#copyRoutine').disabled=!routine;
   $('#copyAllRoutines').disabled=!state.routines.length;
   likeButton.classList.toggle('liked',Boolean(routine?.liked));
   likeButton.setAttribute('aria-pressed',String(Boolean(routine?.liked)));
-  likeButton.setAttribute('aria-label',routine?.liked?'Unlike routine':'Like routine');
-  $('#routineHeaderSummary').textContent=routine?`${routine.name} · ${items.length} exercise${items.length===1?'':'s'} · ${totalSets} set${totalSets===1?'':'s'}`:state.routineCreating?'Name the new routine, then select Done':state.routines.length?'Select a routine to edit':'Create your first routine';
+  likeButton.setAttribute('aria-label',routine?.liked?'حذف پسند برنامه':'پسندیدن برنامه');
+  $('#routineHeaderSummary').textContent=routine?`${routine.name} · ${faNum(items.length)} حرکت · ${faNum(totalSets)} ست`:state.routineCreating?'نام برنامه جدید را وارد کنید':state.routines.length?'برنامه‌ای برای ویرایش انتخاب کنید':'اولین برنامه خود را بسازید';
 
   const scheduleContainer = $('#routineSchedule');
   const addExercisesButton = $('#routineAddExercises');
@@ -2519,8 +2545,8 @@ function renderRoutineDrawer(){
         const timed=routineItemMode(item,exercise)==='timed';
         const unit=routineItemUnit(item,exercise);
         const supersetLinked=Boolean(item.superset);
-        const modeRow=`<div class="routine-mode-row"><div class="mode-switch mode-switch--compact"><button type="button" data-mode="reps" aria-pressed="${timed?'false':'true'}">Reps</button><button type="button" data-mode="timed" aria-pressed="${timed?'true':'false'}">Timed</button></div><div class="mode-switch mode-switch--compact"><button type="button" data-superset-toggle aria-pressed="${supersetLinked?'true':'false'}"${state.supersetLinking===item.exerciseId?' class="linking"':''} aria-label="${supersetLinked?'Remove superset pairing':'Pair in a superset'}">Link</button></div><div class="mode-switch mode-switch--compact"><button type="button" data-item-toggle aria-pressed="${timed?(unit==='min'?'true':'false'):(routineItemWeighted(item,exercise)?'true':'false')}" aria-label="${timed?'Toggle minutes or seconds':'Toggle weight tracking'}">${timed?'Mins':'Weight'}</button></div></div>`;
-        return`<div class="routine-item${supersetLinked?' superset':''}" data-exercise-id="${esc(item.exerciseId)}"><div class="routine-item-head"><span class="routine-order" aria-hidden="true">${index+1}</span><div class="routine-item-copy"><strong>${esc(exercise.name)}</strong><span>${esc(title(exercise.target))} · ${esc(title(exercise.equipment))}</span></div><div class="routine-item-actions"><button class="routine-move routine-up" type="button" aria-label="Move ${esc(exercise.name)} up"${index===0?' disabled':''}>${icon('up')}</button><button class="routine-move routine-down" type="button" aria-label="Move ${esc(exercise.name)} down"${index===items.length-1?' disabled':''}>${icon('down')}</button><button class="routine-remove" type="button" aria-label="Remove ${esc(exercise.name)}">${icon('close')}</button></div></div><div class="routine-fields">${modeRow}<div class="routine-field"><label>${timed?'Intervals':'Sets'}</label><div class="routine-stepper"><button class="routine-step routine-decrease" type="button" data-field="sets" aria-label="Decrease ${timed?'intervals':'sets'} for ${esc(exercise.name)}">${icon('minus')}</button><input class="routine-sets" value="${item.sets}" readonly tabindex="-1" aria-label="${timed?'Intervals':'Sets'} for ${esc(exercise.name)}"><button class="routine-step routine-increase" type="button" data-field="sets" aria-label="Increase ${timed?'intervals':'sets'} for ${esc(exercise.name)}">${icon('plus')}</button></div></div><div class="routine-field routine-field-reps"><label>${timed?(unit==='sec'?'Seconds per interval':'Minutes per interval'):'Reps'}</label><div class="routine-stepper"><button class="routine-step routine-decrease" type="button" data-field="reps" data-step="${timed?(unit==='sec'?5:1):1}" aria-label="Decrease ${timed?(unit==='sec'?'seconds':'minutes'):'reps'} for ${esc(exercise.name)}">${icon('minus')}</button><input class="routine-reps" value="${timed?Math.round((Number(item.reps)||0)*100)/100:item.reps}" readonly tabindex="-1" aria-label="${timed?(unit==='sec'?'Seconds per interval':'Minutes per interval'):'Reps'} for ${esc(exercise.name)}"><button class="routine-step routine-increase" type="button" data-field="reps" data-step="${timed?(unit==='sec'?5:1):1}" aria-label="Increase ${timed?(unit==='sec'?'seconds':'minutes'):'reps'} for ${esc(exercise.name)}">${icon('plus')}</button></div></div></div></div>`;
+        const modeRow=`<div class="routine-mode-row"><div class="mode-switch mode-switch--compact"><button type="button" data-mode="reps" aria-pressed="${timed?'false':'true'}">تکراری</button><button type="button" data-mode="timed" aria-pressed="${timed?'true':'false'}">زمانی</button></div><div class="mode-switch mode-switch--compact"><button type="button" data-superset-toggle aria-pressed="${supersetLinked?'true':'false'}"${state.supersetLinking===item.exerciseId?' class="linking"':''} aria-label="${supersetLinked?'حذف جفت سوپرست':'جفت‌کردن در سوپرست'}">جفت</button></div><div class="mode-switch mode-switch--compact"><button type="button" data-item-toggle aria-pressed="${timed?(unit==='min'?'true':'false'):(routineItemWeighted(item,exercise)?'true':'false')}" aria-label="${timed?'تعویض دقیقه یا ثانیه':'تعویض ثبت وزنه'}">${timed?'دقیقه':'وزنه'}</button></div></div>`;
+        return`<div class="routine-item${supersetLinked?' superset':''}" data-exercise-id="${esc(item.exerciseId)}"><div class="routine-item-head"><span class="routine-order" aria-hidden="true">${index+1}</span><div class="routine-item-copy"><strong>${esc(exercise.name)}</strong><span>${esc(title(exercise.target))} · ${esc(title(exercise.equipment))}</span></div><div class="routine-item-actions"><button class="routine-move routine-up" type="button" aria-label="انتقال ${esc(exercise.name)} به بالا"${index===0?' disabled':''}>${icon('up')}</button><button class="routine-move routine-down" type="button" aria-label="انتقال ${esc(exercise.name)} به پایین"${index===items.length-1?' disabled':''}>${icon('down')}</button><button class="routine-remove" type="button" aria-label="حذف ${esc(exercise.name)}">${icon('close')}</button></div></div><div class="routine-fields">${modeRow}<div class="routine-field"><label>${timed?'بازه':'ست'}</label><div class="routine-stepper"><button class="routine-step routine-decrease" type="button" data-field="sets" aria-label="کاهش ${timed?'بازه':'ست'} برای ${esc(exercise.name)}">${icon('minus')}</button><input class="routine-sets" value="${item.sets}" readonly tabindex="-1" aria-label="${timed?'بازه':'ست'} برای ${esc(exercise.name)}"><button class="routine-step routine-increase" type="button" data-field="sets" aria-label="افزایش ${timed?'بازه':'ست'} برای ${esc(exercise.name)}">${icon('plus')}</button></div></div><div class="routine-field routine-field-reps"><label>${timed?(unit==='sec'?'ثانیه در هر بازه':'دقیقه در هر بازه'):'تکرار'}</label><div class="routine-stepper"><button class="routine-step routine-decrease" type="button" data-field="reps" data-step="${timed?(unit==='sec'?5:1):1}" aria-label="کاهش ${timed?(unit==='sec'?'ثانیه':'دقیقه'):'تکرار'} برای ${esc(exercise.name)}">${icon('minus')}</button><input class="routine-reps" value="${timed?Math.round((Number(item.reps)||0)*100)/100:item.reps}" readonly tabindex="-1" aria-label="${timed?(unit==='sec'?'ثانیه در هر بازه':'دقیقه در هر بازه'):'تکرار'} برای ${esc(exercise.name)}"><button class="routine-step routine-increase" type="button" data-field="reps" data-step="${timed?(unit==='sec'?5:1):1}" aria-label="افزایش ${timed?(unit==='sec'?'ثانیه':'دقیقه'):'تکرار'} برای ${esc(exercise.name)}">${icon('plus')}</button></div></div></div></div>`;
       }).join('');
     }
   } else {
@@ -2544,12 +2570,12 @@ function renderRoutineSchedule(container, sortedRoutines) {
 
   container.innerHTML = dayIndices.map(dayIndex => {
     const baseDate = new Date(2024, 0, 7 + dayIndex, 12);
-    const dayName = baseDate.toLocaleDateString(undefined, { weekday: 'long' });
+    const dayName = baseDate.toLocaleDateString(FA_LOCALE, { weekday: 'long' });
     const isToday = dayIndex === todayIndex;
     const selectedRoutineId = state.schedule[dayIndex] || '';
 
     const optionsHtml = [
-      `<option value=""${!selectedRoutineId ? ' selected' : ''}>Rest</option>`,
+      `<option value=""${!selectedRoutineId ? ' selected' : ''}>استراحت</option>`,
       ...sortedRoutines.map(routine => `<option value="${esc(routine.id)}"${routine.id === selectedRoutineId ? ' selected' : ''}>${routine.liked ? '♥ ' : ''}${esc(routine.name)}</option>`)
     ].join('');
 
@@ -2557,9 +2583,9 @@ function renderRoutineSchedule(container, sortedRoutines) {
       <div class="schedule-day-row">
         <div class="schedule-day-label">
           <span class="schedule-day-name">${esc(dayName)}</span>
-          ${isToday ? '<span class="schedule-today-badge">Today</span>' : ''}
+          ${isToday ? '<span class="schedule-today-badge">امروز</span>' : ''}
         </div>
-        <select class="schedule-select" id="scheduleDay_${dayIndex}" data-schedule-day="${dayIndex}" aria-label="Schedule for ${esc(dayName)}">
+        <select class="schedule-select" id="scheduleDay_${dayIndex}" data-schedule-day="${dayIndex}" aria-label="برنامه ${esc(dayName)}">
           ${optionsHtml}
         </select>
       </div>
@@ -2578,9 +2604,9 @@ $('#routineSchedule')?.addEventListener('change', (event) => {
   state.schedule[day] = select.value;
   syncScheduleState();
   const baseDate = new Date(2024, 0, 7 + day, 12);
-  const dayName = baseDate.toLocaleDateString(undefined, { weekday: 'long' });
+  const dayName = baseDate.toLocaleDateString(FA_LOCALE, { weekday: 'long' });
   const routine = state.routines.find(r => r.id === select.value);
-  toast(routine ? `${dayName} set to ${routine.name}` : `${dayName} set to Rest`);
+  toast(routine ? `${dayName} به برنامه «${routine.name}» تنظیم شد` : `${dayName} استراحت شد`);
 });
 
 function todaysScheduledRoutine(){
@@ -2708,7 +2734,7 @@ function startRoutineWorkout(routine){
   state.activeWorkout={date:localDateValue(),routineId:routine.id,startedAt:Date.now(),paused:false,sets:seedAwSets(routine),skipped:{}};
   saveActiveWorkout();
   render();
-  toast(`Started ${routine.name}`);
+  toast(`«${routine.name}» شروع شد`);
 }
 function startActiveWorkout(){
   const routine=todaysScheduledRoutine();
@@ -2734,7 +2760,7 @@ function endActiveWorkout(save=true){
   cancelAwRest();
   if(save)writeStorage(STORAGE_KEYS.awBannerDismissed,{date:localDateValue(),routineId:String(session.routineId)});
   render();
-  toast(save?`Workout complete · ${done}/${total}`:'Workout discarded');
+  toast(save?`تمرین تمام شد · ${done} از ${total}`:'تمرین لغو شد');
 }
 function awRestDecision(routine,item){
   const myPending=awSets(item.exerciseId).some(row=>!row.done);
@@ -2761,9 +2787,9 @@ async function handleAwAction(action,exerciseId,delta,rowIndex){
   if(action==='start')return startActiveWorkout();
   const session=state.activeWorkout;if(!session)return;
   if(action==='finish')return endActiveWorkout(true);
-  if(action==='discard'){if(!await appConfirm('Discard this workout? Completed sets will be lost.',{title:'Discard workout',okLabel:'Discard'}))return;return endActiveWorkout(false);}
-  if(action==='pause'){session.paused=true;saveActiveWorkout();toast('Workout paused');return render();}
-  if(action==='resume'){session.paused=false;saveActiveWorkout();toast('Workout resumed');return render();}
+  if(action==='discard'){if(!await appConfirm('این تمرین لغو شود؟ ست‌های تکمیل‌شده از دست می‌روند.',{title:'لغو تمرین',okLabel:'لغو'}))return;return endActiveWorkout(false);}
+  if(action==='pause'){session.paused=true;saveActiveWorkout();toast('تمرین متوقف شد');return render();}
+  if(action==='resume'){session.paused=false;saveActiveWorkout();toast('تمرین ادامه یافت');return render();}
   const routine=state.routines.find(routine=>routine.id===session.routineId);if(!routine)return;
   const item=routine.items.find(candidate=>candidate.exerciseId===exerciseId);if(!item)return;
   const exercise=getExercise(exerciseId);if(!exercise)return;
@@ -2808,7 +2834,7 @@ async function handleAwAction(action,exerciseId,delta,rowIndex){
     if(!timed||!rows[index])return;
     rows[index].distance=Math.round(clamp((Number(rows[index].distance)||0)+Number(delta||(action==='dist-inc'?0.5:-0.5)),0,LIMITS.distance)*10)/10;changed=true;
   }else if(action==='add-rep'){
-    if(rows.length>=LIMITS.sets)return toast(timed?'Interval limit reached':'Set limit reached');
+    if(rows.length>=LIMITS.sets)return toast(timed?'حد بازه به پایان رسید':'حد ست به پایان رسید');
     const template=rows[rows.length-1];
     if(timed)rows.push({duration:template?template.duration:(routineItemUnit(item,exercise)==='sec'?Math.round((Number(item.reps)||10)):Math.max(1,Math.round(Number(item.reps)||1))),distance:template?template.distance:0,done:false});
     else rows.push({reps:template?template.reps:item.reps,weight:template?template.weight:(showWeight?0:null),done:false});
@@ -2829,7 +2855,7 @@ async function handleAwAction(action,exerciseId,delta,rowIndex){
     const decision=awRestDecision(routine,item);
     if(decision.type==='between-sets')startAwRest(state.restPrefs.betweenSets);
     else if(decision.type==='between-exercises')startAwRest(state.restPrefs.betweenExercise);
-    else if(decision.toastName)toast(`Superset — next: ${decision.toastName}`);
+    else if(decision.toastName)toast(`سوپرست — حرکت بعدی: ${decision.toastName}`);
   }
   render();
 }
@@ -2855,67 +2881,67 @@ function renderActiveWorkout(){
     const showWeight=routineItemWeighted(item,exercise);
     const isActive=activeItems.has(item.exerciseId);
     const mediaSrc=isActive?esc(exercise.gif_url||exercise.image):esc(exercise.image);    const setsHead=timed
-      ?`<div class="aw-sets-head"><span class="aw-h-num"></span><span class="aw-h-label">Duration</span><span class="aw-h-label">Distance</span><span class="aw-h-check"></span></div>`
-      :`<div class="aw-sets-head"><span class="aw-h-num"></span><span class="aw-h-label">Reps</span>${showWeight?'<span class="aw-h-label">Weight</span>':''}<span class="aw-h-check"></span></div>`;
+      ?`<div class="aw-sets-head"><span class="aw-h-num"></span><span class="aw-h-label">مدت</span><span class="aw-h-label">مسافت</span><span class="aw-h-check"></span></div>`
+      :`<div class="aw-sets-head"><span class="aw-h-num"></span><span class="aw-h-label">تکرار</span>${showWeight?'<span class="aw-h-label">وزنه</span>':''}<span class="aw-h-check"></span></div>`;
     const setRows=sets.map((set,index)=>`
       <div class="aw-set-row${set.done?' checked':''}">
         <span class="aw-num">${index+1}</span>
-        ${timed?`<div class="routine-stepper" role="group" aria-label="Duration for interval ${index+1} of ${esc(exercise.name)}">
-          <button class="routine-step" type="button" data-aw-action="dur-dec" data-exercise="${exercise.id}" data-aw-index="${index}" aria-label="Decrease duration"${skipped?' disabled':''}>${icon('minus')}</button>
-          <output aria-live="polite">${formatWeightValue(clamp(Number(set.duration)||0,0,LIMITS.duration))} min</output>
-          <button class="routine-step" type="button" data-aw-action="dur-inc" data-exercise="${exercise.id}" data-aw-index="${index}" aria-label="Increase duration"${skipped?' disabled':''}>${icon('plus')}</button>
+        ${timed?`<div class="routine-stepper" role="group" aria-label="مدت بازه ${faNum(index+1)} از ${esc(exercise.name)}">
+          <button class="routine-step" type="button" data-aw-action="dur-dec" data-exercise="${exercise.id}" data-aw-index="${index}" aria-label="کاهش مدت"${skipped?' disabled':''}>${icon('minus')}</button>
+          <output aria-live="polite">${faNum(formatWeightValue(clamp(Number(set.duration)||0,0,LIMITS.duration)))} دقیقه</output>
+          <button class="routine-step" type="button" data-aw-action="dur-inc" data-exercise="${exercise.id}" data-aw-index="${index}" aria-label="افزایش مدت"${skipped?' disabled':''}>${icon('plus')}</button>
         </div>
-        <div class="routine-stepper" role="group" aria-label="Distance for interval ${index+1} of ${esc(exercise.name)}">
-          <button class="routine-step" type="button" data-aw-action="dist-dec" data-exercise="${exercise.id}" data-aw-index="${index}" data-delta="-0.5" aria-label="Decrease distance"${skipped?' disabled':''}>${icon('minus')}</button>
-          <output aria-live="polite">${Math.round((Number(set.distance)||0)*10)/10} km</output>
-          <button class="routine-step" type="button" data-aw-action="dist-inc" data-exercise="${exercise.id}" data-aw-index="${index}" data-delta="0.5" aria-label="Increase distance"${skipped?' disabled':''}>${icon('plus')}</button>
+        <div class="routine-stepper" role="group" aria-label="مسافت بازه ${faNum(index+1)} از ${esc(exercise.name)}">
+          <button class="routine-step" type="button" data-aw-action="dist-dec" data-exercise="${exercise.id}" data-aw-index="${index}" data-delta="-0.5" aria-label="کاهش مسافت"${skipped?' disabled':''}>${icon('minus')}</button>
+          <output aria-live="polite">${faNum(Math.round((Number(set.distance)||0)*10)/10)} کیلومتر</output>
+          <button class="routine-step" type="button" data-aw-action="dist-inc" data-exercise="${exercise.id}" data-aw-index="${index}" data-delta="0.5" aria-label="افزایش مسافت"${skipped?' disabled':''}>${icon('plus')}</button>
         </div>`:`
-        <div class="routine-stepper" role="group" aria-label="Reps for set ${index+1} of ${esc(exercise.name)}">
-          <button class="routine-step" type="button" data-aw-action="rep-dec" data-exercise="${exercise.id}" data-aw-index="${index}" aria-label="Decrease reps"${skipped?' disabled':''}>${icon('minus')}</button>
-          <output aria-live="polite">${clamp(set.reps,1,LIMITS.reps)}</output>
-          <button class="routine-step" type="button" data-aw-action="rep-inc" data-exercise="${exercise.id}" data-aw-index="${index}" aria-label="Increase reps"${skipped?' disabled':''}>${icon('plus')}</button>
+        <div class="routine-stepper" role="group" aria-label="تکرار ست ${faNum(index+1)} از ${esc(exercise.name)}">
+          <button class="routine-step" type="button" data-aw-action="rep-dec" data-exercise="${exercise.id}" data-aw-index="${index}" aria-label="کاهش تکرار"${skipped?' disabled':''}>${icon('minus')}</button>
+          <output aria-live="polite">${faNum(clamp(set.reps,1,LIMITS.reps))}</output>
+          <button class="routine-step" type="button" data-aw-action="rep-inc" data-exercise="${exercise.id}" data-aw-index="${index}" aria-label="افزایش تکرار"${skipped?' disabled':''}>${icon('plus')}</button>
         </div>
-        ${showWeight?`<div class="routine-stepper" role="group" aria-label="Weight for set ${index+1} of ${esc(exercise.name)}">
-          <button class="routine-step" type="button" data-aw-action="wt-dec" data-exercise="${exercise.id}" data-aw-index="${index}" data-delta="-2.5" aria-label="Decrease weight"${skipped?' disabled':''}>${icon('minus')}</button>
-          <output aria-live="polite">${Math.round((set.weight||0)*10)/10} kg</output>
-          <button class="routine-step" type="button" data-aw-action="wt-inc" data-exercise="${exercise.id}" data-aw-index="${index}" data-delta="2.5" aria-label="Increase weight"${skipped?' disabled':''}>${icon('plus')}</button>
+        ${showWeight?`<div class="routine-stepper" role="group" aria-label="وزنه ست ${faNum(index+1)} از ${esc(exercise.name)}">
+          <button class="routine-step" type="button" data-aw-action="wt-dec" data-exercise="${exercise.id}" data-aw-index="${index}" data-delta="-2.5" aria-label="کاهش وزنه"${skipped?' disabled':''}>${icon('minus')}</button>
+          <output aria-live="polite">${faNum(Math.round((set.weight||0)*10)/10)} کیلوگرم</output>
+          <button class="routine-step" type="button" data-aw-action="wt-inc" data-exercise="${exercise.id}" data-aw-index="${index}" data-delta="2.5" aria-label="افزایش وزنه"${skipped?' disabled':''}>${icon('plus')}</button>
         </div>`:''}`}
-        <button type="button" class="aw-check${set.done?' on':''}" data-aw-action="check" data-exercise="${exercise.id}" data-aw-index="${index}" aria-label="${timed?`Interval ${index+1}`:`Set ${index+1}`} ${set.done?'completed':'not completed'}"${skipped?' disabled':''}>${icon('check')}</button>
+        <button type="button" class="aw-check${set.done?' on':''}" data-aw-action="check" data-exercise="${exercise.id}" data-aw-index="${index}" aria-label="${timed?`بازه ${faNum(index+1)}`:`ست ${faNum(index+1)}`} ${set.done?'تکمیل‌شده':'تکمیل‌نشده'}"${skipped?' disabled':''}>${icon('check')}</button>
       </div>`).join('');
     return `<div class="aw-row${complete?' done':''}${skipped?' skipped':''}${isActive?'':' collapsed'}" data-exercise="${exercise.id}">
       <div class="aw-row-top">
         <div class="aw-main">
-          ${exercise.custom?`<button type="button" class="aw-media aw-media-custom" data-aw-action="open" data-exercise="${exercise.id}" aria-label="Open ${esc(exercise.name)} details"><span class="custom-icon">${icon('movement')}</span></button>`:`<button type="button" class="aw-media" data-aw-action="open" data-exercise="${exercise.id}" aria-label="Open ${esc(exercise.name)} details"><img src="${mediaSrc}" alt="" loading="lazy" data-aw-media data-aw-exercise="${exercise.id}"></button>`}
-          <div class="aw-name-wrap"><span class="aw-name">${esc(exercise.name)}</span><span class="aw-target">${timed?`${item.sets} intervals · ${Math.round((Number(item.reps)||0)*100)/100} ${routineItemUnit(item,exercise)==='min'?'min':'sec'} each · ${esc(title(exercise.target))}`:`${item.sets} sets × ${item.reps} reps · ${esc(title(exercise.target))}`}</span></div>
+          ${exercise.custom?`<button type="button" class="aw-media aw-media-custom" data-aw-action="open" data-exercise="${exercise.id}" aria-label="جزئیات ${esc(exercise.name)}"><span class="custom-icon">${icon('movement')}</span></button>`:`<button type="button" class="aw-media" data-aw-action="open" data-exercise="${exercise.id}" aria-label="جزئیات ${esc(exercise.name)}"><img src="${mediaSrc}" alt="" loading="lazy" data-aw-media data-aw-exercise="${exercise.id}"></button>`}
+          <div class="aw-name-wrap"><span class="aw-name">${esc(exercise.name)}</span><span class="aw-target">${timed?`${faNum(item.sets)} بازه · ${faNum(Math.round((Number(item.reps)||0)*100)/100)} ${routineItemUnit(item,exercise)==='min'?'دقیقه':'ثانیه'} هرکدام · ${esc(title(exercise.target))}`:`${faNum(item.sets)} ست × ${faNum(item.reps)} تکرار · ${esc(title(exercise.target))}`}</span></div>
         </div>
-        <div class="aw-row-badges">${item.superset?`<span class="aw-superset-badge">${icon('link')} Superset</span>`:''}${complete&&!skipped?`<span class="aw-done-badge">${icon('check')} Done</span>`:''}${skipped?`<span class="aw-skipped-badge">Skipped</span>`:''}</div>
+        <div class="aw-row-badges">${item.superset?`<span class="aw-superset-badge">${icon('link')} سوپرست</span>`:''}${complete&&!skipped?`<span class="aw-done-badge">${icon('check')} انجام شد</span>`:''}${skipped?`<span class="aw-skipped-badge">رد شد</span>`:''}</div>
       </div>
       ${isActive?`<div class="aw-sets">${setsHead+setRows}</div>`:''}
       <div class="aw-addremove">
         <div class="aw-addremove-group">
-          <button type="button" data-aw-action="add-rep" data-exercise="${exercise.id}"${!skipped&&(isActive||complete)?'':' disabled'}>Add ${timed?'interval':'rep'}</button>
-          <button type="button" data-aw-action="remove-rep" data-exercise="${exercise.id}"${isActive&&!skipped?'':' disabled'}>Remove ${timed?'interval':'rep'}</button>
+          <button type="button" data-aw-action="add-rep" data-exercise="${exercise.id}"${!skipped&&(isActive||complete)?'':' disabled'}>افزودن ${timed?'بازه':'تکرار'}</button>
+          <button type="button" data-aw-action="remove-rep" data-exercise="${exercise.id}"${isActive&&!skipped?'':' disabled'}>حذف ${timed?'بازه':'تکرار'}</button>
         </div>
         <div class="aw-addremove-group">
-          <button type="button" data-aw-action="skip" data-exercise="${exercise.id}"${complete&&!skipped?' disabled':''}>${skipped?'Restore':'Skip'}</button>
-          <button type="button" class="aw-done" data-aw-action="${complete&&!skipped?'undo':'check-all'}" data-exercise="${exercise.id}"${skipped?' disabled':''}>${complete&&!skipped?'Undo':'Done'}</button>
+          <button type="button" data-aw-action="skip" data-exercise="${exercise.id}"${complete&&!skipped?' disabled':''}>${skipped?'بازگردانی':'رد کردن'}</button>
+          <button type="button" class="aw-done" data-aw-action="${complete&&!skipped?'undo':'check-all'}" data-exercise="${exercise.id}"${skipped?' disabled':''}>${complete&&!skipped?'برگرداندن':'انجام شد'}</button>
         </div>
       </div>
     </div>`;
   }).join('');
-  return `<section class="aw-inner" aria-label="Active workout">
+  return `<section class="aw-inner" aria-label="تمرین فعال">
     <div class="track aw-progress"><i style="width:${counts.total?Math.round(counts.done/counts.total*100):0}%"></i></div>
-    <div class="aw-list">${rowHtml||'<p class="aw-empty">This routine has no exercises yet.</p>'}</div>
-    <footer class="aw-footer"><button type="button" class="feature-primary aw-finish" data-aw-action="finish">Finish workout</button><div class="aw-footer-secondary"><button type="button" class="aw-secondary" data-aw-action="pause">Pause</button><button type="button" class="aw-secondary aw-cancel" data-aw-action="discard">Cancel</button></div></footer>
+    <div class="aw-list">${rowHtml||'<p class="aw-empty">این برنامه هنوز حرکتی ندارد.</p>'}</div>
+    <footer class="aw-footer"><button type="button" class="feature-primary aw-finish" data-aw-action="finish">پایان تمرین</button><div class="aw-footer-secondary"><button type="button" class="aw-secondary" data-aw-action="pause">مکث</button><button type="button" class="aw-secondary aw-cancel" data-aw-action="discard">لغو</button></div></footer>
   </section>`;
 }
 function awBannerHtml(routine,options={}){
   const{dismissed=false,paused=false}=options;
-  const eyebrow=paused?'Paused workout':"Today's workout";
+  const eyebrow=paused?'تمرین متوقف‌شده':'تمرین امروز';
   const actions=paused
-    ?'<button type="button" class="aw-start" data-aw-action="resume">Resume</button>'
-    :`<button type="button" class="${dismissed?'aw-banner-restore':'aw-banner-dismiss'}" data-aw-${dismissed?'restore':'dismiss'} aria-label="${dismissed?'Restore':'Dismiss'} today's workout banner">${icon(dismissed?'reset':'close')}</button><button type="button" class="aw-start" data-aw-action="start">Start</button>`;
-  return `<div class="aw-banner"><div class="aw-banner-info"><span class="eyebrow">${eyebrow}</span><strong>${esc(routine.name)}</strong><span class="aw-banner-meta">${routine.items.length} exercises</span></div>${actions}</div>`;
+    ?'<button type="button" class="aw-start" data-aw-action="resume">ادامه</button>'
+    :`<button type="button" class="${dismissed?'aw-banner-restore':'aw-banner-dismiss'}" data-aw-${dismissed?'restore':'dismiss'} aria-label="${dismissed?'بازگردانی':'پنهان‌کردن'} بنر تمرین امروز">${icon(dismissed?'reset':'close')}</button><button type="button" class="aw-start" data-aw-action="start">شروع</button>`;
+  return `<div class="aw-banner"><div class="aw-banner-info"><span class="eyebrow">${eyebrow}</span><strong>${esc(routine.name)}</strong><span class="aw-banner-meta">${faNum(routine.items.length)} حرکت</span></div>${actions}</div>`;
 }
 function awBannerIsDismissed(routine){
   const dismissal=readStorage(STORAGE_KEYS.awBannerDismissed,null);
@@ -2992,7 +3018,7 @@ function ensureAwRestTicker(){if(awRestTickerId)return;awRestTickerId=setInterva
 function awRestTick(){
   if(!state.activeWorkout?.rest){stopAwRestTicker();return;}
   const left=awRestSecondsLeft();
-  if(left<=0){cancelAwRest();toast('Rest complete');return;}
+  if(left<=0){cancelAwRest();toast('استراحت تمام شد');return;}
   updateAwRestPill(left);
 }
 function updateAwRestPill(left){
@@ -3029,20 +3055,20 @@ function renderInstructions() {
     $('#modalInstructions').innerHTML = `<div class="step-list">${steps.map((step, index) => `<div class="step"><span>${index + 1}</span><div>${esc(step)}</div></div>`).join('')}</div>${descriptionHtml}`;
     return;
   }
-  $('#modalInstructions').innerHTML = description ? descriptionHtml : '<p class="instructions">Instructions are not available.</p>';
+  $('#modalInstructions').innerHTML = description ? descriptionHtml : '<p class="instructions">دستورالعملی در دسترس نیست.</p>';
 }
 function updateModalProgress(exerciseId) {
   const latest = latestLogFor(exerciseId);
-  $('#modalProgressSummary').textContent = latest ? `Last: ${formatProgress(latest)}` : 'No progress logged yet';
+  $('#modalProgressSummary').textContent = latest ? `آخرین: ${formatProgress(latest)}` : 'هنوز پیشرفتی ثبت نشده';
 }
 function resetModalScrollPosition() {
   $('.modal').scrollTop = 0;
   $('.modal-content').scrollTop = 0;
 }
 function renderModalBadges(exercise){
-  const bodyPart = exercise.category || 'Body';
-  const target = exercise.target || 'General';
-  const equipment = exercise.equipment || 'Body Weight';
+  const bodyPart = exercise.category || 'بدن';
+  const target = exercise.target || 'عمومی';
+  const equipment = exercise.equipment || 'وزن بدن';
   const secondaries = Array.isArray(exercise.secondary_muscles) ? exercise.secondary_muscles : [];
   const badgesHtml = [
     `<span class="modal-badge-pill pill-bodypart">${esc(title(bodyPart))}</span>`,
@@ -3056,12 +3082,12 @@ function renderModalBadges(exercise){
 function openModal(exercise, returnFocus = document.activeElement) {
   state.activeExercise = exercise;
   state.activeGifPaused = false;
-  $('#modalKicker').textContent = `${title(exercise.category)} · Exercise #${exercise.id}`;
+  $('#modalKicker').textContent = `${title(exercise.category)} · حرکت شماره ${exercise.id}`;
   $('#modalTitle').textContent = exercise.name;
 
-  const bodyPart = exercise.category || 'Body';
-  const target = exercise.target || 'General';
-  const equipment = exercise.equipment || 'Body Weight';
+  const bodyPart = exercise.category || 'بدن';
+  const target = exercise.target || 'عمومی';
+  const equipment = exercise.equipment || 'وزن بدن';
   renderModalBadges(exercise);
   hideTagMenu();
 
@@ -3076,7 +3102,7 @@ function openModal(exercise, returnFocus = document.activeElement) {
     image.style.display = 'block';
     fallback.style.display = 'none';
     image.src = exercise.gif_url || exercise.image;
-    image.alt = `Demonstration of ${exercise.name}`;
+    image.alt = `نمایش ${exercise.name}`;
     image.onerror = () => imageFallback(image);
   }
 
@@ -3109,7 +3135,7 @@ $('#modalExpandBtn')?.addEventListener('click', () => {
   const expanded = visual.classList.toggle('media-tall');
   const button = document.getElementById('modalExpandBtn');
   if (button) {
-    button.setAttribute('aria-label', expanded ? 'Restore size' : 'View full size');
+    button.setAttribute('aria-label', expanded ? 'بازگردانی اندازه' : 'نمایش در اندازه کامل');
     button.querySelector('use')?.setAttribute('href', expanded ? '#icon-minimize' : '#icon-expand');
   }
 });
@@ -3227,7 +3253,7 @@ function closeProgressSettings(){
   closeMealLogPaste();
   closeCustomExercisePaste();
 }
-function formatRestDuration(value){return `${value} sec`}
+function formatRestDuration(value){return `${faNum(value)} ثانیه`}
 function renderPrefSegs(){
   document.querySelectorAll('[data-pref-seg]').forEach(group=>{
     const key=group.dataset.prefSeg;
@@ -3261,9 +3287,9 @@ function showProgressLogPaste(text=''){
   showPastePanel('progressLogPaste','progressLogPasteText',text,{alwaysSet:true});
 }
 async function copyProgressLog(){
-  if(!state.progress.logs.length)return toast('Nothing to export');
+  if(!state.progress.logs.length)return toast('چیزی برای خروجی گرفتن نیست');
   const text=progressLogsToText();
-  if(await copyTextToClipboard(text)){toast('Progress log copied');return;}
+  if(await copyTextToClipboard(text)){toast('گزارش پیشرفت کپی شد');return;}
   showProgressLogPaste(text);
 }
 async function importProgressLog(mode='replace'){
@@ -3273,17 +3299,17 @@ async function importProgressLog(mode='replace'){
       const existingIds=new Set(state.progress.logs.map(log=>String(log.id)));
       const additions=[];
       logs.forEach(log=>{if(existingIds.has(String(log.id)))return;existingIds.add(String(log.id));additions.push(log);});
-      if(!additions.length)return toast('No new entries to add');
+      if(!additions.length)return toast('مورد جدیدی برای افزودن نیست');
       state.progress.logs.push(...additions);
       persistProgress();
       state.dashboard.selectedDate=null;
       renderProgressHistory();
       closeProgressLogPaste();
       if(state.loggedOnly||state.routineFilter)render();
-      toast(`${additions.length} progress entr${additions.length===1?'y':'ies'} added`);
+      toast(`${additions.length} مورد پیشرفت اضافه شد`);
       return;
     }
-    if(state.progress.logs.length&&!(await appConfirm('Replace the current progress history?',{title:'Import training log',okLabel:'Replace'})))return;
+    if(state.progress.logs.length&&!(await appConfirm('سابقه پیشرفت فعلی جایگزین شود؟',{title:'ورود گزارش تمرین',okLabel:'جایگزینی'})))return;
     if(VAULT.loaded)for(const log of state.progress.logs)markDeleted('trainingLogs',log.id);
     state.progress.logs=logs;
     persistProgress();
@@ -3291,15 +3317,15 @@ async function importProgressLog(mode='replace'){
     renderProgressHistory();
     closeProgressLogPaste();
     if(state.loggedOnly)render();
-    toast(`${logs.length} progress entr${logs.length===1?'ies':'y'} imported`);
-  }catch{toast('Invalid format');}
+    toast(`${logs.length} مورد پیشرفت درون‌ریزی شد`);
+  }catch{toast('قالب نامعتبر است');}
 }
 
 function normalizeMealLogEntry(entry){
   if(!entry||typeof entry!=='object')return null;
   const name=String(entry.name??'').trim().slice(0,LIMITS.routineName);
   if(!name)return null;
-  return{id:Number.isFinite(Number(entry.id))?Number(entry.id):Date.now()+Math.floor(Math.random()*1e6),name,cals:Math.round(clamp(entry.cals,0,100000)),p:Math.round(clamp(entry.p,0,100000)*10)/10,c:Math.round(clamp(entry.c,0,100000)*10)/10,f:Math.round(clamp(entry.f,0,100000)*10)/10,category:String(entry.category??'Other').trim()||'Other'};
+  return{id:Number.isFinite(Number(entry.id))?Number(entry.id):Date.now()+Math.floor(Math.random()*1e6),name,cals:Math.round(clamp(entry.cals,0,100000)),p:Math.round(clamp(entry.p,0,100000)*10)/10,c:Math.round(clamp(entry.c,0,100000)*10)/10,f:Math.round(clamp(entry.f,0,100000)*10)/10,category:String(entry.category??'دیگر').trim()||'دیگر'};
 }
 function sanitizeMealHistory(value){
   const history={};
@@ -3373,8 +3399,8 @@ function closeMealLogPaste(){
 }
 async function copyMealLog(){
   const text=mealLogToText();
-  if(!text)return toast('Nothing to export');
-  if(await copyTextToClipboard(text)){toast('Meal log copied');return;}
+  if(!text)return toast('چیزی برای خروجی گرفتن نیست');
+  if(await copyTextToClipboard(text)){toast('گزارش غذا کپی شد');return;}
   showMealLogPaste(text);
 }
 async function importMealLog(mode='replace'){
@@ -3391,22 +3417,22 @@ async function importMealLog(mode='replace'){
         addedMeals+=fresh.length;
         if(day.water>target.water)target.water=day.water;
       });
-      if(!addedMeals)return toast('No new entries to add');
+      if(!addedMeals)return toast('مورد جدیدی برای افزودن نیست');
       saveFuelState();
       renderFuelDay();
       closeMealLogPaste();
-      toast(`${addedMeals} meal entr${addedMeals===1?'y':'ies'} added`);
+      toast(`${addedMeals} مورد غذایی اضافه شد`);
       return;
     }
-    if(Object.keys(state.fuel.history).length&&!(await appConfirm('Replace the current nutrition diary?',{title:'Import meal log',okLabel:'Replace'})))return;
+    if(Object.keys(state.fuel.history).length&&!(await appConfirm('دفتر تغذیه فعلی جایگزین شود؟',{title:'ورود گزارش غذا',okLabel:'جایگزینی'})))return;
     if(VAULT.loaded)for(const date of Object.keys(state.fuel.history))for(const m of(state.fuel.history[date].meals||[]))markDeleted('nutritionDiary',m.id);
     state.fuel.history=imported;
     saveFuelState();
     renderFuelDay();
     closeMealLogPaste();
     const days=Object.keys(imported).length;
-    toast(`Meal log imported (${days} day${days===1?'':'s'})`);
-  }catch{toast('Invalid format');}
+    toast(`گزارش غذا درون‌ریزی شد (${faNum(days)} روز)`);
+  }catch{toast('قالب نامعتبر است');}
 }
 
 async function handleClearDataSubmit(event) {
@@ -3424,10 +3450,10 @@ async function handleClearDataSubmit(event) {
   }
 
   if (clearCustomExercises && state.activeWorkout && awRows().some(({ exercise }) => exercise.custom)) {
-    return toast('Finish the active workout first');
+    return toast('ابتدا تمرین فعال را تمام کنید');
   }
 
-  if (!(await appConfirm('Permanently delete the selected data? This action cannot be undone.', { title: 'Clear data', okLabel: 'Delete' }))) {
+  if (!(await appConfirm('داده‌های انتخاب‌شده برای همیشه حذف شوند؟ این عمل قابل بازگشت نیست.', { title: 'پاک‌کردن داده', okLabel: 'حذف' }))) {
     return;
   }
 
@@ -3519,7 +3545,7 @@ async function handleClearDataSubmit(event) {
 
   render();
   closeOverlay('clearData');
-  toast(`Cleared: ${cleared.join(', ')}`);
+  toast(`پاک شد: ${cleared.join('، ')}`);
 }
 
 function updateSelectAllClearCheckbox() {
@@ -3577,47 +3603,47 @@ function syncProgressDraft() {
   const weightButton = $('#progressWeightToggle');
   if (weightWrap && weightButton) {
     weightWrap.hidden = !exercise;
-    weightButton.textContent = timed ? 'Mins' : 'Weight';
+    weightButton.textContent = timed ? 'دقیقه' : 'وزنه';
     weightButton.setAttribute('aria-pressed', String(timed ? !sec : Boolean(draft.showWeight)));
   }
-  $('#progressSets').textContent = draft.sets;
+  $('#progressSets').textContent = faNum(draft.sets);
   $('#progressNotes').value = draft.notes;
   const enabled = Boolean(exercise);
   const rowsContainer = $('#progressSetRows');
   if (!rowsContainer) return;
   if (timed) {
-    const unitLabel = sec ? 'sec' : 'min';
-    const head = `<div class="aw-sets-head"><span class="aw-h-num"></span><span class="aw-h-label">Duration</span><span class="aw-h-label">Distance</span></div>`;
+    const unitLabel = sec ? 'ثانیه' : 'دقیقه';
+    const head = `<div class="aw-sets-head"><span class="aw-h-num"></span><span class="aw-h-label">مدت</span><span class="aw-h-label">مسافت</span></div>`;
     rowsContainer.innerHTML = head + draft.setDurations.map((durationValue, index) => `
       <div class="aw-set-row">
         <span class="aw-num">${index + 1}</span>
-        <div class="routine-stepper" role="group" aria-label="Duration for interval ${index + 1}">
-          <button class="routine-step progress-step" type="button" data-field="duration" data-set-index="${index}" data-delta="-${durationStep}" aria-label="Decrease duration in ${unitLabel} for interval ${index + 1}"${enabled ? '' : ' disabled'}>${icon('minus')}</button>
-          <output aria-live="polite">${draft.setDurations[index]} ${unitLabel}</output>
-          <button class="routine-step progress-step" type="button" data-field="duration" data-set-index="${index}" data-delta="${durationStep}" aria-label="Increase duration in ${unitLabel} for interval ${index + 1}"${enabled ? '' : ' disabled'}>${icon('plus')}</button>
+        <div class="routine-stepper" role="group" aria-label="مدت بازه ${faNum(index + 1)}">
+          <button class="routine-step progress-step" type="button" data-field="duration" data-set-index="${index}" data-delta="-${durationStep}" aria-label="کاهش مدت به ${unitLabel} برای بازه ${faNum(index + 1)}"${enabled ? '' : ' disabled'}>${icon('minus')}</button>
+          <output aria-live="polite">${faNum(draft.setDurations[index])} ${unitLabel}</output>
+          <button class="routine-step progress-step" type="button" data-field="duration" data-set-index="${index}" data-delta="${durationStep}" aria-label="افزایش مدت به ${unitLabel} برای بازه ${faNum(index + 1)}"${enabled ? '' : ' disabled'}>${icon('plus')}</button>
         </div>
-        <div class="routine-stepper" role="group" aria-label="Distance for interval ${index + 1}">
-          <button class="routine-step progress-step" type="button" data-field="distance" data-set-index="${index}" data-delta="-0.5" aria-label="Decrease distance for interval ${index + 1}"${enabled ? '' : ' disabled'}>${icon('minus')}</button>
-          <output aria-live="polite">${formatWeightValue(draft.setDistances[index] ?? 0)} km</output>
-          <button class="routine-step progress-step" type="button" data-field="distance" data-set-index="${index}" data-delta="0.5" aria-label="Increase distance for interval ${index + 1}"${enabled ? '' : ' disabled'}>${icon('plus')}</button>
+        <div class="routine-stepper" role="group" aria-label="مسافت بازه ${faNum(index + 1)}">
+          <button class="routine-step progress-step" type="button" data-field="distance" data-set-index="${index}" data-delta="-0.5" aria-label="کاهش مسافت برای بازه ${faNum(index + 1)}"${enabled ? '' : ' disabled'}>${icon('minus')}</button>
+          <output aria-live="polite">${faNum(formatWeightValue(draft.setDistances[index] ?? 0))} کیلومتر</output>
+          <button class="routine-step progress-step" type="button" data-field="distance" data-set-index="${index}" data-delta="0.5" aria-label="افزایش مسافت برای بازه ${faNum(index + 1)}"${enabled ? '' : ' disabled'}>${icon('plus')}</button>
         </div>
       </div>`).join('');
     return;
   }
   const showWeight = enabled && draft.showWeight;
-  const head = `<div class="aw-sets-head"><span class="aw-h-num"></span><span class="aw-h-label">Reps</span>${showWeight ? '<span class="aw-h-label">Weight</span>' : ''}</div>`;
+  const head = `<div class="aw-sets-head"><span class="aw-h-num"></span><span class="aw-h-label">تکرار</span>${showWeight ? '<span class="aw-h-label">وزنه</span>' : ''}</div>`;
   rowsContainer.innerHTML = head + draft.setReps.map((repsValue, index) => `
     <div class="aw-set-row">
       <span class="aw-num">${index + 1}</span>
-      <div class="routine-stepper" role="group" aria-label="Reps for set ${index + 1}">
-        <button class="routine-step progress-step" type="button" data-field="reps" data-set-index="${index}" data-delta="-1" aria-label="Decrease reps for set ${index + 1}"${enabled ? '' : ' disabled'}>${icon('minus')}</button>
-        <output aria-live="polite">${repsValue}</output>
-        <button class="routine-step progress-step" type="button" data-field="reps" data-set-index="${index}" data-delta="1" aria-label="Increase reps for set ${index + 1}"${enabled ? '' : ' disabled'}>${icon('plus')}</button>
+      <div class="routine-stepper" role="group" aria-label="تکرار ست ${faNum(index + 1)}">
+        <button class="routine-step progress-step" type="button" data-field="reps" data-set-index="${index}" data-delta="-1" aria-label="کاهش تکرار برای ست ${faNum(index + 1)}"${enabled ? '' : ' disabled'}>${icon('minus')}</button>
+        <output aria-live="polite">${faNum(repsValue)}</output>
+        <button class="routine-step progress-step" type="button" data-field="reps" data-set-index="${index}" data-delta="1" aria-label="افزایش تکرار برای ست ${faNum(index + 1)}"${enabled ? '' : ' disabled'}>${icon('plus')}</button>
       </div>
-      ${showWeight ? `<div class="routine-stepper" role="group" aria-label="Weight for set ${index + 1}">
-        <button class="routine-step progress-step" type="button" data-field="weight" data-set-index="${index}" data-delta="-2.5" aria-label="Decrease weight for set ${index + 1}">${icon('minus')}</button>
-        <output aria-live="polite">${formatWeightValue(draft.setWeights[index] ?? 0)} kg</output>
-        <button class="routine-step progress-step" type="button" data-field="weight" data-set-index="${index}" data-delta="2.5" aria-label="Increase weight for set ${index + 1}">${icon('plus')}</button>
+      ${showWeight ? `<div class="routine-stepper" role="group" aria-label="وزنه ست ${faNum(index + 1)}">
+        <button class="routine-step progress-step" type="button" data-field="weight" data-set-index="${index}" data-delta="-2.5" aria-label="کاهش وزنه برای ست ${faNum(index + 1)}">${icon('minus')}</button>
+        <output aria-live="polite">${faNum(formatWeightValue(draft.setWeights[index] ?? 0))} کیلوگرم</output>
+        <button class="routine-step progress-step" type="button" data-field="weight" data-set-index="${index}" data-delta="2.5" aria-label="افزایش وزنه برای ست ${faNum(index + 1)}">${icon('plus')}</button>
       </div>` : ''}
     </div>`).join('');
 }
@@ -3626,8 +3652,8 @@ function renderFixedExercise() {
   const draft = state.progress.draft;
   const timed = draft.mode === 'timed';
   $('.progress-exercise-fixed').classList.toggle('empty', !exercise);
-  $('#progressExerciseName').textContent = exercise ? title(exercise.name) : 'Choose an exercise from its details page';
-  $('#progressExerciseMeta').textContent = exercise ? `${title(exercise.target)} · ${title(exercise.equipment)} · #${exercise.id}` : 'Open an exercise and select Log progress.';
+  $('#progressExerciseName').textContent = exercise ? exercise.name : 'حرکت را از صفحه جزئیات آن انتخاب کنید';
+  $('#progressExerciseMeta').textContent = exercise ? `${title(exercise.target)} · ${title(exercise.equipment)} · شماره ${exercise.id}` : 'حرکتی را باز کنید و «ثبت پیشرفت» را بزنید.';
   $('#progressSave').disabled = !exercise;
 
   document.querySelectorAll('.progress-step').forEach((button) => {
@@ -3635,10 +3661,10 @@ function renderFixedExercise() {
   });
   const modeSwitch = $('#progressModeSwitch');
   if (modeSwitch) modeSwitch.hidden = !exercise;
-  $('#progressSetsLabel').textContent = timed ? 'Intervals' : 'Sets';
+  $('#progressSetsLabel').textContent = timed ? 'بازه' : 'ست';
   const setsMinus = $('#progressSetsField [data-delta="-1"]'), setsPlus = $('#progressSetsField [data-delta="1"]');
-  if (setsMinus) setsMinus.setAttribute('aria-label', timed ? 'Decrease intervals' : 'Decrease sets');
-  if (setsPlus) setsPlus.setAttribute('aria-label', timed ? 'Increase intervals' : 'Increase sets');
+  if (setsMinus) setsMinus.setAttribute('aria-label', timed ? 'کاهش بازه‌ها' : 'کاهش ست‌ها');
+  if (setsPlus) setsPlus.setAttribute('aria-label', timed ? 'افزایش بازه‌ها' : 'افزایش ست‌ها');
   $('#progressSetsField').hidden = !exercise;
   $('#progressSetsDetailField').hidden = !exercise;
 }
@@ -3697,8 +3723,8 @@ function renderDashboardMonthGrid(monthLogs) {
     if (color) classes.push('logged');
     if (key === today) classes.push('today');
     if (selected) classes.push('selected');
-    const label = `${date.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}: ${sets} sets`;
-    cells.push(`<button class="${classes.join(' ')}" type="button" data-date="${key}" aria-label="${esc(label)}" aria-pressed="${selected}"${sets ? '' : ' disabled'}${color ? ` style="background:${color}"` : ''}><b>${day}</b></button>`);
+    const label = `${date.toLocaleDateString(FA_LOCALE, { weekday: 'long', month: 'long', day: 'numeric' })}: ${faNum(sets)} ست`;
+    cells.push(`<button class="${classes.join(' ')}" type="button" data-date="${key}" aria-label="${esc(label)}" aria-pressed="${selected}"${sets ? '' : ' disabled'}${color ? ` style="background:${color}"` : ''}><b>${faNum(day)}</b></button>`);
   }
   grid.innerHTML = cells.join('');
 }
@@ -3717,11 +3743,11 @@ function allTimeBucketStart(date) {
   return start;
 }
 function allTimeBucketLabel(date, compact = false) {
-  return date.toLocaleDateString(undefined, compact ? { month: 'short', day: 'numeric', year: '2-digit' } : { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+  return date.toLocaleDateString(FA_LOCALE, compact ? { month: 'short', day: 'numeric', year: '2-digit' } : { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
 }
 function renderDashboardAllTimeChart(logs) {
   const chart = $('#dashboardAllTimeChart');
-  if (!logs.length) { chart.innerHTML = '<div class="all-time-chart-empty">No training data yet</div>'; return; }
+  if (!logs.length) { chart.innerHTML = '<div class="all-time-chart-empty">هنوز داده تمرینی وجود ندارد</div>'; return; }
   const exactDates = logs.map((log) => parseLocalDate(log.date)).sort((left, right) => left - right);
   const exactFirst = exactDates[0], exactLast = exactDates[exactDates.length - 1];
   const buckets = new Map();
@@ -3752,7 +3778,7 @@ function renderDashboardAllTimeChart(logs) {
     const y = baseline - (item.volume / maximum) * (baseline - top);
     return { ...item, x, y };
   });
-  const bars = points.map((point, index) => `<g class="chart-hit" data-index="${index}" tabindex="0" role="button" aria-label="${esc(allTimeBucketLabel(point.date))}: ${point.volume.toLocaleString()} kilograms of volume"><rect class="chart-bar" style="fill:${mapTierColor(point.volume / maximum) || `rgba(${ACCENTS[activeAccent].rgb},.15)`}" x="${(point.x - barWidth / 2).toFixed(2)}" y="${Math.min(point.y, baseline - 2).toFixed(2)}" width="${barWidth.toFixed(2)}" height="${Math.max(2, baseline - point.y).toFixed(2)}" rx="2"/><rect class="chart-hitbox" x="${(point.x - Math.max(barWidth, step || 32) / 2).toFixed(2)}" y="${top}" width="${Math.max(barWidth, step || 32).toFixed(2)}" height="${baseline - top}"/></g>`).join('');
+  const bars = points.map((point, index) => `<g class="chart-hit" data-index="${index}" tabindex="0" role="button" aria-label="${esc(allTimeBucketLabel(point.date))}: ${faNum(point.volume)} کیلوگرم حجم تمرین"><rect class="chart-bar" style="fill:${mapTierColor(point.volume / maximum) || `rgba(${ACCENTS[activeAccent].rgb},.15)`}" x="${(point.x - barWidth / 2).toFixed(2)}" y="${Math.min(point.y, baseline - 2).toFixed(2)}" width="${barWidth.toFixed(2)}" height="${Math.max(2, baseline - point.y).toFixed(2)}" rx="2"/><rect class="chart-hitbox" x="${(point.x - Math.max(barWidth, step || 32) / 2).toFixed(2)}" y="${top}" width="${Math.max(barWidth, step || 32).toFixed(2)}" height="${baseline - top}"/></g>`).join('');
   const trendPoints = points.map((point, index) => {
     const values = series.slice(Math.max(0, index - 3), index + 1);
     const average = values.reduce((sum, item) => sum + item.volume, 0) / values.length;
@@ -3761,20 +3787,20 @@ function renderDashboardAllTimeChart(logs) {
   const trendLine = trendPoints.map((point, index) => `${index ? 'L' : 'M'}${point.x.toFixed(2)} ${point.y.toFixed(2)}`).join(' ');
   const currentFour = series.slice(-4).reduce((sum, item) => sum + item.volume, 0), previousFour = series.slice(-8, -4).reduce((sum, item) => sum + item.volume, 0);
   const trendChange = previousFour ? Math.round(((currentFour - previousFour) / previousFour) * 100) : null;
-  const trendText = series.length < 5 ? 'Building trend' : trendChange === null ? 'New activity' : trendChange > 0 ? `Last 4 workouts: ↑ ${trendChange}%` : trendChange < 0 ? `Last 4 workouts: ↓ ${Math.abs(trendChange)}%` : 'Last 4 workouts: No change';
+  const trendText = series.length < 5 ? 'Building trend' : trendChange === null ? 'فعالیت جدید' : trendChange > 0 ? `Last 4 workouts: ↑ ${trendChange}%` : trendChange < 0 ? `Last 4 workouts: ↓ ${Math.abs(trendChange)}%` : '۴ تمرین اخیر: بدون تغییر';
   const trendType = trendChange > 0 ? 'up' : trendChange < 0 ? 'down' : 'same';
   const endpointOptions = { month: 'short', day: 'numeric', year: exactFirst.getFullYear() === exactLast.getFullYear() ? undefined : 'numeric' };
-  const firstLabel = exactFirst.toLocaleDateString(undefined, endpointOptions), lastLabel = exactLast.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: exactFirst.getFullYear() === exactLast.getFullYear() ? undefined : 'numeric' });
+  const firstLabel = exactFirst.toLocaleDateString(FA_LOCALE, endpointOptions), lastLabel = exactLast.toLocaleDateString(FA_LOCALE, { month: 'short', day: 'numeric', year: exactFirst.getFullYear() === exactLast.getFullYear() ? undefined : 'numeric' });
   const labelIndices = [...new Set([0, Math.round((series.length - 1) / 3), Math.round(((series.length - 1) * 2) / 3), series.length - 1])];
   const xLabels = labelIndices.map((index) => { const point = points[index], label = index === 0 ? firstLabel : index === series.length - 1 ? lastLabel : allTimeBucketLabel(point.date, true), endpointClass = index === 0 ? ' chart-x-start' : index === series.length - 1 ? ' chart-x-end' : ''; return `<span class="chart-label chart-x-label${endpointClass}" style="left:${((point.x / width) * 100).toFixed(2)}%">${esc(label)}</span>`; }).join('');
-  chart.innerHTML = `<span class="chart-trend" data-trend="${trendType}">${esc(trendText)}</span><span class="chart-label chart-y-label chart-y-max">${maximum.toLocaleString()}</span><span class="chart-label chart-y-label chart-y-half">${Number.isInteger(half) ? half.toLocaleString() : half.toFixed(1)}</span><span class="chart-label chart-y-label chart-y-zero">0</span><svg viewBox="0 0 ${width} ${height}" role="img" aria-label="All-time workout volume"><line class="chart-grid" x1="${left}" y1="${top}" x2="${right}" y2="${top}"/><line class="chart-grid" x1="${left}" y1="${(top + baseline) / 2}" x2="${right}" y2="${(top + baseline) / 2}"/><line class="chart-grid" x1="${left}" y1="${baseline}" x2="${right}" y2="${baseline}"/>${bars}<path class="chart-trend-line" d="${trendLine}"/></svg>${xLabels}<div class="chart-tooltip" role="status" hidden></div>`;
+  chart.innerHTML = `<span class="chart-trend" data-trend="${trendType}">${esc(trendText)}</span><span class="chart-label chart-y-label chart-y-max">${faNum(maximum)}</span><span class="chart-label chart-y-label chart-y-half">${faNum(Number.isInteger(half) ? half : half.toFixed(1))}</span><span class="chart-label chart-y-label chart-y-zero">۰</span><svg viewBox="0 0 ${width} ${height}" role="img" aria-label="حجم تمرین در کل زمان"><line class="chart-grid" x1="${left}" y1="${top}" x2="${right}" y2="${top}"/><line class="chart-grid" x1="${left}" y1="${(top + baseline) / 2}" x2="${right}" y2="${(top + baseline) / 2}"/><line class="chart-grid" x1="${left}" y1="${baseline}" x2="${right}" y2="${baseline}"/>${bars}<path class="chart-trend-line" d="${trendLine}"/></svg>${xLabels}<div class="chart-tooltip" role="status" hidden></div>`;
   const tooltip = chart.querySelector('.chart-tooltip');
   const showTooltip = (index) => {
     const point = points[index], active = chart.querySelector(`.chart-hit[data-index="${index}"]`), alreadyActive = active.classList.contains('active');
     chart.querySelectorAll('.chart-hit').forEach((item) => item.classList.remove('active'));
     if (alreadyActive) { tooltip.hidden = true; return; }
     active.classList.add('active');
-    tooltip.innerHTML = `<strong>${esc(allTimeBucketLabel(point.date))}</strong><span>${point.volume.toLocaleString()} kg volume · ${point.sets} set${point.sets === 1 ? '' : 's'} · ${point.exercises} exercise${point.exercises === 1 ? '' : 's'}</span>`;
+    tooltip.innerHTML = `<strong>${esc(allTimeBucketLabel(point.date))}</strong><span>${faNum(point.volume)} کیلوگرم حجم · ${faNum(point.sets)} ست · ${faNum(point.exercises)} حرکت</span>`;
     tooltip.style.left = `${Math.max(22, Math.min(78, (point.x / width) * 100))}%`;
     tooltip.style.top = `${Math.max(24, Math.min(76, 18 + point.y - 42))}px`;
     tooltip.hidden = false;
@@ -3846,14 +3872,14 @@ function renderProgressDashboard() {
   const monthLogs = logs.filter((log) => { const date = parseLocalDate(log.date); return date >= monthStart && date <= monthEnd; });
   const scopedLogs = state.dashboard.selectedDate ? logs.filter((log) => log.date === state.dashboard.selectedDate) : logs;
   const balanceLabel = $('#dashboardBalanceLabel');
-  balanceLabel.textContent = state.dashboard.selectedDate ? parseLocalDate(state.dashboard.selectedDate).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' }) : allTime ? 'All time' : monthly ? 'Monthly' : 'Weekly';
+  balanceLabel.textContent = state.dashboard.selectedDate ? parseLocalDate(state.dashboard.selectedDate).toLocaleDateString(FA_LOCALE, { weekday: 'long', month: 'short', day: 'numeric' }) : allTime ? 'کل زمان' : monthly ? 'ماهانه' : 'هفتگی';
 
   const days = Array.from({ length: 7 }, (_, index) => {
     const date = new Date(weekStart);
     date.setDate(weekStart.getDate() + index);
     const key = localDateValue(date);
     const dayLogs = logs.filter((log) => log.date === key);
-    return { key, label: date.toLocaleString(undefined, { weekday: 'narrow' }), longLabel: date.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' }), sets: dayLogs.reduce((sum, log) => sum + logSetsCount(log), 0), entries: dayLogs.length };
+    return { key, label: date.toLocaleString(FA_LOCALE, { weekday: 'narrow' }), longLabel: date.toLocaleDateString(FA_LOCALE, { weekday: 'long', month: 'short', day: 'numeric' }), sets: dayLogs.reduce((sum, log) => sum + logSetsCount(log), 0), entries: dayLogs.length };
   });
   const maxSets = Math.max(1, ...days.map((day) => day.sets));
   const weekSets = days.reduce((sum, day) => sum + day.sets, 0);
@@ -3861,31 +3887,31 @@ function renderProgressDashboard() {
   const weekExercises = new Set(weekLogs.map((log) => log.exerciseId)).size;
   const currentWeek = state.dashboard.weekOffset === 0;
   const currentMonth = state.dashboard.monthOffset === 0;
-  $('#dashboardWeekLabel').textContent = allTime ? 'All time' : monthly ? (currentMonth ? 'This month' : 'Selected month') : currentWeek ? 'This week' : 'Selected week';
+  $('#dashboardWeekLabel').textContent = allTime ? 'کل زمان' : monthly ? (currentMonth ? 'این ماه' : 'ماه انتخابی') : currentWeek ? 'این هفته' : 'هفته انتخابی';
   if (allTime && logs.length) {
     const sortedDates = logs.map((log) => parseLocalDate(log.date)).sort((left, right) => left - right);
     const firstDate = sortedDates[0], lastDate = sortedDates[sortedDates.length - 1];
-    $('#dashboardWeekRange').textContent = `${firstDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: firstDate.getFullYear() === lastDate.getFullYear() ? undefined : 'numeric' })} – ${lastDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}`;
-  } else if (monthly) $('#dashboardWeekRange').textContent = `${monthStart.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} – ${monthEnd.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
-  else $('#dashboardWeekRange').textContent = `${weekStart.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} – ${weekEnd.toLocaleDateString(undefined, { month: weekStart.getMonth() === weekEnd.getMonth() ? undefined : 'short', day: 'numeric' })}`;
+    $('#dashboardWeekRange').textContent = `${firstDate.toLocaleDateString(FA_LOCALE, { month: 'short', day: 'numeric', year: firstDate.getFullYear() === lastDate.getFullYear() ? undefined : 'numeric' })} تا ${lastDate.toLocaleDateString(FA_LOCALE, { month: 'short', day: 'numeric', year: 'numeric' })}`;
+  } else if (monthly) $('#dashboardWeekRange').textContent = `${monthStart.toLocaleDateString(FA_LOCALE, { month: 'short', day: 'numeric' })} – ${monthEnd.toLocaleDateString(FA_LOCALE, { month: 'short', day: 'numeric' })}`;
+  else $('#dashboardWeekRange').textContent = `${weekStart.toLocaleDateString(FA_LOCALE, { month: 'short', day: 'numeric' })} – ${weekEnd.toLocaleDateString(FA_LOCALE, { month: weekStart.getMonth() === weekEnd.getMonth() ? undefined : 'short', day: 'numeric' })}`;
   const summary = $('#dashboardWeekSummary');
   if (allTime) {
     const allSets = logs.reduce((sum, log) => sum + logSetsCount(log), 0);
     const allSessions = new Set(logs.map((log) => log.date)).size;
     const allExercises = new Set(logs.map((log) => log.exerciseId)).size;
-    summary.textContent = `${allSessions.toLocaleString()} session${allSessions === 1 ? '' : 's'} · ${allSets.toLocaleString()} set${allSets === 1 ? '' : 's'} · ${allExercises.toLocaleString()} exercise${allExercises === 1 ? '' : 's'}`;
+    summary.textContent = `${faNum(allSessions)} جلسه · ${faNum(allSets)} ست · ${faNum(allExercises)} حرکت`;
   } else if (state.dashboard.selectedDate) {
     const daySets = scopedLogs.reduce((sum, log) => sum + logSetsCount(log), 0);
     const dayExercises = new Set(scopedLogs.map((log) => log.exerciseId)).size;
     const dayReps = scopedLogs.reduce((sum, log) => sum + (isTimedCardioLog(log) ? 0 : (Number(log.sets) || 0) * (Number(log.reps) || 0)), 0);
-    summary.textContent = `${dayExercises.toLocaleString()} exercise${dayExercises === 1 ? '' : 's'} · ${daySets.toLocaleString()} set${daySets === 1 ? '' : 's'} · ${dayReps.toLocaleString()} reps`;
+    summary.textContent = `${faNum(dayExercises)} حرکت · ${faNum(daySets)} ست · ${faNum(dayReps)} تکرار`;
   } else if (monthly) {
     const monthSessions = new Set(monthLogs.map((log) => log.date)).size;
     const monthSets = monthLogs.reduce((sum, log) => sum + logSetsCount(log), 0);
     const monthExercises = new Set(monthLogs.map((log) => log.exerciseId)).size;
-    summary.textContent = `${monthSessions.toLocaleString()} session${monthSessions === 1 ? '' : 's'} · ${monthSets.toLocaleString()} set${monthSets === 1 ? '' : 's'} · ${monthExercises.toLocaleString()} exercise${monthExercises === 1 ? '' : 's'}`;
+    summary.textContent = `${faNum(monthSessions)} جلسه · ${faNum(monthSets)} ست · ${faNum(monthExercises)} حرکت`;
   } else {
-    summary.textContent = `${weekSessions.toLocaleString()} session${weekSessions === 1 ? '' : 's'} · ${weekSets.toLocaleString()} set${weekSets === 1 ? '' : 's'} · ${weekExercises.toLocaleString()} exercise${weekExercises === 1 ? '' : 's'}`;
+    summary.textContent = `${faNum(weekSessions)} جلسه · ${faNum(weekSets)} ست · ${faNum(weekExercises)} حرکت`;
   }
   let previousLogged = null, nextLogged = null;
   if (monthly) { previousLogged = dashboardAdjacentLoggedMonth(-1); nextLogged = dashboardAdjacentLoggedMonth(1); }
@@ -3897,7 +3923,7 @@ function renderProgressDashboard() {
   $('#dashboardResetWeek').disabled = (monthly ? currentMonth : currentWeek) && !state.dashboard.selectedDate;
   $('#dashboardWeeklyBars').innerHTML = days.map((day) => {
     const color = mapTierColor(day.sets / maxSets) || `rgba(${ACCENTS[activeAccent].rgb},.15)`;
-    return `<button class="weekly-bar-item" type="button" data-date="${day.key}" aria-label="${esc(day.longLabel)}: ${day.sets} sets in ${day.entries} entries" aria-pressed="${state.dashboard.selectedDate === day.key}"${day.entries ? '' : ' disabled'}><span>${day.sets || ''}</span><div class="weekly-bar-track"><i style="height:${day.sets ? Math.max(10, Math.round((day.sets / maxSets) * 100)) : 3}%;background:${color}"></i></div><small>${esc(day.label)}</small></button>`;
+    return `<button class="weekly-bar-item" type="button" data-date="${day.key}" aria-label="${esc(day.longLabel)}: ${faNum(day.sets)} ست در ${faNum(day.entries)} مورد" aria-pressed="${state.dashboard.selectedDate === day.key}"${day.entries ? '' : ' disabled'}><span>${day.sets || ''}</span><div class="weekly-bar-track"><i style="height:${day.sets ? Math.max(10, Math.round((day.sets / maxSets) * 100)) : 3}%;background:${color}"></i></div><small>${esc(day.label)}</small></button>`;
   }).join('');
   const weekNavigation = $('#dashboardWeekNav');
   $('.dashboard-week-card').classList.toggle('all-time-view', allTime);
@@ -3935,8 +3961,8 @@ function renderProgressDashboard() {
   });
   const categories = [...byCategory.entries()].sort((left, right) => right[1].sets - left[1].sets);
   const categoryMax = Math.max(1, ...categories.map(([, summary]) => summary.sets));
-  $('#dashboardMuscleSummary').textContent = categories.length ? `${byCategory.size} group${byCategory.size === 1 ? '' : 's'}` : 'No data yet';
-  $('#dashboardMuscleBreakdown').innerHTML = categories.map(([category, summary]) => { const exerciseCount = summary.exerciseIds.size; return `<div class="muscle-row"><div><strong>${esc(title(category))}</strong><span>${summary.sets.toLocaleString()} set${summary.sets === 1 ? '' : 's'}, ${exerciseCount.toLocaleString()} exercise${exerciseCount === 1 ? '' : 's'}</span></div><div class="track" style="height:7px"><i style="width:${Math.round((summary.sets / categoryMax) * 100)}%; background:#ffffff"></i></div></div>`; }).join('');
+  $('#dashboardMuscleSummary').textContent = categories.length ? `${byCategory.size} گروه` : 'بدون داده';
+  $('#dashboardMuscleBreakdown').innerHTML = categories.map(([category, summary]) => { const exerciseCount = summary.exerciseIds.size; return `<div class="muscle-row"><div><strong>${esc(title(category))}</strong><span>${faNum(summary.sets)} ست، ${faNum(exerciseCount)} حرکت</span></div><div class="track" style="height:7px"><i style="width:${Math.round((summary.sets / categoryMax) * 100)}%; background:#ffffff"></i></div></div>`; }).join('');
   renderDashboardMuscleMap(muscleSets);
   $('#dashboardEmpty').hidden = Boolean(logs.length);
 }
@@ -3959,10 +3985,10 @@ function renderProgressHistory() {
     const exercise = getExercise(log.exerciseId);
     if (!exercise) return '';
     const entryVisual = activeExercise
-      ? (() => { const d = parseLocalDate(log.date); return `<div class="progress-entry-date progress-entry-thumbnail"><b>${String(d.getDate()).padStart(2,'0')}</b><span>${esc(d.toLocaleDateString(undefined,{month:'short'}))}</span></div>`; })()
+      ? (() => { const d = parseLocalDate(log.date); return `<div class="progress-entry-date progress-entry-thumbnail"><b>${faNum(d.getDate())}</b><span>${esc(d.toLocaleDateString(FA_LOCALE,{month:'short'}))}</span></div>`; })()
       : `<div class="progress-entry-date progress-entry-thumbnail" aria-hidden="true">${icon('movement')}${exercise.custom?'':`<img src="${esc(exercise.image)}" alt="">`}</div>`;
-    return `<article class="progress-entry" data-progress-id="${esc(log.id)}" data-exercise-id="${esc(exercise.id)}" role="button" tabindex="0" aria-label="Open ${esc(exercise.name)} details">${entryVisual}<div class="progress-entry-copy">${activeExercise ? '' : `<strong>${esc(title(exercise.name))}</strong>`}<span>${esc(formatProgress(log))}</span>${log.notes ? `<small>${esc(log.notes)}</small>` : ''}</div><button class="entry-delete" type="button" aria-label="Delete ${esc(exercise.name)} progress entry">${icon('trash')}</button></article>`;
-  }).join('') : `<div class="feature-empty">${activeExercise ? 'No progress entries for this exercise.' : 'No workouts logged this day.'}</div>`;
+    return `<article class="progress-entry" data-progress-id="${esc(log.id)}" data-exercise-id="${esc(exercise.id)}" role="button" tabindex="0" aria-label="جزئیات ${esc(exercise.name)}">${entryVisual}<div class="progress-entry-copy">${activeExercise ? '' : `<strong>${esc(title(exercise.name))}</strong>`}<span>${esc(formatProgress(log))}</span>${log.notes ? `<small>${esc(log.notes)}</small>` : ''}</div><button class="entry-delete" type="button" aria-label="حذف مورد پیشرفت ${esc(exercise.name)}">${icon('trash')}</button></article>`;
+  }).join('') : `<div class="feature-empty">${activeExercise ? 'برای این حرکت موردی ثبت نشده است.' : 'در این روز تمرینی ثبت نشده است.'}</div>`;
   $('#progressHistory').querySelectorAll('.progress-entry-thumbnail img').forEach((image) => image.addEventListener('error', () => image.classList.add('failed'), { once: true }));
   renderProgressDashboard();
 }
@@ -3985,11 +4011,11 @@ function openProgress(exerciseId = '', returnFocus = document.activeElement) {
   state.progress.activeExerciseId = validExercise ? exerciseId : null;
   const exercise = validExercise ? getExercise(exerciseId) : null;
 
-  $('#progressTitle').textContent = validExercise ? 'Log progress' : 'Stats';
+  $('#progressTitle').textContent = validExercise ? 'ثبت پیشرفت' : 'آمار';
   $('#progressTitle').classList.toggle('phone-title', !validExercise);
   $('#progressDashboard').hidden = Boolean(validExercise);
   $('#progressForm').hidden = !validExercise;
-  $('#progressSubtitle').textContent = validExercise ? 'Add a training entry for this exercise.' : 'Your training dashboard and recent activity.';
+  $('#progressSubtitle').textContent = validExercise ? 'برای این حرکت یک مورد تمرینی اضافه کنید.' : 'داشبورد تمرینی و فعالیت‌های اخیر شما.';
   resetProgressPanel();
   openOverlay('progress', returnFocus);
   syncMobileTabs();
@@ -4024,7 +4050,7 @@ function saveProgressLog(event) {
     while (setDistances.length < intervals) setDistances.push(0);
     const totalDuration = setDurations.reduce((sum, value) => sum + value, 0);
     const totalDistance = Math.round(setDistances.reduce((sum, value) => sum + value, 0) * 10) / 10;
-    if (!totalDuration && !totalDistance) return toast('Add a duration or a distance');
+    if (!totalDuration && !totalDistance) return toast('مدت زمان یا مسافت را وارد کنید');
     log = { ...base, intervals, weight: null, durUnit: draft.durationUnit === 'sec' ? 'sec' : 'min', ...(totalDuration ? { setDurations } : {}), ...(totalDistance ? { setDistances } : {}) };
   } else {
     const isBodyWeight = !draft.showWeight;
@@ -4050,7 +4076,7 @@ function saveProgressLog(event) {
    syncLikeButton($('#modalLikeExercise'), state.saved.has(exercise.id));
    if (state.loggedOnly || state.routineFilter) render();
   closeProgress();
-  toast('Progress entry saved');
+  toast('مورد پیشرفت ذخیره شد');
 }
 function prepareDashboardTab(resetView = true) {
   state.progress.activeExerciseId = null;
@@ -4059,11 +4085,11 @@ function prepareDashboardTab(resetView = true) {
     state.dashboard.weekOffset = 0;
     state.dashboard.monthOffset = 0;
   }
-  $('#progressTitle').textContent = 'Stats';
+  $('#progressTitle').textContent = 'آمار';
   $('#progressTitle').classList.add('phone-title');
   $('#progressDashboard').hidden = false;
   $('#progressForm').hidden = true;
-  $('#progressSubtitle').textContent = 'Your training stats and recent activity.';
+  $('#progressSubtitle').textContent = 'آمار تمرینی و فعالیت‌های اخیر شما.';
   resetProgressPanel();
   requestAnimationFrame(resetProgressScroll);
 }
@@ -4158,7 +4184,7 @@ function setMobileTab(tab) {
   if (!tabs.includes(tab)) return;
   closeProgressSettings();
   if (state.mobileTab === 'plan' && state.planSection === 'meals' && tab !== 'plan' && mealEditorBusy()) {
-    toast('Save your meal first');
+    toast('ابتدا غذای خود را ذخیره کنید');
     return;
   }
   if (state.overlay.active) closeActiveOverlay(false);
@@ -4288,7 +4314,7 @@ $('#filterPills').addEventListener('click',(event)=>{
   state.limit=DEFAULTS.pageSize;
   render();
 });
-const PILL_ROW_LABELS={routine:'Routines',category:'Body parts',target:'Target muscles',equipment:'Equipments',tags:'Tags'};
+const PILL_ROW_LABELS={routine:'برنامه‌های تمرینی',category:'بخش‌های بدن',target:'عضلات هدف',equipment:'تجهیزات',tags:'برچسب‌ها'};
 const PILL_ROW_KEYS=['routine','category','target','equipment','tags'];
 function pillRowHosts(){return PILL_ROW_KEYS.filter(key=>state.pillRowModes[key]!=='hidden')}
 function effectiveToggleHost(){
@@ -4432,11 +4458,11 @@ $('#grid').addEventListener('click', async (event) => {
   else if (checkButton) {
     const routine = currentRoutine();
     if (!routine || !routine.items.some(item => item.exerciseId === exercise.id)) return;
-    if (!(await appConfirm(`Remove "${exercise.name}" from "${routine.name}" routine?`, { title: 'Remove exercise', okLabel: 'Remove' }))) return;
+    if (!(await appConfirm(`«${exercise.name}» از برنامه «${routine.name}» حذف شود؟`, { title: 'حذف حرکت', okLabel: 'حذف' }))) return;
     routine.items = routine.items.filter(item => item.exerciseId !== exercise.id);
     saveRoutines();
     renderRoutineDrawer();
-    toast(`Removed from ${routine.name} routine`);
+    toast(`از برنامه «${routine.name}» حذف شد`);
   } else if (progressButton) openProgress(exercise.id, progressButton);
   else if (saveButton) {
     const saved = setSavedExercise(exercise.id);
@@ -4444,7 +4470,7 @@ $('#grid').addEventListener('click', async (event) => {
     else {
       syncLikeButton(saveButton, saved);
       renderFilterPills();
-      toast(saved ? 'Exercise liked' : 'Exercise unliked');
+      toast(saved ? 'حرکت پسندیده شد' : 'پسند حرکت برداشته شد');
     }
   } else openModal(exercise, card);
 });
@@ -4506,16 +4532,16 @@ $('#mainRoutineSelect').addEventListener('change', (event) => { state.routineFil
 $('#likeRoutine').addEventListener('click',()=>{
   const routine=currentRoutine();
   if(!routine)return;
-  if(!routine.liked&&state.routines.filter(item=>item.liked).length>=6)return toast('You can like up to 6 routines');
+  if(!routine.liked&&state.routines.filter(item=>item.liked).length>=6)return toast('حداکثر ۶ برنامه را می‌توانید پسندید');
   routine.liked=!routine.liked;
   saveRoutines();
   renderRoutineDrawer();
-  toast(routine.liked?'Routine liked':'Routine unliked');
+  toast(routine.liked?'برنامه پسندیده شد':'پسند برنامه برداشته شد');
 });
 $('#deleteRoutine').addEventListener('click', async () => {
   if (state.routineCreating) return saveRoutineEditor();
   const routine = currentRoutine();
-  if (!routine || !(await appConfirm(`Delete "${routine.name}"?`, { title: 'Delete routine', okLabel: 'Delete' }))) return;
+  if (!routine || !(await appConfirm(`برنامه «${routine.name}» حذف شود؟`, { title: 'حذف برنامه', okLabel: 'حذف' }))) return;
   const deletedId = routine.id;
   if (VAULT.loaded) markDeleted('routines', deletedId);
   state.routines = state.routines.filter((item) => item.id !== deletedId);
@@ -4529,10 +4555,10 @@ $('#deleteRoutine').addEventListener('click', async () => {
   syncScheduleState();
   saveRoutines();
   renderRoutineDrawer();
-  toast('Routine deleted');
+  toast('برنامه حذف شد');
 });
-$('#copyRoutine').addEventListener('click', () => currentRoutine() ? copyRoutineValue(routineToText(), 'Routine copied') : toast('Nothing to export'));
-$('#copyAllRoutines').addEventListener('click', () => state.routines.length ? copyRoutineValue(routinesToText(), 'All routines copied') : toast('Nothing to export'));
+$('#copyRoutine').addEventListener('click', () => currentRoutine() ? copyRoutineValue(routineToText(), 'برنامه کپی شد') : toast('چیزی برای خروجی گرفتن نیست'));
+$('#copyAllRoutines').addEventListener('click', () => state.routines.length ? copyRoutineValue(routinesToText(), 'همه برنامه‌ها کپی شد') : toast('چیزی برای خروجی گرفتن نیست'));
 $('#pasteRoutineToggle').addEventListener('click', () => $('#routinePastePanel').hidden ? showRoutinePastePanel() : closeRoutinePastePanel());
 $('#cancelRoutinePaste').addEventListener('click', closeRoutinePastePanel);
 $('#addRoutineText').addEventListener('click', () => importRoutineText('add'));
@@ -4574,7 +4600,7 @@ $('#routineItems').addEventListener('click', (event) => {
         state.supersetLinking = null;
         saveRoutines();
         renderRoutineDrawer();
-        toast('Superset created');
+        toast('سوپرست ساخته شد');
       }
       return;
     }
@@ -4582,16 +4608,16 @@ $('#routineItems').addEventListener('click', (event) => {
       unlinkSupersetItem(routine, item);
       saveRoutines();
       renderRoutineDrawer();
-      toast('Superset removed');
+      toast('سوپرست حذف شد');
       return;
     }
     if (routine.items.length < 2) {
-      toast('Add another exercise to pair');
+      toast('حرکت دیگری برای جفت‌کردن اضافه کنید');
       return;
     }
     state.supersetLinking = item.exerciseId;
     renderRoutineDrawer();
-    toast('Select the exercise to pair');
+    toast('حرکتی برای جفت‌کردن انتخاب کنید');
     return;
   }
   const itemToggleButton = event.target.closest('[data-item-toggle]');
@@ -4647,7 +4673,7 @@ $('#modalLikeExercise').addEventListener('click', (event) => {
   const saved = setSavedExercise(exercise.id);
   syncLikeButton(event.currentTarget, saved);
   render();
-  toast(saved ? 'Exercise liked' : 'Exercise unliked');
+  toast(saved ? 'حرکت پسندیده شد' : 'پسند حرکت برداشته شد');
 });
 $('#modalLogProgress').addEventListener('click', () => {
   const exerciseId = state.activeExercise?.id || '';
@@ -4691,7 +4717,7 @@ $('#settingsBackdrop').addEventListener('click',(event)=>{
       if(VAULT.loaded)saveConfigToVault();
       renderPrefSegs();
       renderProgressHistory();renderRoutineDrawer();
-      toast('Week start updated');
+      toast('شروع هفته به‌روزرسانی شد');
     }else if(key==='defaultView'){
       if(state.progressPreferences.defaultView===value)return;
       state.progressPreferences.defaultView=value;
@@ -4700,7 +4726,7 @@ $('#settingsBackdrop').addEventListener('click',(event)=>{
       if(VAULT.loaded)saveConfigToVault();
       renderPrefSegs();
       renderProgressHistory();
-      toast('Default view updated');
+      toast('نمای پیش‌فرض به‌روزرسانی شد');
     }
     return;
   }
@@ -4711,8 +4737,8 @@ $('#settingsBackdrop').addEventListener('click',(event)=>{
     setRestDuration(stepper.dataset.restStepper,step.dataset.restStep);
   }
 });
-$('#workoutReminder').addEventListener('click',(event)=>{state.showWorkoutReminder=!state.showWorkoutReminder;writeStorage(STORAGE_KEYS.workoutReminder,state.showWorkoutReminder);if(VAULT.loaded)saveConfigToVault();event.currentTarget.setAttribute('aria-checked',String(state.showWorkoutReminder));renderAwBanner();toast(state.showWorkoutReminder?'Workout reminder on':'Workout reminder off');});
-$('#restEnabled').addEventListener('click',(event)=>{state.restPrefs.enabled=!state.restPrefs.enabled;writeStorage(STORAGE_KEYS.restPrefs,state.restPrefs);if(VAULT.loaded)saveConfigToVault();event.currentTarget.setAttribute('aria-checked',String(state.restPrefs.enabled));renderPrefSegs();toast(state.restPrefs.enabled?'Rest timer enabled':'Rest timer disabled');});
+$('#workoutReminder').addEventListener('click',(event)=>{state.showWorkoutReminder=!state.showWorkoutReminder;writeStorage(STORAGE_KEYS.workoutReminder,state.showWorkoutReminder);if(VAULT.loaded)saveConfigToVault();event.currentTarget.setAttribute('aria-checked',String(state.showWorkoutReminder));renderAwBanner();toast(state.showWorkoutReminder?'یادآور تمرین روشن شد':'یادآور تمرین خاموش شد');});
+$('#restEnabled').addEventListener('click',(event)=>{state.restPrefs.enabled=!state.restPrefs.enabled;writeStorage(STORAGE_KEYS.restPrefs,state.restPrefs);if(VAULT.loaded)saveConfigToVault();event.currentTarget.setAttribute('aria-checked',String(state.restPrefs.enabled));renderPrefSegs();toast(state.restPrefs.enabled?'تایمر استراحت فعال شد':'تایمر استراحت غیرفعال شد');});
 function syncAccentSwatches(){document.querySelectorAll('#accentRow .accent-swatch').forEach((button)=>button.setAttribute('aria-checked',String(button.dataset.accent===activeAccent)));}
 $('#accentRow').addEventListener('click',(event)=>{
   const swatch=event.target.closest('.accent-swatch');
@@ -4725,7 +4751,7 @@ $('#accentRow').addEventListener('click',(event)=>{
   applyAccent(name);
   syncAccentSwatches();
   renderProgressDashboard();
-  toast('Accent updated');
+  toast('رنگ تاکیدی تغییر کرد');
 });
 const dashboardWeekNavHandler=(event)=>{
   const offset=Number(event.currentTarget.dataset.offset)||0;
@@ -4841,14 +4867,14 @@ $('#progressHistory').addEventListener('click', async (event) => {
   if (!row) return;
   if (event.target.closest('.entry-delete')) {
     const exercise = getExercise(row.dataset.exerciseId);
-    if (!(await appConfirm(`Delete progress entry for "${exercise?.name || 'this exercise'}"?`, { title: 'Delete progress entry', okLabel: 'Delete' }))) return;
+    if (!(await appConfirm(`مورد پیشرفت «${exercise?.name || 'این حرکت'}» حذف شود؟`, { title: 'حذف مورد پیشرفت', okLabel: 'حذف' }))) return;
     if (VAULT.loaded) markDeleted('trainingLogs', row.dataset.progressId);
     state.progress.logs = state.progress.logs.filter((log) => log.id !== row.dataset.progressId);
     if (state.dashboard.selectedDate && !state.progress.logs.some((log) => log.date === state.dashboard.selectedDate)) state.dashboard.selectedDate = null;
     persistProgress();
     renderProgressHistory();
     if (state.loggedOnly || state.routineFilter) render();
-    toast('Progress entry deleted');
+    toast('مورد پیشرفت حذف شد');
     return;
   }
   const exercise = getExercise(row.dataset.exerciseId);
@@ -4865,7 +4891,7 @@ $('#progressHistory').addEventListener('keydown', (event) => {
 
 initCustomSelects();
 const settingsExerciseCount=$('#settingsExerciseCount');
-if(settingsExerciseCount)settingsExerciseCount.textContent=EXERCISES.length.toLocaleString();
+if(settingsExerciseCount)settingsExerciseCount.textContent=faNum(EXERCISES.length);
 renderPillRowEditor();
 renderPrefSegs();
 syncAccentSwatches();
@@ -4927,7 +4953,7 @@ function setFuelTargetOverride(key, value) {
   return true;
 }
 function formatFuelTargetValue(key, value) {
-  return key === 'cals' || key === 'water' ? Math.round(value).toLocaleString() : String(Math.round(value));
+  return key === 'cals' || key === 'water' ? faNum(Math.round(value)) : String(Math.round(value));
 }
 function syncFuelTargetEditor() {
   const section = $('#fuelTargetEditor');
@@ -5075,11 +5101,11 @@ function renderCustomExercisePills(){
 }
 function syncCustomExerciseValidation(){
   $('#customExerciseSave').disabled=!(customExerciseDraft.name.trim()&&customExerciseDraft.category&&customExerciseDraft.target);
-  $('#customExerciseSave').textContent=customExerciseDraft.id?'Save changes':'Add exercise';
+  $('#customExerciseSave').textContent=customExerciseDraft.id?'ذخیره تغییرات':'افزودن حرکت';
 }
 function renderCustomExerciseList(){
   const container=$('#customExerciseList');
-  container.innerHTML=CUSTOM_EXERCISES.length?CUSTOM_EXERCISES.map(exercise=>`<div class="custom-exercise-row" data-custom-id="${esc(exercise.id)}"><div class="custom-exercise-copy"><strong>${esc(exercise.name)}</strong><span>${esc(title(exercise.category))}${exercise.target&&exercise.target!==exercise.category?` · ${esc(title(exercise.target))}`:''} · ${esc(title(exercise.equipment))}</span></div><div class="custom-exercise-actions"><button type="button" class="custom-exercise-edit" aria-label="Edit ${esc(exercise.name)}">${icon('edit')}</button><button type="button" class="custom-exercise-delete" aria-label="Delete ${esc(exercise.name)}">${icon('trash')}</button></div></div>`).join(''):'<p class="custom-exercise-empty">No custom exercises yet. Fill in the form above to create one.</p>';
+  container.innerHTML=CUSTOM_EXERCISES.length?CUSTOM_EXERCISES.map(exercise=>`<div class="custom-exercise-row" data-custom-id="${esc(exercise.id)}"><div class="custom-exercise-copy"><strong>${esc(exercise.name)}</strong><span>${esc(title(exercise.category))}${exercise.target&&exercise.target!==exercise.category?` · ${esc(title(exercise.target))}`:''} · ${esc(title(exercise.equipment))}</span></div><div class="custom-exercise-actions"><button type="button" class="custom-exercise-edit" aria-label="ویرایش ${esc(exercise.name)}">${icon('edit')}</button><button type="button" class="custom-exercise-delete" aria-label="حذف ${esc(exercise.name)}">${icon('trash')}</button></div></div>`).join(''):'<p class="custom-exercise-empty">هنوز حرکت سفارشی‌ای ندارید. با فرم بالا بسازید.</p>';
 }
 function resetCustomExerciseSheet(){
   customExerciseDraft.id=null;customExerciseDraft.name='';customExerciseDraft.category='';customExerciseDraft.target='';customExerciseDraft.equipment='';customExerciseDraft.description='';
@@ -5120,27 +5146,27 @@ $('#customExerciseForm').addEventListener('submit',event=>{
   event.preventDefault();
   const name=customExerciseDraft.name.trim();
   if(!name||!customExerciseDraft.category)return;
-  if(!customExerciseDraft.target)return toast('Select a target muscle');
-  if(CUSTOM_EXERCISES.some(item=>item.name.toLowerCase()===name.toLowerCase()&&item.id!==customExerciseDraft.id))return toast('An exercise with this name already exists');
+  if(!customExerciseDraft.target)return toast('عضله هدف را انتخاب کنید');
+  if(CUSTOM_EXERCISES.some(item=>item.name.toLowerCase()===name.toLowerCase()&&item.id!==customExerciseDraft.id))return toast('حرکتی با این نام وجود دارد');
   const data={name,category:customExerciseDraft.category,target:customExerciseDraft.target,equipment:customExerciseDraft.equipment,description:$('#customExerciseDescription').value.trim()};
   if(customExerciseDraft.id){
     const updated=updateCustomExercise(customExerciseDraft.id,data);
-    if(!updated)return toast('Could not update exercise');
+    if(!updated)return toast('به‌روزرسانی حرکت ناموفق بود');
     resetCustomExerciseSheet();
     renderCustomExerciseList();
     render();
     renderFilterPills();
-    toast('Custom exercise updated');
+    toast('حرکت سفارشی به‌روزرسانی شد');
     return;
   }
   const exercise=addCustomExercise(data);
-  if(!exercise)return toast('Could not add exercise');
+  if(!exercise)return toast('افزودن حرکت ناموفق بود');
   resetCustomExerciseSheet();
   renderCustomExerciseList();
   render();
   renderFilterPills();
   renderRoutineDrawer();
-  toast('Custom exercise added');
+  toast('حرکت سفارشی اضافه شد');
 });
 $('#customExerciseList').addEventListener('click',async(event)=>{
   const row=event.target.closest('.custom-exercise-row');
@@ -5162,10 +5188,10 @@ $('#customExerciseList').addEventListener('click',async(event)=>{
     return;
   }
   if(event.target.closest('.custom-exercise-delete')){
-    if(state.activeWorkout&&awRows().some(({exercise:rowExercise})=>rowExercise.id===exercise.id))return toast('Finish the active workout first');
+    if(state.activeWorkout&&awRows().some(({exercise:rowExercise})=>rowExercise.id===exercise.id))return toast('ابتدا تمرین فعال را تمام کنید');
     const logCount=state.progress.logs.filter(log=>log.exerciseId===exercise.id).length;
-    const warning=`Delete "${exercise.name}"? It will be removed from any routines${logCount?` and its ${logCount} progress log${logCount===1?'':'s'} deleted`:''}.`;
-    if(!(await appConfirm(warning,{title:'Delete exercise',okLabel:'Delete'})))return;
+    const warning=`«${exercise.name}» حذف شود؟ این حرکت از همه برنامه‌ها حذف می‌شود${logCount?` و ${faNum(logCount)} گزارش پیشرفت آن نیز پاک می‌شود`:''}.`;
+    if(!(await appConfirm(warning,{title:'حذف حرکت',okLabel:'حذف'})))return;
     deleteCustomExercise(exercise.id);
     if(state.saved.has(exercise.id)){
       state.saved.delete(exercise.id);
@@ -5181,7 +5207,7 @@ $('#customExerciseList').addEventListener('click',async(event)=>{
     renderFilterPills();
     renderRoutineDrawer();
     renderProgressHistory();
-    toast('Custom exercise deleted');
+    toast('حرکت سفارشی حذف شد');
   }
 });
 document.getElementById('customExerciseModal').addEventListener('click',(e)=>{
@@ -5210,7 +5236,7 @@ $('#fuelTargetsReset')?.addEventListener('click', () => {
   saveFuelState();
   syncFuelTargetEditor();
   renderAll();
-  toast('Targets reset');
+  toast('اهداف بازنشانی شد');
 });
 document.getElementById('clearDataModal').addEventListener('click', (e) => {
   if (e.target.id === 'clearDataModal') closeOverlay('clearData');
@@ -5263,7 +5289,7 @@ function selectIngredient(id) {
     return;
   }
 
-  document.getElementById('inMealCategory').value = ing.defaultMeal || ing.cat || 'Lunch';
+  document.getElementById('inMealCategory').value = ing.defaultMeal || ing.cat || 'ناهار';
   syncCustomSelect(document.getElementById('inMealCategory'));
   document.getElementById('inPortionGrams').value = ing.defaultGrams || 100;
   document.getElementById('inFoodName').dataset.auto = '1';
@@ -5289,7 +5315,7 @@ function beginNewMeal() {
   state.fuel.mealCreating = true;
   state.fuel.mealDraftName = '';
   $('#menuCustomManageSelect').hidden = true;
-  $('#editMealCat').value = 'Lunch';
+  $('#editMealCat').value = 'ناهار';
   syncCustomSelect($('#editMealCat'));
   $('#editMealDefaultGrams').value = 100;
   $('#editMealP').value = 20;
@@ -5310,7 +5336,7 @@ function cancelNewMeal() {
 
 function saveMealEditor() {
   const clean = String(state.fuel.mealDraftName || $('#manageMealEditName').value || '').trim().slice(0, LIMITS.routineName);
-  if (!clean) return toast('Name your meal first');
+  if (!clean) return toast('ابتدا نام غذا را وارد کنید');
 
   const cat = $('#editMealCat').value;
   const defaultGrams = Math.max(1, parseFloat($('#editMealDefaultGrams').value) || 100);
@@ -5343,7 +5369,7 @@ function saveMealEditor() {
     state.fuel.mealDraftName = '';
     saveFuelState();
     renderFuelDropdowns();
-    toast(`${clean} meal created`);
+    toast(`غذای «${clean}» ساخته شد`);
   } else {
     const meal = state.fuel.foodDb.find(item => String(item.id) === String(state.fuel.selectedManageMealId));
     if (!meal) return;
@@ -5360,7 +5386,7 @@ function saveMealEditor() {
     state.fuel.mealDraftName = '';
     saveFuelState();
     renderFuelDropdowns();
-    toast(`${clean} meal saved`);
+    toast(`غذای «${clean}» ذخیره شد`);
   }
 }
 
@@ -5395,22 +5421,22 @@ function renderMealManagerDrawer() {
 
   if (state.fuel.mealCreating) {
     nameInput.value = state.fuel.mealDraftName;
-    modeText.textContent = 'Cancel';
+    modeText.textContent = 'انصراف';
     modeIcon?.setAttribute('href', '#icon-close');
-    deleteButton.textContent = 'Done';
-    deleteButton.setAttribute('aria-label', 'Create meal');
+    deleteButton.textContent = 'انجام شد';
+    deleteButton.setAttribute('aria-label', 'ساخت غذا');
     deleteButton.classList.add('routine-done');
     deleteButton.disabled = false;
   } else if (meal) {
     nameInput.value = state.fuel.mealDraftName;
-    modeText.textContent = 'Save meal';
+    modeText.textContent = 'ذخیره غذا';
     modeIcon?.setAttribute('href', '#icon-check');
-    deleteButton.textContent = 'Delete';
-    deleteButton.setAttribute('aria-label', 'Delete meal');
+    deleteButton.textContent = 'حذف';
+    deleteButton.setAttribute('aria-label', 'حذف غذا');
     deleteButton.classList.remove('routine-done');
     deleteButton.disabled = false;
 
-    $('#editMealCat').value = meal.cat || 'Lunch';
+    $('#editMealCat').value = meal.cat || 'ناهار';
     syncCustomSelect($('#editMealCat'));
     $('#editMealDefaultGrams').value = meal.defaultGrams || 100;
     $('#editMealP').value = meal.p100;
@@ -5419,30 +5445,30 @@ function renderMealManagerDrawer() {
     $('#editMealCals').value = meal.cals100 || kcalFromMacros(meal.p100, meal.c100, meal.f100);
   } else {
     nameInput.value = '';
-    modeText.textContent = 'Add meal';
+    modeText.textContent = 'افزودن غذا';
     modeIcon?.setAttribute('href', '#icon-plus');
-    deleteButton.textContent = 'Delete';
-    deleteButton.setAttribute('aria-label', 'Delete meal');
+    deleteButton.textContent = 'حذف';
+    deleteButton.setAttribute('aria-label', 'حذف غذا');
     deleteButton.classList.remove('routine-done');
     deleteButton.disabled = true;
   }
 
-  selector.textContent = 'Select a meal to edit';
+  selector.textContent = 'غذایی برای ویرایش انتخاب کنید';
   selector.setAttribute('aria-expanded', String(!menu.hidden && !editing));
   likeButton.disabled = !meal;
   likeButton.classList.toggle('liked', Boolean(meal?.liked));
   likeButton.setAttribute('aria-pressed', String(Boolean(meal?.liked)));
-  likeButton.setAttribute('aria-label', meal?.liked ? 'Unlike meal' : 'Like meal');
+  likeButton.setAttribute('aria-label', meal?.liked ? 'حذف پسند غذا' : 'پسندیدن غذا');
   $('#copyManagedMeal').disabled = !meal;
   $('#copyAllMeals').disabled = !selectable.length;
 
   $('#fuelHeaderSummary').textContent = meal
-    ? `${meal.name} · ${meal.cals100} kcal/100g`
+    ? `${meal.name} · ${faNum(meal.cals100)} کیلوکالری در ۱۰۰ گرم`
     : state.fuel.mealCreating
-    ? 'Name the new meal, then select Done'
+    ? 'نام غذای جدید را وارد کنید'
     : selectable.length
-    ? `${selectable.length} meal${selectable.length === 1 ? '' : 's'} in your library`
-    : 'Create your first meal';
+    ? `${selectable.length} غذا در کتابخانه شما`
+    : 'اولین غذای خود را بسازید';
   syncPlanScrollClearance();
 }
 
@@ -5489,12 +5515,12 @@ function toggleManageMealLike() {
   meal.liked = !meal.liked;
   saveFuelState();
   renderFuelDropdowns();
-  toast(meal.liked ? 'Meal liked' : 'Meal unliked');
+  toast(meal.liked ? 'غذا پسندیده شد' : 'پسند غذا برداشته شد');
 }
 
 async function deleteManagedMeal() {
   const meal = state.fuel.foodDb.find(m => String(m.id) === String(state.fuel.selectedManageMealId));
-  if (!meal || !(await appConfirm(`Delete "${meal.name}"?`, { title: 'Delete meal', okLabel: 'Delete' }))) return;
+  if (!meal || !(await appConfirm(`غذای «${meal.name}» حذف شود؟`, { title: 'حذف غذا', okLabel: 'حذف' }))) return;
 
   const deletedMealId = meal.id;
   if (VAULT.loaded) markDeleted('meals', deletedMealId);
@@ -5504,7 +5530,7 @@ async function deleteManagedMeal() {
   state.fuel.mealDraftName = '';
   saveFuelState();
   renderFuelDropdowns();
-  toast('Meal deleted');
+  toast('غذا حذف شد');
 }
 
 $('#fuelNewMealToggle')?.addEventListener('click', () => {
@@ -5610,13 +5636,13 @@ async function importMealsFromText(mode = 'replace') {
     const imported = parseMealsText($('#mealPasteText').value);
     if (mode === 'add') {
       state.fuel.foodDb.push(...imported);
-      toast(`${imported.length} meal${imported.length === 1 ? '' : 's'} added`);
+      toast(`${imported.length} غذا اضافه شد`);
     } else {
-      if (selectableMeals().length && !(await appConfirm('Replace all existing custom meals with imported ones?', { title: 'Import meals', okLabel: 'Replace' }))) return;
+      if (selectableMeals().length && !(await appConfirm('همه غذاهای سفارشی فعلی با موارد درون‌ریزی‌شده جایگزین شوند؟', { title: 'ورود غذاها', okLabel: 'جایگزینی' }))) return;
       if (VAULT.loaded) for (const m of state.fuel.foodDb) if (m.id !== 'custom') markDeleted('meals', m.id);
       const customItem = state.fuel.foodDb.find(i => i.id === 'custom') || DEFAULT_FOOD_DB[0];
       state.fuel.foodDb = [customItem, ...imported];
-      toast(`${imported.length} meal${imported.length === 1 ? '' : 's'} imported`);
+      toast(`${imported.length} غذا درون‌ریزی شد`);
     }
     state.fuel.selectedManageMealId = null;
     state.fuel.mealCreating = false;
@@ -5625,17 +5651,17 @@ async function importMealsFromText(mode = 'replace') {
     renderFuelDropdowns();
     closeMealPastePanel();
   } catch {
-    toast('Invalid format');
+    toast('قالب نامعتبر است');
   }
 }
 
 $('#copyManagedMeal').addEventListener('click', () => {
   const meal = state.fuel.foodDb.find(m => String(m.id) === String(state.fuel.selectedManageMealId));
-  meal ? copyMealValue(mealToText(meal), 'Meal copied') : toast('Nothing to export');
+  meal ? copyMealValue(mealToText(meal), 'غذا کپی شد') : toast('چیزی برای خروجی گرفتن نیست');
 });
 $('#copyAllMeals').addEventListener('click', () => {
   const meals = selectableMeals();
-  meals.length ? copyMealValue(mealsToText(), 'All meals copied') : toast('Nothing to export');
+  meals.length ? copyMealValue(mealsToText(), 'همه غذاها کپی شد') : toast('چیزی برای خروجی گرفتن نیست');
 });
 $('#pasteMealToggle').addEventListener('click', () => $('#mealPastePanel').hidden ? showMealPastePanel() : closeMealPastePanel());
 $('#cancelMealPaste').addEventListener('click', closeMealPastePanel);
@@ -5647,10 +5673,10 @@ function renderLikedCards() {
   const liked = getSortedFoodDb(false).filter(i => i.liked);
 
   let html = `
-    <button type="button" class="preset-chip preset-chip-add" data-preset-add aria-label="Add meal">
+    <button type="button" class="preset-chip preset-chip-add" data-preset-add aria-label="افزودن غذا">
       <span class="preset-chip-add-content">
         <svg class="icon"><use href="#icon-plus"/></svg>
-        <strong>Add</strong>
+        <strong>افزودن</strong>
       </span>
     </button>
   `;
@@ -5661,8 +5687,8 @@ function renderLikedCards() {
     const cals = Math.round(meal.cals100 * factor);
     html += `
       <button type="button" class="preset-chip" data-preset-id="${esc(meal.id)}" data-preset-grams="${grams}">
-        <strong>${esc(meal.name.split(',')[0])} (${grams}g)</strong>
-        <span>${cals} kcal • P: ${(meal.p100 * factor).toFixed(0)}g</span>
+        <strong>${esc(meal.name.split(',')[0])} (${faNum(grams)} گرم)</strong>
+        <span>${faNum(cals)} کیلوکالری • پ: ${faNum((meal.p100 * factor).toFixed(0))} گرم</span>
       </button>
     `;
   });
@@ -5763,7 +5789,7 @@ document.getElementById('foodForm').addEventListener('click', (e) => {
 function handleFoodSubmit(e) {
   e.preventDefault();
   const name = document.getElementById('inFoodName').value.trim();
-  if (!name) return toast('Name your meal first');
+  if (!name) return toast('ابتدا نام غذا را وارد کنید');
   const p = parseFloat(document.getElementById('inFoodP').value) || 0;
   const c = parseFloat(document.getElementById('inFoodC').value) || 0;
   const f = parseFloat(document.getElementById('inFoodF').value) || 0;
@@ -5789,13 +5815,13 @@ function handleFoodSubmit(e) {
   renderFuelDay();
   resetMealSelection();
   closeOverlay('logMeal');
-  toast('Meal saved');
+  toast('غذا ذخیره شد');
 }
 
 async function deleteMeal(id) {
   ensureDateRecord(state.fuelSelectedDate);
   const targetMeal = state.fuel.history[state.fuelSelectedDate].meals.find(m => String(m.id) === String(id));
-  if (!(await appConfirm(`Delete meal "${targetMeal?.name || 'this item'}"?`, { title: 'Delete meal', okLabel: 'Delete' }))) return;
+  if (!(await appConfirm(`غذای «${targetMeal?.name || 'این مورد'}» حذف شود؟`, { title: 'حذف غذا', okLabel: 'حذف' }))) return;
   if (VAULT.loaded) markDeleted('nutritionDiary', id);
   state.fuel.history[state.fuelSelectedDate].meals = state.fuel.history[state.fuelSelectedDate].meals.filter(m => String(m.id) !== String(id));
   saveFuelState();
@@ -5824,7 +5850,7 @@ function renderFuelDay() {
   const isToday = state.fuelSelectedDate === today;
   const parts = state.fuelSelectedDate.split('-').map(Number);
   const dObj = new Date(parts[0], parts[1] - 1, parts[2]);
-  const formattedDate = dObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+  const formattedDate = dObj.toLocaleDateString(FA_LOCALE, { weekday: 'long', month: 'short', day: 'numeric' });
   document.getElementById('dailyBalanceDateEyebrow').innerText = formattedDate;
 
   const btnReset = document.getElementById('btnResetToday');
@@ -5844,9 +5870,9 @@ function renderFuelDay() {
   const goalCals = targets.cals;
   const remaining = goalCals - foodTotals.cals;
 
-  document.getElementById('lblTargetCalorieGoal').innerText = `Goal: ${goalCals.toLocaleString()} kcal`;
-  document.getElementById('calsRemaining').innerText = Math.abs(remaining).toLocaleString();
-  document.getElementById('calsRemainingSub').innerText = remaining >= 0 ? 'kcal left' : 'kcal over';
+  document.getElementById('lblTargetCalorieGoal').innerText = `هدف: ${faNum(goalCals)} کیلوکالری`;
+  document.getElementById('calsRemaining').innerText = faNum(Math.abs(remaining));
+  document.getElementById('calsRemainingSub').innerText = remaining >= 0 ? 'کیلوکالری باقی‌مانده' : 'کیلوکالری اضافه';
 
   const circ = 282.74;
   const pct = Math.min(foodTotals.cals / goalCals, 1);
@@ -5854,7 +5880,7 @@ function renderFuelDay() {
   document.getElementById('calMeter').style.stroke = remaining < 0 ? 'var(--danger)' : 'var(--accent)';
 
   const updateBar = (id, current, goal) => {
-    document.getElementById(`meta${id}`).innerText = `${Math.round(current)} / ${goal}g`;
+    document.getElementById(`meta${id}`).innerText = `${faNum(Math.round(current))} / ${faNum(goal)} گرم`;
     document.getElementById(`bar${id}`).style.width = `${Math.min((current / goal) * 100, 100)}%`;
   };
   updateBar('Protein', foodTotals.p, targets.p);
@@ -5862,14 +5888,14 @@ function renderFuelDay() {
   updateBar('Fats', foodTotals.f, targets.f);
 
   const waterGoal = targets.water;
-  document.getElementById('waterDisplay').innerText = `${day.water.toLocaleString()} / ${waterGoal.toLocaleString()} ml`;
+  document.getElementById('waterDisplay').innerText = `${faNum(day.water)} / ${faNum(waterGoal)} میلی‌لیتر`;
   document.getElementById('waterBar').style.width = `${Math.min((day.water / waterGoal) * 100, 100)}%`;
 
-  const categories = ['Breakfast', 'Lunch', 'Dinner', 'Snacks'];
+  const categories = ['صبحانه', 'ناهار', 'شام', 'میان‌وعده'];
   const container = document.getElementById('mealsContainer');
 
   if (day.meals.length === 0) {
-    container.innerHTML = '<div class="feature-empty">No meals logged for this date.</div>';
+    container.innerHTML = '<div class="feature-empty">برای این روز غذایی ثبت نشده است.</div>';
   } else {
     container.innerHTML = categories.map(cat => {
       const items = day.meals.filter(m => m.category === cat);
@@ -5880,16 +5906,16 @@ function renderFuelDay() {
         <div class="meal-group">
           <div class="meal-group-head">
             <h4>${cat}</h4>
-            <span>${catCals} kcal</span>
+            <span>${faNum(catCals)} کیلوکالری</span>
           </div>
           ${items.map(i => `
             <article class="progress-entry" data-meal-id="${i.id}">
-              <div class="progress-entry-date progress-entry-thumbnail"><b>${i.cals}</b><span>KCAL</span></div>
+              <div class="progress-entry-date progress-entry-thumbnail"><b>${faNum(i.cals)}</b><span>کیلوکالری</span></div>
               <div class="progress-entry-copy">
                 <strong>${esc(i.name)}</strong>
-                <span>P: ${i.p}g · C: ${i.c}g · F: ${i.f}g</span>
+                <span>پ: ${faNum(i.p)} گرم · ک: ${faNum(i.c)} گرم · چ: ${faNum(i.f)} گرم</span>
               </div>
-              <button class="entry-delete" type="button" data-delete-meal="${i.id}" aria-label="Delete ${esc(i.name)}">
+              <button class="entry-delete" type="button" data-delete-meal="${i.id}" aria-label="حذف ${esc(i.name)}">
                 ${icon('trash')}
               </button>
             </article>
@@ -5910,11 +5936,11 @@ function renderBodySection() {
   const hM = p.heightCm / 100;
   const bmi = (p.currentWeightKg / (hM * hM)).toFixed(1);
 
-  document.getElementById('bmiValDisplay').innerText = bmi;
-  document.getElementById('weightValDisplay').innerText = p.currentWeightKg.toFixed(1) + ' kg';
+  document.getElementById('bmiValDisplay').innerText = faNum(bmi);
+  document.getElementById('weightValDisplay').innerText = faNum(p.currentWeightKg.toFixed(1)) + ' کیلوگرم';
 
-  document.getElementById('lblStartWeight').innerText = p.startWeightKg.toFixed(1) + ' kg';
-  document.getElementById('lblGoalWeight').innerText = p.goalWeightKg.toFixed(1) + ' kg';
+  document.getElementById('lblStartWeight').innerText = faNum(p.startWeightKg.toFixed(1)) + ' کیلوگرم';
+  document.getElementById('lblGoalWeight').innerText = faNum(p.goalWeightKg.toFixed(1)) + ' کیلوگرم';
 
   const isWeightLoss = p.startWeightKg > p.goalWeightKg;
   const isWeightGain = p.startWeightKg < p.goalWeightKg;
@@ -5933,15 +5959,15 @@ function renderBodySection() {
   }
 
   document.getElementById('barWeightGoal').style.width = `${pct}%`;
-  document.getElementById('goalPercentText').innerText = `${pct}% complete`;
+  document.getElementById('goalPercentText').innerText = `${faNum(pct)}٪ تکمیل`;
 
   const remainingDiff = Math.abs(p.goalWeightKg - p.currentWeightKg).toFixed(1);
   if (parseFloat(remainingDiff) === 0) {
-    document.getElementById('weightDeltaDisplay').innerText = `Goal Achieved!`;
+    document.getElementById('weightDeltaDisplay').innerText = `هدف محقق شد!`;
   } else if (p.currentWeightKg > p.goalWeightKg) {
-    document.getElementById('weightDeltaDisplay').innerText = `${remainingDiff} kg to lose`;
+    document.getElementById('weightDeltaDisplay').innerText = `${faNum(remainingDiff)} کیلوگرم برای کاهش`;
   } else {
-    document.getElementById('weightDeltaDisplay').innerText = `${remainingDiff} kg to gain`;
+    document.getElementById('weightDeltaDisplay').innerText = `${faNum(remainingDiff)} کیلوگرم برای افزایش`;
   }
 }
 
@@ -5993,7 +6019,7 @@ function handleProfileAndTargetSubmit(e) {
   renderAll();
   if (sex !== prevSex) renderProgressHistory();
   closeOverlay('bodyMetrics');
-  toast('Targets updated');
+  toast('اهداف به‌روزرسانی شد');
 }
 
 renderFuelDropdowns();
