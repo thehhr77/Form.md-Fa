@@ -1,4 +1,4 @@
-﻿package com.thehhr.formfa;
+package com.thehhr.formfa;
 
 import android.graphics.Color;
 import android.os.Bundle;
