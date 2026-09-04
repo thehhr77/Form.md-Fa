@@ -2076,12 +2076,44 @@ const FS_ADAPTER = (() => {
   }
   function isNativeNow() { return Boolean(resolveCap()); }
 
+  /* Android 11+ scoped storage blocks writes to the public Documents dir.
+     Probe once: use Documents when writable, otherwise fall back to the
+     app-scoped external files dir (Android/data/<pkg>/files) which is
+     always writable without permissions. Web builds use localStorage. */
+  let resolvedDir = null;
+  let dirProbe = null;
+  function resolveDir() {
+    const cap = resolveCap();
+    if (!cap) return Promise.resolve('LOCAL');
+    if (resolvedDir) return Promise.resolve(resolvedDir);
+    if (!dirProbe) {
+      dirProbe = (async () => {
+        try {
+          await cap.Plugins.Filesystem.writeFile({ path: '.vault_probe', data: 'ok', directory: 'DOCUMENTS', encoding: 'utf8' });
+          await cap.Plugins.Filesystem.readFile({ path: '.vault_probe', directory: 'DOCUMENTS', encoding: 'utf8' });
+          try { await cap.Plugins.Filesystem.deleteFile({ path: '.vault_probe', directory: 'DOCUMENTS' }); } catch (_) {}
+          resolvedDir = 'DOCUMENTS';
+        } catch (_) {
+          resolvedDir = 'EXTERNAL';
+        }
+        return resolvedDir;
+      })();
+    }
+    return dirProbe;
+  }
+  function dirLabel() {
+    if (!isNativeNow()) return '';
+    if (resolvedDir === 'EXTERNAL') return 'Android/data/com.thehhr.formfa/files/';
+    return 'Documents/';
+  }
+
   async function nativeReadFile(folder, name) {
     const cap = resolveCap();
     if (!cap) return webReadFile(folder, name);
+    const directory = await resolveDir();
     const path = `${folder}/${name}`;
     try {
-      const res = await cap.Plugins.Filesystem.readFile({ path, directory: 'DOCUMENTS', encoding: 'utf8' });
+      const res = await cap.Plugins.Filesystem.readFile({ path, directory, encoding: 'utf8' });
       const data = res && (res.data !== undefined ? res.data : res);
       if (typeof data === 'string') return data;
       if (data instanceof Blob) return await data.text();
@@ -2094,8 +2126,9 @@ const FS_ADAPTER = (() => {
   async function nativeWriteFile(folder, name, content) {
     const cap = resolveCap();
     if (!cap) { webWriteFile(folder, name, content); return; }
-    try { await cap.Plugins.Filesystem.mkdir({ path: folder, directory: 'DOCUMENTS', recursive: true }); } catch (_) {}
-    await cap.Plugins.Filesystem.writeFile({ path: `${folder}/${name}`, data: content, directory: 'DOCUMENTS', encoding: 'utf8', recursive: true });
+    const directory = await resolveDir();
+    try { await cap.Plugins.Filesystem.mkdir({ path: folder, directory, recursive: true }); } catch (_) {}
+    await cap.Plugins.Filesystem.writeFile({ path: `${folder}/${name}`, data: content, directory, encoding: 'utf8' });
   }
 
   function webKey(folder, name) { return `vault_${folder}_${name}`; }
@@ -2108,6 +2141,7 @@ const FS_ADAPTER = (() => {
 
   return {
     get isNative(){ return isNativeNow(); },
+    get dirLabel(){ return dirLabel(); },
     async readFile(folder, name) { return isNativeNow() ? nativeReadFile(folder, name) : webReadFile(folder, name); },
     async writeFile(folder, name, content) { return isNativeNow() ? nativeWriteFile(folder, name, content) : webWriteFile(folder, name, content); },
     exists(folder, name) {
@@ -3014,11 +3048,11 @@ async function loadVault(folder, options) {
       }
       applyVaultData(data);
       await Promise.all([
-        FS_ADAPTER.writeFile(VAULT.folder, VAULT_FILES.routines, routinesToMd(state.routines)),
-        FS_ADAPTER.writeFile(VAULT.folder, VAULT_FILES.meals, mealsToMd(state.fuel.foodDb)),
-        FS_ADAPTER.writeFile(VAULT.folder, VAULT_FILES.trainingLogs, trainingLogsToMd(state.progress.logs)),
-        FS_ADAPTER.writeFile(VAULT.folder, VAULT_FILES.nutritionDiary, nutritionDiaryToMd(state.fuel.history)),
-        FS_ADAPTER.writeFile(VAULT.folder, VAULT_FILES.config, configToMd())
+        FS_ADAPTER.writeFile(VAULT.folder, VAULT_FILES.routines, routinesToMd(state.routines)).catch(err => console.warn('vault write failed:', VAULT_FILES.routines, err)),
+        FS_ADAPTER.writeFile(VAULT.folder, VAULT_FILES.meals, mealsToMd(state.fuel.foodDb)).catch(err => console.warn('vault write failed:', VAULT_FILES.meals, err)),
+        FS_ADAPTER.writeFile(VAULT.folder, VAULT_FILES.trainingLogs, trainingLogsToMd(state.progress.logs)).catch(err => console.warn('vault write failed:', VAULT_FILES.trainingLogs, err)),
+        FS_ADAPTER.writeFile(VAULT.folder, VAULT_FILES.nutritionDiary, nutritionDiaryToMd(state.fuel.history)).catch(err => console.warn('vault write failed:', VAULT_FILES.nutritionDiary, err)),
+        FS_ADAPTER.writeFile(VAULT.folder, VAULT_FILES.config, configToMd()).catch(err => console.warn('vault write failed:', VAULT_FILES.config, err))
       ]);
     } else {
       buildDefaultState();
@@ -3085,6 +3119,12 @@ function updateVaultUI() {
   if (input && document.activeElement !== input) {
     input.value = VAULT.folder;
     input.size = input.value.length || input.placeholder.length;
+  }
+  const prefix = document.querySelector('.vault-path-prefix');
+  if (prefix) {
+    const label = FS_ADAPTER.dirLabel || 'Documents/';
+    prefix.textContent = label;
+    prefix.title = label;
   }
 }
 
