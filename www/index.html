@@ -179,7 +179,7 @@
         <div class="feature-field progress-date-field"><span>تاریخ</span><div class="progress-date-control"><input id="progressDate" type="hidden"><button class="progress-date-button" id="progressDateButton" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="progressDatePicker"><span id="progressDateDisplay"></span><svg class="icon progress-date-icon" aria-hidden="true"><use href="#icon-calendar"/></svg></button></div></div>
         <div class="feature-field" id="progressSetsField"><span id="progressSetsLabel">ست</span><div class="routine-stepper"><button class="routine-step progress-step" type="button" data-field="sets" data-delta="-1" aria-label="کاهش ست"><svg class="icon"><use href="#icon-minus"/></svg></button><output id="progressSets" aria-live="polite">۳</output><button class="routine-step progress-step" type="button" data-field="sets" data-delta="1" aria-label="افزایش ست"><svg class="icon"><use href="#icon-plus"/></svg></button></div></div>
         <div class="feature-field feature-field-wide" id="progressSetsDetailField"><div class="set-weight-list" id="progressSetRows"></div></div>
-        <label class="feature-field feature-field-wide"><span>یادداشت</span><textarea id="progressNotes" maxlength="160" rows="2" placeholder="فرم حرکت، ریتم یا حس ست"></textarea></label>
+        <label class="feature-field feature-field-wide"><span>یادداشت <small>اختیاری</small></span><textarea id="progressNotes" maxlength="160" rows="2" placeholder="فرم حرکت، ریتم یا حس ست"></textarea></label>
         <div class="progress-actions feature-field-wide">
           <div class="feature-field" id="progressModeSwitch" hidden>
             <div class="mode-switch">
@@ -426,8 +426,8 @@
         <div class="feature-field feature-field-wide"><span>نام</span><input id="customExerciseName" type="text" maxlength="80" placeholder="مثلاً پرس زمین‌ماین" autocomplete="off"></div>
         <div class="feature-field feature-field-wide"><span>بخش بدن</span><div class="pill-row" id="customExerciseBodyPart" role="group" aria-label="بخش بدن"></div></div>
         <div class="feature-field feature-field-wide"><span>عضله هدف</span><div class="pill-row" id="customExerciseTarget" role="group" aria-label="عضله هدف"></div></div>
-        <div class="feature-field feature-field-wide"><span>تجهیزات</span><div class="pill-row" id="customExerciseEquipment" role="group" aria-label="تجهیزات"></div></div>
-        <label class="feature-field feature-field-wide"><span>توضیحات</span><textarea id="customExerciseDescription" maxlength="300" rows="2" placeholder="آماده‌سازی، نکات فرم یا یادداشت‌ها"></textarea></label>
+        <div class="feature-field feature-field-wide"><span>تجهیزات <small>اختیاری</small></span><div class="pill-row" id="customExerciseEquipment" role="group" aria-label="تجهیزات"></div></div>
+        <label class="feature-field feature-field-wide"><span>توضیحات <small>اختیاری</small></span><textarea id="customExerciseDescription" maxlength="300" rows="2" placeholder="آماده‌سازی، نکات فرم یا یادداشت‌ها"></textarea></label>
         <div class="progress-actions feature-field-wide">
           <button type="button" class="progress-cancel" id="customExerciseCancel">انصراف</button>
           <button class="feature-primary" id="customExerciseSave" type="submit" disabled>افزودن حرکت</button>

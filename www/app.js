@@ -1592,7 +1592,8 @@ const SECONDARY_MUSCLE_TO_MAP=Object.freeze({
   'shoulders':'deltoids','rear deltoids':'deltoids','deltoids':'deltoids','rotator cuff':'rotator-cuff','trapezius':'trapezius','traps':'trapezius','rhomboids':'rhomboids','upper back':'upper-back','back':'upper-back','latissimus dorsi':'upper-back','lats':'upper-back','chest':'chest','upper chest':'chest','biceps':'biceps','brachialis':'biceps','triceps':'triceps','forearms':'forearm','wrist flexors':'forearm','wrist extensors':'forearm','wrists':'forearm','grip muscles':'forearm','hands':'forearm','core':'abs','abdominals':'abs','lower abs':'abs','obliques':'obliques','hip flexors':'quadriceps','groin':'adductors','inner thighs':'adductors','quadriceps':'quadriceps','hamstrings':'hamstring','glutes':'gluteal','calves':'calves','soleus':'calves','shins':'tibialis','ankles':'ankles','ankle stabilizers':'ankles','feet':'feet','sternocleidomastoid':'neck','lower back':'lower-back'
 });
 const EXERCISE_CATEGORIES=Object.freeze(['waist','upper legs','back','lower legs','chest','upper arms','cardio','shoulders','lower arms','neck']);
-const CUSTOM_EXERCISE_EQUIPMENT=Object.freeze(['body weight','barbell','dumbbell','kettlebell','cable','band','resistance band','leverage machine','smith machine','olympic barbell','ez barbell','trap bar','medicine ball','stability ball','bosu ball','rope','roller','wheel roller','sled machine','tire','hammer','assisted','elliptical machine','stationary bike','stepmill machine','skierg machine','upper body ergometer','weighted']);
+const CUSTOM_EXERCISE_EQUIPMENT=Object.freeze(['body weight','assisted','band','barbell','bosu ball','cable','dumbbell','elliptical machine','ez barbell','hammer','kettlebell','leverage machine','medicine ball','olympic barbell','resistance band','roller','rope','skierg machine','sled machine','smith machine','stability ball','stationary bike','stepmill machine','tire','trap bar','upper body ergometer','weighted','wheel roller']);
+const CUSTOM_EXERCISE_TARGETS=Object.freeze(['abductors','abs','adductors','biceps','calves','cardiovascular system','delts','forearms','glutes','hamstrings','lats','levator scapulae','pectorals','quads','serratus anterior','spine','traps','triceps','upper back']);
 function normalizeCustomExercise(raw){
   if(!raw||typeof raw!=='object')return null;
   const name=String(raw.name||'').trim().slice(0,80);
@@ -3143,7 +3144,7 @@ window.addEventListener('popstate', (event) => {
   isHandlingPopstate = false;
 });
 
-function uniqueValues(key){return[...new Set(EXERCISES.map(exercise=>exercise[key]).filter(Boolean))].sort()}
+function uniqueValues(key){const values=[...new Set(EXERCISES.map(exercise=>exercise[key]).filter(Boolean))].sort();if(key==='equipment'){const index=values.indexOf('body weight');if(index>0){values.splice(index,1);values.unshift('body weight')}}return values}
 const CUSTOM_SELECT_IDS=['inMealCategory','inSex','inActivity','inStrategy','inProteinRate','editMealCat'];
 function customSelectLabel(select){return select.getAttribute('aria-label')||select.closest('label')?.querySelector('span')?.textContent?.trim()||select.closest('.feature-field')?.querySelector('label')?.textContent?.trim()||select.closest('.feature-field')?.querySelector('span')?.textContent?.trim()||'یک گزینه انتخاب کنید'}
 function syncCustomSelect(select){
@@ -6599,7 +6600,7 @@ document.getElementById('fuelLogMealModal').addEventListener('click', (e) => {
 
 /* --- custom exercise panel --- */
 const customExerciseDraft={id:null,name:'',category:'',target:'',equipment:'',description:''};
-function customTargetOptions(){return[...new Set(EXERCISES.filter(exercise=>!exercise.custom).map(exercise=>String(exercise.target||'').toLowerCase()).filter(Boolean))].sort()}
+function customTargetOptions(){return CUSTOM_EXERCISE_TARGETS.slice()}
 function renderPillRowHtml(options,selected){
   return options.map(value=>`<button type="button" class="pill" data-option="${esc(value)}" aria-pressed="${String(selected===value)}">${esc(title(value))}</button>`).join('');
 }
@@ -6641,7 +6642,7 @@ $('#customExerciseBodyPart').addEventListener('click',event=>{
 $('#customExerciseTarget').addEventListener('click',event=>{
   const pill=event.target.closest('.pill');
   if(!pill)return;
-  customExerciseDraft.target=customExerciseDraft.target===pill.dataset.option?'':pill.dataset.option;
+  customExerciseDraft.target=pill.dataset.option;
   renderCustomExercisePills();
   syncCustomExerciseValidation();
 });
