@@ -5757,7 +5757,7 @@ function renderFilterPills(){
     if(key===effectiveToggleHost()){
       const loggedIds=new Set(state.progress.logs.map(log=>log.exerciseId));
       const toggleCtx=buildFilterContext();
-      [['savedOnly','Liked',exercise=>state.saved.has(exercise.id)],['loggedOnly','Logged',exercise=>loggedIds.has(exercise.id)]].forEach(([toggleKey,label,has])=>{
+      [['savedOnly','لایک شده',exercise=>state.saved.has(exercise.id)],['loggedOnly','لاگ شده',exercise=>loggedIds.has(exercise.id)]].forEach(([toggleKey,label,has])=>{
         let count=0;
         if(!state[toggleKey])for(const exercise of EXERCISES){if(matchesFiltered(exercise,toggleCtx)&&has(exercise)){count++;break}}
         const isDisabled=!state[toggleKey]&&count===0;
